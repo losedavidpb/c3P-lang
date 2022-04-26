@@ -4,10 +4,10 @@ __c3P__ is an imperative programming language, strongly typed, declarative,
 and inspired by other languages such as C, Go, HolyC, and Java. This reference
 manual explains the use of __c3P__, in which includes its lexical and syntactic elements.
 
-![features](https://github.com/losedavidpb/c3p-language/blob/main/support/vscode/images/features.gif)
+![features](https://github.com/losedavidpb/c3p-lang/blob/main/support/vscode/images/features.gif)
 
 For more details about the language, see
-[manual.pdf](https://github.com/losedavidpb/c3p-language/blob/main/document/spanish/manual.pdf)
+[manual.pdf](https://github.com/losedavidpb/c3p-lang/blob/main/document/spanish/manual.pdf)
 
 ## Features
 
