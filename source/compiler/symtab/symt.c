@@ -225,42 +225,141 @@ symt_tab* symt_push(symt_tab *tab, symt_node *node)
 
 void symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_var_t type, struct symt_node *params)
 {
-
+	symt_call* llamada = malloc(sizeof(symt_call));
+	if (!llamada)printf("Error malloc 'symt_insert_call' \n");
+	llamada->type=type;
+	llamada->params=params;
+	llamada->name=name;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_call' \n");
+	
+	nuevo->id=CALL;
+	nuevo->call=llamada;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, symt_var_mod_t **modifiers)
 {
-
+	symt_var* n_var = malloc(sizeof(symt_var));
+	if (!n_var)printf("Error malloc 'symt_insert_var' \n");
+	n_var->name=name;
+	n_var->type=type;
+	n_var->value=value;
+	n_var->is_array=is_array;
+	n_var->array_length=array_length;
+	n_var->modifiers=modifiers;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_var' \n");
+	
+	nuevo->id=id;
+	nuevo->var=n_var;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_insert_const(symt_tab *tab, const symt_name_t name, const symt_name_t type, symt_value_t value)
 {
-
+	symt_cons* constante = malloc(sizeof(symt_cons));
+	if (!constante)printf("Error malloc 'symt_insert_const' \n");
+	constante->type=(int)type;
+	constante->value=value;
+	constante->name=name;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_const' \n");
+	
+	nuevo->id=CONSTANT;
+	nuevo->cons=constante;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, symt_var_mod_t **modifiers, symt_node *statements)
 {
-
+	symt_routine* funcion = malloc(sizeof(symt_routine));
+	if (!funcion)printf("Error malloc 'symt_insert_rut'\n");
+	funcion->modifiers=modifiers;
+	funcion->params=params;
+	funcion->statements=statements;
+	funcion->name=name;
+	if(id == FUNCTION)funcion->type = (int)type;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_rut'\n");
+	
+	nuevo->id=id;
+	nuevo->rout=funcion;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_insert_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else)
 {
-
+	symt_if_else* si = malloc(sizeof(symt_if_else));
+	if (!si)printf("Error malloc 'symt_insert_if' \n");
+	si->if_statements=statements_if;
+	si->else_statements=statements_else;
+	si->cond=cond;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_if' \n");
+	
+	nuevo->id=IF;
+	nuevo->if_val=si;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_insert_while(symt_tab *tab, symt_node *cond, symt_node *statements)
 {
-
+	symt_while* mientras = malloc(sizeof(symt_while));
+	if (!mientras)printf("Error malloc 'symt_insert_while' \n");
+	mientras->cond=cond;
+	mientras->statements=statements;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_while' \n");
+	
+	nuevo->id=WHILE;
+	nuevo->while_val=mientras;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_var *iter_var)
 {
-
+	symt_for* para = malloc(sizeof(symt_for));
+	if (!para)printf("Error malloc 'symt_insert_for' \n");
+	para->incr=iter_var;
+	para->cond=cond;
+	para->statements=statements;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_for' \n");
+	
+	nuevo->id=FOR;
+	nuevo->for_val=para;
+	
+	symt_push(tab,nuevo);
 }
 
-void symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_if_else *cases, int num_cases)
+void symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases, int num_cases)
 {
-
+	symt_switch* sw = malloc(sizeof(symt_switch));
+	if (!sw)printf("Error malloc 'symt_insert_switch' \n");
+	sw->key_var=iter_var;
+	sw->cases=cases;
+	
+	symt_node *nuevo = malloc(sizeof(symt_node));
+	if (!nuevo)printf("Error malloc 'symt_insert_switch' \n");
+	
+	nuevo->id=SWITCH;
+	nuevo->switch_val=sw;
+	
+	symt_push(tab,nuevo);
 }
 
 void symt_end_block(symt_tab *tab, const symt_id_t id_block)

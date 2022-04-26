@@ -181,7 +181,7 @@ void symt_insert_while(symt_tab *tab, symt_node *cond, symt_node *statements);
 void symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_var *iter_var);
 
 /* Insert switch symbol to the symbol table */
-void symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_if_else *cases, int num_cases);
+void symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases, int num_cases);
 
 /* Finish a block statement */
 void symt_end_block(symt_tab *tab, const symt_id_t id_block);
