@@ -9,7 +9,7 @@
 
 /* Private */
 
-bool _symt_is_private(symt_var_mod_t **modifiers)
+bool __symt_is_private(symt_var_mod_t **modifiers)
 {
     if (modifiers != NULL)
     {
@@ -20,7 +20,7 @@ bool _symt_is_private(symt_var_mod_t **modifiers)
     return false;
 }
 
-symt_cons_t _symt_get_type_data(symt_var_t type)
+symt_cons_t __symt_get_type_data(symt_var_t type)
 {
     switch (type)
     {
@@ -32,13 +32,13 @@ symt_cons_t _symt_get_type_data(symt_var_t type)
     }
 }
 
-void _symt_delete_value_cons(symt_cons_t type, symt_value_t value)
+void __symt_delete_value_cons(symt_cons_t type, symt_value_t value)
 {
     switch(type)
     {
-        case INTEGER:; ml_free(((int *)value)); break;
-        case DOUBLE:; ml_free(((double *)value)); break;
-        case CHAR:; ml_free(((char *)value)); break;
+        case INTEGER:   ml_free(((int *)value));    break;
+        case DOUBLE:    ml_free(((double *)value)); break;
+        case CHAR:      ml_free(((char *)value));   break;
     }
 }
 
@@ -286,7 +286,7 @@ void symt_merge(symt_tab *src, symt_tab *dest)
     {
         if (iter->id == LOCAL_VAR || iter->id == GLOBAL_VAR)
         {
-            if (_symt_is_private(iter->var->modifiers) == false)
+            if (__symt_is_private(iter->var->modifiers) == false)
             {
                 symt_insert_var(dest,
                     iter->id, iter->var->name, iter->var->type,
@@ -297,7 +297,7 @@ void symt_merge(symt_tab *src, symt_tab *dest)
         }
         else if (iter->id == FUNCTION || iter->id == PROCEDURE)
         {
-            if (_symt_is_private(iter->rout->modifiers) == false)
+            if (__symt_is_private(iter->rout->modifiers) == false)
             {
                 symt_insert_rout(dest,
                     iter->id, iter->rout->name, iter->rout->type,
@@ -323,13 +323,13 @@ void symt_delete(symt_tab *tab)
             case LOCAL_VAR:; case GLOBAL_VAR:;
                 ml_free(iter->var->name);
                 ml_free(iter->var->modifiers);
-                _symt_delete_value_cons(_symt_get_type_data(iter->var->type), iter->var->value);
+                __symt_delete_value_cons(__symt_get_type_data(iter->var->type), iter->var->value);
                 ml_free(iter->var);
             break;
 
             case CONSTANT:;
                 ml_free(iter->cons->name);
-                _symt_delete_value_cons(iter->cons->type, iter->cons->value);
+                __symt_delete_value_cons(iter->cons->type, iter->cons->value);
                 ml_free(iter->cons);
             break;
 

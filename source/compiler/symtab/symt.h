@@ -54,7 +54,7 @@ typedef enum symt_cons_t { INTEGER, DOUBLE, CHAR } symt_cons_t;
 typedef enum symt_var_mod_t { HIDE, READONLY } symt_var_mod_t;
 
 /* Primitive types for variables and return functions */
-typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR } symt_var_t;
+typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_var_t;
 
 /* Type for local and global variables */
 typedef struct symt_var
