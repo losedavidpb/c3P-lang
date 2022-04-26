@@ -1,0 +1,10 @@
+#add <c3p.base>
+#add <c3p.math>
+
+x : i32
+y : i64
+z : f32
+l : i32[10]
+
+hide hx : i32
+hide hl : i32[10]

@@ -1,0 +1,10 @@
+#add <c3p.base>
+#add <c3p.math>
+
+proc hello_world()
+
+endproc
+
+proc say_your_name(name : str)
+  
+endproc

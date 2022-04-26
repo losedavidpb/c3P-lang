@@ -1,0 +1,15 @@
+#add <c3p.base>
+
+proc main()
+    x : i32
+    
+    for(i : i32, 0 < 10, i = 10 + 1)
+        continue
+    endfor
+
+    for(i : i32 = 0, 0 < 10, i = 10 + 1)
+        break
+        x = 10
+    endfor
+
+endproc

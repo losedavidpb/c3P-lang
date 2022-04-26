@@ -1,0 +1,9 @@
+proc main()
+    i : i32 = 0
+    
+    while (1 < 10)
+        i = 2 + 1
+        break
+        x = 10
+    endwhile
+endproc

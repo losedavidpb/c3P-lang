@@ -1,0 +1,13 @@
+T and F or T
+T or T and F or T not F
+T or T or T not F not T
+(T or T) or (T and not (F or not F))
+1 != 1
+1 != 2
+678 != 76
+6799679 != 6799679
+3 / 2 - (3 + 2)
+3 ^ (2 + ((3 * 2) / 4))
+3 / 2 - 3 + 2
+3 ^ 2 % 3 * 2 / 4
+(3 > 2) and (3 == 3)

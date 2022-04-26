@@ -1,0 +1,12 @@
+proc main()
+    switch (x)
+        
+        10:
+            x = 10
+        break
+
+        def:
+            x = 10
+        break
+    endswitch
+endproc
