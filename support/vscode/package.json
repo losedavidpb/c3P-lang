@@ -1,0 +1,42 @@
+{
+    "name": "c3p",
+    "displayName": "c3P Tools",
+    "description": "Support for c3P language",
+    "version": "0.2.4",
+    "icon": "images/icon.png",
+    "engines": {
+        "vscode": "^1.64.0"
+    },
+    "publisher": "David Parreño Barbuzano",
+    "categories": [
+        "Programming Languages",
+        "Snippets",
+        "Themes",
+        "Other"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "c3p",
+            "aliases": ["c3p", "c3P"],
+            "extensions": [".c3p"],
+            "configuration": "./config/language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "c3p",
+            "scopeName": "source.c3p",
+            "path": "./config/c3p.tmLanguage.json"
+        }],
+        "snippets": [{
+            "language": "c3p",
+            "path": "./config/snippets.code-snippets"
+        }],
+        "iconThemes": [{
+            "id": "c3p.icon-themes",
+            "label": "C3P Icon Theme",
+            "path": "./config/c3p-icon-theme.json"
+        }]
+    },
+    "extensionPack": [
+        "GitHub.github-vscode-theme"
+    ]
+}
