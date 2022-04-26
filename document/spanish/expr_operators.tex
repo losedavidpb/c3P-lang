@@ -1,0 +1,200 @@
+\subsection{Expresiones}
+
+En \textbf{c3P}, una \textbf{expresión} es un conjunto de uno o más operandos y operadores, mientras
+que un \textbf{operando} son objetos descritos como constantes, variables, y llamadas a funciones que
+devuelven valores de un tipo determinado. A continuación, se explica cada uno de los operadores:
+
+\subsection{Operador de Asignación}
+
+Los operadores de asignación se utilizan para almacenan valores en variables, y se codifica
+en \textbf{c3P} mediante el símbolo «=». Como ya se mencionó anteriormente, si el valor
+derecho que se asigna a la variable presenta un tipo de dato diferente, en \textbf{c3P} se
+hará una operación de \textbf{casting}, siempre que la transformación sea posible. En el
+siguiente ejemplo, se muestra el operador de asignación, y una situación de \textbf{casting},
+tanto una válida como otra que provoca un error de ejecución.
+
+\begin{verbatim}
+x1 : i32 = 20
+y1 : i64 = 10.3
+
+? Casting válido porque ambos datos son numéricos
+? y puede transformarse porque puede guardarse la
+? parte entera del valor tipo i64 (x1 = 10)
+x1 = y1
+
+x2 : i32 = 20
+y2 : i64 = 10.3
+
+? Casting válido porque ambos datos son numéricos
+? y puede transformarse porque puede guardarse la
+? parte entera como decimal (y2 = 20.0)
+y2 = x2
+
+carac : c = 'H'
+num : i32 = 10
+
+? ¡¡ERROR!! El casting sólo se permite en
+? datos numéricos o si ambos valores son caracteres
+num = carac
+\end{verbatim}
+
+\subsection{Operadores Aritméticos}
+
+\textbf{c3P} proporciona operadores aritméticos como el de suma, resta, multiplicación, y división.
+A continuación, se muestra ejemplos de estos operadores:
+
+\begin{verbatim}
+x : i32 = 5 + 3
+y : f32 = 10.23 + 37.332
+z : f32:  = x + y
+
+x : i32 = 5 - 3
+y : f32 = 57.223 - 10.903
+z : f64 = x - y
+
+x : i32 = 5 * 3
+y : f32 = 47.4 * 1.001
+z : f32 = x * y
+
+x : f32 = 5 / 3
+y : f64 = 940.0 / 20.2
+z : f64 = x / y
+
+x : f32 = 5 % 3
+y : f64 = 940.0 % 20.2
+z : f64 = x % y
+
+x : f32 = 5 ^ 3
+y : f64 = 940.0 ^ 20.2
+z : f64 = x ^ y
+\end{verbatim}
+
+\subsection{Operadores de Comparación}
+
+Los operadores de comparación se emplean para comprobar si se satisface una condición
+en la que participan dos operadores que se relacionan. El resultado de este operador
+siempre es booleano. A continuación, se muestra cada uno de los operadores de comparación
+que existen en \textbf{c3P}.
+
+El operador de igualdad «==» comprueba la igualdad de dos operandos:
+
+\begin{verbatim}
+if (x == y)
+  call show ("x es igual a y")
+else
+  call show ("x no es igual a y")
+endif
+\end{verbatim}
+
+El operador de desigualdad «!=» comprueba la desigualdad de sus dos operandos.
+
+\begin{verbatim}
+if (x != y)
+  call show ("x no es igual a y")
+else
+  call show ("x es igual a y")
+endif
+\end{verbatim}
+
+Además de la igualdad y la desigualdad, existen una serie de operadores con los que
+comprobar si un valor es menor que, mayor que, menor o igual que, o mayor o igual
+que otro operando.
+
+\begin{verbatim}
+if (x < y)
+  call show ("x es menor que y")
+endif
+\end{verbatim}
+
+\begin{verbatim}
+if (x <= y)
+  call show ("x es menor o igual que y")
+endif
+\end{verbatim}
+
+\begin{verbatim}
+if (x > y)
+  call show ("x es mayor que y")
+endif
+\end{verbatim}
+
+\begin{verbatim}
+if (x >= y)
+  call show ("x es mayor o igual que y")
+endif
+\end{verbatim}
+
+\subsection{Operadores Lógicos}
+
+Los operadores lógicos se utilizan para comprobar la veracidad de dos
+condiciones expresadas mediante valores booleanos. A continuación, se
+explica cada uno de los proporcionados en \textbf{c3P}:
+
+\begin{itemize}
+    \item El operador \textbf{and} comprueba si dos expresiones son ambas verdaderas.
+\end{itemize}
+
+\begin{verbatim}
+if ((x == 5) and (y == 10))
+  call show ("x es 5 e y es 10")
+endif
+\end{verbatim}
+
+\begin{itemize}
+    \item El operador \textbf{or} comprueba si al menos una de las dos expresiones es verdadera.
+\end{itemize}
+
+\begin{verbatim}
+if ((x == 5) or (y == 10))
+   call showln ("x es 5 o y es 10")
+endif
+\end{verbatim}
+
+\begin{itemize}
+    \item Puede anteponer a una expresión lógica un operador de negación \textbf{not} para invertir el valor de la expresión booleana:
+\end{itemize}
+
+\begin{verbatim}
+if (not (x == 5))
+  call showln ("x no es 5")
+endif
+\end{verbatim}
+
+\subsection{Llamadas a Funciones como Expresiones}
+
+Para facilitar la definición de una expresión, en \textbf{c3P} se considera a
+cualquier función una función, por lo que se pueden asignar la llamada de una
+de estas a una variable.
+
+\begin{verbatim}
+func y : i32(x : i32)
+    ret x * 2
+endfunc
+
+a : i32 = 10 + (call function 20);
+\end{verbatim}
+
+\subsection{Precedencia de Operadores}
+
+Cuando una expresión contiene varios operadores, como a + b * f(), los operadores se agrupan según las reglas de precedencia.
+
+A continuación se presenta una lista de tipos de expresiones, presentadas primero en orden de mayor precedencia. A veces, dos o más operadores tienen la misma precedencia; todos esos operadores se aplican de izquierda a derecha a menos que se indique lo contrario.
+
+\begin{enumerate}
+  \item Llamadas a funciones.
+  \item Operadores unarios, incluyendo la negación lógica..
+  \item Expresiones de multiplicación, división, división modular y exponentes.
+  \item Expresiones de suma y resta.
+  \item Expresiones de mayor que, menor que, mayor o igual que, y menor o igual que.
+  \item Expresiones de igualdad y desigualdad.
+  \item Expresiones lógicas AND.
+  \item Expresiones lógicas OR.
+  \item Todas las expresiones de asignación, incluida la asignación compuesta. \newline Cuando aparecen varias sentencias de asignación como subexpresiones en una única expresión mayor, se evalúan de derecha a izquierda.
+  \item Expresiones con operadores de coma. 
+\end{enumerate}
+
+\subsection{Orden de Evaluación}
+
+En c3P todo programa comienza en un procedimiento llamado obligatoriamente «main». 
+
+No se puede asumir que las subexpresiones múltiples se evalúan en el orden que parece natural.

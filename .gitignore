@@ -1,0 +1,10 @@
+.txt
+.output
+lex.yy.c
+*.tab.c
+*.tab.h
+c3pflexbison
+document/spanish/.tmp/*
+document/spanish/.tmp
+*.old
+.vscode

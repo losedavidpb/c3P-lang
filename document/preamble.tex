@@ -1,0 +1,112 @@
+% preamble.tex
+%
+% This file includes all the configuration used for the
+% definition of the PDF document of c3P language. These
+% settings includes imported packages, commands, style
+% specifications, and so on!
+
+% =============================================
+% Package section
+% =============================================
+
+\usepackage[utf8]{inputenc}
+
+% Margins
+\usepackage{geometry}
+
+% Fonts and generic style
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[compact]{titlesec}
+\usepackage{appendix}
+\usepackage{lmodern}
+
+% Paragraphs
+\usepackage{parskip}
+\usepackage{epigraph}
+\usepackage{fancyhdr}
+
+% Images
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{lipsum}
+\usepackage{epstopdf}
+\usepackage{epsfig}
+\usepackage{epsf}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+
+% Links and referencies
+\usepackage{booktabs}
+\usepackage{xcolor}	
+\usepackage{subfigure}
+\usepackage{mdframed}
+\usepackage{hyperref}
+\usepackage{csquotes}
+
+% Figures
+\usepackage[figurename=Ilustración]{caption}
+
+% Math
+\usepackage{showexpl}[rframe=none]
+\usepackage[math]{blindtext}
+\usepackage{amsmath}
+\usepackage{pifont}
+
+% Code
+\usepackage{listings}
+\usepackage{ifthen}
+
+% Bibliografy
+\usepackage[backend=biber]{biblatex}
+
+% Tables
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+
+% Align
+\usepackage{ragged2e}
+
+% =============================================
+% Style section
+% =============================================
+
+% Chapters
+\setcounter{secnumdepth}{3}
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+% Links and urls
+\urlstyle{same}
+\hypersetup{
+	colorlinks   = true,
+	linkcolor 	 = black,
+	urlcolor     = blue,
+	citecolor    = blue
+}
+
+% =============================================
+% Command section
+% =============================================
+
+\renewcommand{\contentsname}{Contenido}
+\renewcommand{\figurename}{Ilustración}
+\renewcommand\labelitemi{\ding{52}}
+
+% =============================================
+% Definition section
+% =============================================
+
+\def\myauthorone{David Parreño Barbuzano}
+\def\myauthortwo{Hector Miguel Martín Álvarez}
+\def\mydegree{Grado en \\ Ingeniería Informática}
+\def\myuniversity{Universidad \\ Las Palmas de Gran Canaria}
+\def\mydate{febrero de 2022}
+\def\mytitle{Manual de Referencia del lenguaje de programación c3P}
+\def\mysubject{Procesadores de Lenguajes}

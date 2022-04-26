@@ -1,0 +1,109 @@
+\subsection{Declaración de Funciones y Procedimiento}
+
+Por un lado, una función se declara en \textbf{c3P} mediante la palabra clave func,
+seguido de su nombre, del tipo de dato que devuelve, y encerrado entre paréntesis,
+de una lista de parámetros separados por comas. Además de todas estas componentes,
+toda función en \textbf{c3P} tiene que terminar con la palabra clave ret, que es
+en la que se indica el valor que devuelve.
+
+\begin{verbatim}
+func nombre : retorno (parámetros)
+    ...
+endfunc
+\end{verbatim}
+
+Por otro lado, un procedimiento se declara en \textbf{c3P} mediante la palabra clave proc,
+seguido de su nombre, y encerrado entre paréntesis, de una lista de parámetros separados
+por comas. A diferencia de las funciones, los procedimientos nunca incluyen la palabra
+clave ret, porque no devuelven ningún valor. Además, ret no se puede usar para terminar
+la ejecución de un procedimiento.
+
+\begin{verbatim}
+proc nombre (parámetros)
+    ...
+endproc
+\end{verbatim}
+
+El nombre puede ser cualquier identificador válido.
+
+Los parámetros consta de cero o más parámetros, separados por comas. Un parámetro  consiste en un nombre y un tipo de datos para el parámetro. Estos parámetros son opcionales
+
+\subsection{Definición de Funciones y Procedimiento}
+
+La definición de una función o un procedimiento se escribe para especificar lo que realmente hace una función o un procedimiento. Una definición de función consiste en información sobre el nombre de la función, el tipo de retorno únicamente en las funciones y los tipos y nombres de los parámetros, junto con el cuerpo de la función. 
+
+\begin{verbatim}
+func add_values : i64 (x : i32, y : i32)
+  ret x + y
+endfunc
+\end{verbatim}
+
+\begin{verbatim}
+proc showSum (x : i32, y : i32)
+  call show (call str (x + y))
+endproc
+\end{verbatim}
+
+\subsection{Llamadas a Funciones y Procedimiento}
+
+Para llamar a una función o procedimiento en \textbf{c3P}, se utiliza la palabra clave,
+seguido del nombre de la función, y si es necesario, de los parámetros necesarios, separados
+por comas. 
+
+\begin{verbatim}
+x : i64 = call add_values 5, 3
+call fibonacci 10
+\end{verbatim}
+
+\subsection{Parámetros de Funciones y Procedimiento}
+
+En las funciones y procedimientos, los parámetros pueden ser cualquier expresión, como
+un valor literal, un valor almacenado en una variable, o una expresión más compleja
+construida mediante la combinación de estos. 
+
+En el cuerpo de la función o procedimiento, el parámetro se pasa por valor, lo que
+significa que no se puede cambiar el valor pasado cambiando la copia local. 
+
+\begin{verbatim}
+x : i32 = 23
+call y1 x
+call y2 x
+
+func y1 : i32 (a : i32)
+  a = 2 * a
+  ret a
+endfunc
+
+proc y2 (a : i32)
+  call show a
+endproc
+\end{verbatim}
+
+\subsection{Función Principal}
+
+Cualquier ejecución de un programa en \textbf{c3P} tiene que empezar siempre en
+un procedimiento llamado «main» que no tiene parámetros. Los ficheros sin este
+procedimiento se consideran en el programa como librerías.
+
+\begin{verbatim}
+proc main ()
+  call show "Hello world"
+endproc
+\end{verbatim}
+
+\subsection{Funciones Recursivas}
+
+En \textbf{c3P} es posible definir funciones o procedimientos recursivos,
+es decir, que en su ejecución se llamen a sí mismos, con en el siguiente ejemplo.
+
+\begin{verbatim}
+func fibonacci(n : i32)
+    if (n > 1)
+        f1 : i32 = call fibonacci n - 1
+        f2 : i32 = call fibonacci n - 2
+        ret f1 + f2
+    endif
+    
+    ret n
+endfunc
+\end{verbatim}

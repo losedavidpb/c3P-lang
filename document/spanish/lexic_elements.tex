@@ -1,0 +1,113 @@
+\subsection{Identificadores}
+
+Un \textbf{identificador} es una secuencia de caracteres con las que se pueden
+nombrar componentes del lenguaje como variables, funciones y procedimientos. Los
+caracteres que se utilizan en un \textbf{identificador} pueden ser letras minúsculas,
+dígitos, o el carácter de subrayado '\_'. Como en muchos otros lenguajes, el primer
+carácter de un identificador no puede ser un dígito.
+
+\subsection{Palabras clave}
+
+Las \textbf{palabras clave} son un tipo de identificador particular que se emplean en el
+lenguaje como secuencia de caracteres reservadas. Esto quiere decir que, cuando se escribe
+en \textbf{c3P} una palabra clave, sólo puede mantener un único propósito y significado.
+
+A continuación, se muestra una lista de las palabras clave en \textbf{c3P}:
+
+\#add, b, break, c, call, continue, def, else, endfor, endfunc, endif, endproc,
+endswitch, endwhile, f32, f64, for, func, hide, i8, i16, i32, i64, if, proc,
+readonly, ret, str, switch,  while
+
+\subsection{Constantes}
+
+Una \textbf{constante} es un valor numérico o de caracteres que se utilizan como valores
+literales para definir el valor de las variables. En \textbf{c3P}, se permite asignar
+variables a valores de un tipo de dato diferente, puesto que en esta asignación se
+está realizando una transformación del dato conocida como \textbf{casting}, en la
+que se convierte el valor de la constante que se asigna a la variable en la representación
+más precisa posible que describe con el tipo de dato de la variable su valor anterior.
+
+\subsubsection{Constantes enteras}
+
+Las constantes enteras se codifican en \textbf{c3P} a partir de una secuencia de dígitos.
+Como este tipo de constantes representan a los números enteros, el rango de valores posible
+comprende a todos los enteros positivos y negativos.
+
+\subsubsection{Constantes de carácter}
+
+Las constantes de carácter comprenden a todos los caracteres imprimibles, excepto los
+caracteres de escape típicos en la mayoría de lenguajes de programación. Cabe mencionar
+que existe un tipo de datos especifico con el que definir una cadena de caracteres,
+que se representa delimitado en "", mientras que definir un sólo carácter es  ''
+
+\subsubsection{Constantes de números reales}
+
+Las constantes de números reales son aquellas que representan a un número decimal o
+en coma flotante. La codificación de este tipo de constate consta de una secuencia
+de dígitos que conforman la parte entera del mundo, seguido de un punto decimal y
+una secuencia de dígitos que corresponden a la parte fraccionaria. Es importante
+mencionar que en \textbf{c3P} no se puede omitir en la declaración de la constante
+la parte fraccionaria, aunque sea nula.
+
+\subsubsection{Constantes de valores booleanos}
+
+Las constantes de valores booleanos son aquellas que pueden tener uno de sus
+dos estados posibles (verdadero o falso), y cumplen las reglas de la aritmética
+de Bool. En \textbf{c3P}, los booleanos no pueden transformarse a datos enteros,
+como ocurren en lenguajes tales como C.
+
+\subsection{Operadores}
+
+Un \textbf{operador} es una palabra especial que representa en el lenguaje una operación,
+que puede ser aritmética o lógica, y que afecta a uno o dos operandos.
+
+\subsection{Separadores}
+
+Un \textbf{separador} es un carácter que se utiliza para separar las palabras especiales
+declaradas en un programa. En \textbf{c3P}, hay separadores que se emplean en la indexación,
+en la definición de un contenedor, en la declaración de una variable, entre otros. En la
+siguiente tabla se muestra cada separador y su uso en el lenguaje.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|p{10cm}|}
+         \hline
+         \textbf{Nombre} & \textbf{Funcionalidad}  \\
+         \hline
+         \multirow{3}{*}{\centering{( )}} &
+         - Llamada y declaración de funciones/procedimientos \par
+         - Declaración de condiciones lógicas en If, For, While, etc. \par
+         - Bloque de agrupamiento de expresiones aritméticas \\
+         \hline
+         \multirow{2}{*}{\centering{[ ]}} &
+         - Indexación de Contenedores y cadenas de caracteres \par
+         - Declaración de Contenedores de Elementos \\
+         \hline
+         \multirow{1}{*}{\centering{\{ \}}}
+         & - Declaración de los Elementos de un Contenedor \\
+         \hline
+         \multirow{1}{*}{\centering{.}}
+         & - Separador de los números decimales \\
+         \hline
+         \multirow{1}{*}{\centering{:}}
+         & - Definición y declaración de variables \\
+         \hline
+         \multirow{1}{*}{\centering{,}}
+         & - Separar parámetros, valores de un contenedor \\
+         \hline
+         \multirow{1}{*}{\centering{SPACE}}
+          & - Carácter de espacio, de tabulación y nueva línea \\
+         \hline
+    \end{tabular}
+    \caption{Separadores disponibles}
+    \label{tab:tab_separadores_disponibles}
+\end{table}
+
+\subsection{Comentarios}
+
+Los comentarios en c3P se definen mediante «?»
+
+\begin{verbatim}
+? Esto es un comentario
+x : i32 = 10
+\end{verbatim}

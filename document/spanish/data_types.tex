@@ -1,0 +1,122 @@
+\subsection{Tipos de Datos Primitivos}
+\subsubsection{Tipos Enteros}
+
+En \textbf{c3P}, los tipos enteros se diferencian no sólo por su identificador (nombre del
+tipo de entero), sino también por el rango de valores que pueden almacenar, que se miden
+por bits y pueden alcanzar los 64 bits.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+         \hline
+         \textbf{Identificador} & \textbf{NºBits} & \textbf{Rango} \\
+         \hline
+         i8 & 8 & -128 a 127 \\
+         \hline
+         i16 & 16 & -32768 a 32767 \\
+         \hline
+         i32 & 32 & -214,483648 a 2147483647 \\
+         \hline
+         i64 & 64 & -9223372036854775808 a 9223372036854775807 \\
+         \hline
+    \end{tabular}
+    \caption{Tipos Enteros}
+    \label{tab:tab_tipos_enteros}
+\end{table}
+
+\subsubsection{Tipos de Números Reales}
+
+Al igual que los números enteros, los tipos de números reales se diferencian tanto
+por su identificador, sino también por su rango de valores que pueden almacenar,
+que pueden alcanzar hasta los 64 bits. Cabe destacar que, dependiendo del ordenador
+que esté ejecutando el programa, los rangos de valores varían.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+         \hline
+         \textbf{Identificador} & \textbf{NºBits} & \textbf{Rango} \\
+         \hline
+         f32 & 32 & F32\_MIN a F32\_MAX \\
+         \hline
+         f64 & 64 & F64\_MIN a F64\_MAX \\
+         \hline
+    \end{tabular}
+    \caption{Tipos Enteros}
+    \label{tab:tab_tipos_decimales}
+\end{table}
+
+\subsubsection{Tipos de Carácter}
+
+Los tipos de caracteres permiten representar uno o varios caracteres de dígitos,
+letras, u otros símbolos, a excepción de los caracteres especiales. Cabe mencionar
+que, para las cadenas de caracteres (str), existen utilidades con las que manejar
+más fácilmente este tipo de datos.
+
+\begin{itemize}
+    \item \textbf{c}: puede contener un valor que cumple '([a-zA-Z0-9\+\-\_\&\%...]+)*'
+    \item \textbf{str}: puede contener una cadena de caracteres.
+\end{itemize}
+
+\subsubsection{Tipos Lógicos}
+
+Los tipos de datos lógicos se codifican mediante el identificador «b», y pueden tomar dos
+valores posibles (verdadero codificado en «T», o falso representado en «F»).
+
+\subsection{Contenedores}
+
+Un \textbf{contenedor} es una estructura de datos en la que se almacena valores de un
+mismo tipo. Estos elementos están organizados internamente a partir de los índices del
+contenedor, que marcan cada una de los posiciones en las que se almacena su contenido.
+En \textbf{c3P}, los contenedores son de tamaño fijo y permiten operaciones de indexación.
+
+\subsubsection{Declaración de contenedores}
+
+Un contenedor se declara especificando el tipo de datos que tendrá cada elementos,
+el nombre de la variable, y el número de elementos que puede almacenar, tal y como
+se puede observar en el siguiente ejemplo:
+
+\begin{verbatim}
+mi_array : i32[10]    
+\end{verbatim}
+
+Respecto al tamaño de un contenedor, puede declararse tanto con una constante literal
+entera positiva, como con una variable del mismo tipo. Cabe mencionar que se permiten
+tamaños de hasta la unidad.
+
+\subsubsection{Inicialización de contenedores}
+
+Los elementos de un contenedor se pueden inicializar de forma individual por medio de
+la indexación, o también a partir de la declaración entre llaves de valores literales,
+donde cada elemento tendrá asociado la posición en la que se define. En este ejemplo
+se puede observar la segunda inicialización explicada:
+
+\begin{verbatim}
+mi_array : i32[5] = { 0, 1, 2, 3, 4 }
+\end{verbatim}
+
+Es importante considerar que en la inicialización se tienen que especificar todos los
+valores del contenedor de elementos, lo que hace esta funcionalidad poco útil en
+los casos en los que el tamaño de elementos sea muy grandes.
+
+\subsubsection{Acceso a los elementos de un Contenedor}
+
+En \textbf{c3P}, los elementos de un contenedor se pueden acceder por medio de su índice y
+de la indexación. Para ello, se especifica el nombre del contenedor, seguido del índice del
+elemento al que se quiere acceder, encerrado entre corchetes. A continuación se muestra un
+ejemplo de esta funcionalidad:
+
+\begin{verbatim}
+mi_array[0] = 5
+\end{verbatim}
+
+\subsection{Tamaño de Contenedores y Cadena de caracteres}
+
+En \textbf{c3P} para obtener el tamaño de un contenedor o una cadena de caracteres existe la función «length».
+
+\begin{verbatim}
+mi_array : i32[3] = {0, 1, 2}
+cadena : str = "ristra de caracteres"
+x : i32 = call length mi_array
+x : i32 = call length cadena
+\end{verbatim}
