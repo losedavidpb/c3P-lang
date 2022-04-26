@@ -1,0 +1,11 @@
+proc hello_world()
+
+endproc
+
+proc say_your_name(name : str)
+  
+endproc
+
+func sum : i32 (x : i32, y : i64)
+
+endfunc

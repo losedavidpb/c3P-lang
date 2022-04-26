@@ -1,0 +1,30 @@
+#add <c3p.base>
+#add <c3p.math>
+
+hide func vector_random : i32[](num : i32)
+	v3 : i32[num]
+	
+	for (i : i32 = 0, i < num, i = i + 1)
+		v3[i] = call random 1, 100
+	endfor
+	
+	ret v3
+endfunc
+
+proc main()
+	v1 : i32[] = call vector_random 10
+	v2 : i32[] = call vector_random 10
+	v3 : i32[10]
+	
+	v3 = call vector_add v1, v2
+	call vector_show v3
+	
+	v3 = call vector_sub v1, v2
+	call vector_show v3
+	
+	v3 = call vector_mult v1, v2
+	call vector_show v3
+	
+	v3 = call vector_div v1, v2
+	call vector_show v3
+endproc

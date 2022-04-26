@@ -1,0 +1,14 @@
+switch(A)
+
+    def:
+        1
+endswitch
+
+switch(e)
+
+    2:
+        2
+        break
+    def:
+        1
+endswitch

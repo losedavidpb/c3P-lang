@@ -1,0 +1,96 @@
+#add <c3p.base>
+#add <c3p.math>
+
+proc vector_show(v : i32[])
+	len : i32 = call length v
+	call show "[ "
+	
+	for (i : i32 = 0, i < len, i = i + 1)
+		value : str = str(v[i])
+		call show value + " "
+	endfor
+	
+	call showln "] "
+endproc
+
+func vector_add : i32[](v1 : i32[], v2 : i32[])
+	len1 : i32 = call length v1
+	len2 : i32 = call length v2
+	size : i32 = call max len1, len2
+	v3 : i32[size]
+	
+	for (i : i32 = 0, i < size, i = i + 1)
+		if (i < len1 and i < len2)
+			v3[i] = v1[i] + v2[i]
+		endif 
+		
+		if (i > len1)
+			v3[i] = v2[i]
+		else
+			v3[i] = v1[i]
+		endif
+	endfor
+		
+	ret v3
+endfunc
+
+func vector_sub : i32[](v1 : i32[], v2 : i32[])
+	len1 : i32 = call length v1
+	len2 : i32 = call length v2
+	size : i32 = call max len1, len2
+	v3 : i32[size]
+	
+	for (i : i32 = 0, i < size, i = i + 1)
+		if (i < len1 and i < len2)
+			v3[i] = v1[i] - v2[i]
+		endif 
+		
+		if (i > len1)
+			v3[i] = -1 * v2[i]
+		else
+			v3[i] = v1[i]
+		endif
+	endfor
+		
+	ret v3
+endfunc
+
+func vector_mult : i32[](v1 : i32[], v2 : i32[])
+	len1 : i32 = call length v1
+	len2 : i32 = call length v2
+	size : i32 = call max len1, len2
+	v3 : i32[size]
+	
+	for (i : i32 = 0, i < v3.L, i = i + 1)
+		v3[i] = 0
+		
+		if (i < len1 and i < len2)
+			v3[i] = v1[i] * v2[i]
+		endif 
+	endfor
+		
+	ret v3
+endfunc
+
+func vector_div : i32[](v1 : i32[], v2 : i32[])
+	len1 : i32 = call length v1
+	len2 : i32 = call length v2
+	size : i32 = call max len1, len2
+	v3 : i32[size]
+		
+	if (len1 <= len2)
+		for (i : i32 = 0, i < size, i = i + 1)
+			if (i < len1 and i < len2)
+				v3[i] = v1[i] / v2[i]
+			endif 
+			
+			if (i > len1)
+				v3[i] = -1 * v2[i]
+			else
+				v3[i] = v1[i]
+			endif
+		endfor
+	endif
+	
+	ret v3
+endfunc

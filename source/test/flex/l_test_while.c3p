@@ -1,0 +1,7 @@
+while(d == T)
+
+    if(x == 2)
+        break
+    endif
+
+endwhile
