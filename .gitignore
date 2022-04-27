@@ -9,3 +9,5 @@ document/spanish/.tmp
 *.old
 .vscode
 build
+symtest
+symtab
