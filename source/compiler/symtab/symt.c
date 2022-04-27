@@ -10,6 +10,8 @@
 
 /* Private */
 
+symt_node* __symt_copy(symt_node *);
+
 bool __symt_is_valid_id(symt_id_t id)
 {
     bool cond = id == LOCAL_VAR ||  id == GLOBAL_VAR;
@@ -26,7 +28,7 @@ symt_cons_t __symt_get_type_data(symt_var_t type)
         case I8: case I16: case I32: case I64:  return INTEGER; break;
         case F32: case F64:                     return DOUBLE; break;
         case C:                                 return CHAR; break;
-        case B:                                 return B; break;
+        case B:                                 return INTEGER; break;
         default:                                return -1; break;
     }
 }
@@ -39,6 +41,232 @@ void __symt_delete_value_cons(symt_cons_t type, symt_value_t value)
         case DOUBLE:    ml_free(((double *)value)); break;
         case CHAR:      ml_free(((char *)value));   break;
     }
+}
+
+void *__symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems)
+{
+    void *copy_value = NULL;
+
+    if (value != NULL)
+    {
+        switch(type)
+        {
+            case INTEGER: copy_value = intcopy((int*)value, num_elems + 1);         break;
+            case DOUBLE: copy_value = doublecopy((double*)value, num_elems + 1);    break;
+            case CHAR: copy_value = strcopy((char*)value);                          break;
+        }
+    }
+
+    return copy_value;
+}
+
+symt_var *__symt_copy_var(symt_var* var)
+{
+    symt_var* n_var = (symt_var*)(ml_malloc(sizeof(symt_var)));
+    n_var->name = strcopy(var->name);
+	n_var->type = var->type;
+	n_var->value = __symt_copy_value(var->value, __symt_get_type_data(n_var->type), var->array_length);
+	n_var->is_array = var->is_array;
+	n_var->array_length = var->array_length;
+    n_var->is_hide = var->is_hide;
+    n_var->is_readonly = var->is_readonly;
+    return n_var;
+}
+
+symt_cons *__symt_copy_cons(symt_cons *cons)
+{
+    symt_cons* constant = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
+	constant->type = cons->type;
+    constant->value = __symt_copy_value(cons->value, cons->type, 0);
+	constant->value = cons->value;
+	constant->name = strcopy(cons->name);
+    return constant;
+}
+
+symt_call *__symt_copy_call(symt_call *call_value)
+{
+    symt_call* call_value_ = (symt_call*)(ml_malloc(sizeof(symt_call)));
+	call_value_->type = call_value->type;
+	call_value_->params = __symt_copy(call_value->params);
+	call_value_->name = strcopy(call_value->name);
+    return call_value_;
+}
+
+symt_routine *__symt_copy_rout(symt_routine *rout)
+{
+    symt_routine* function = (symt_routine*)(ml_malloc(sizeof(symt_routine)));
+	function->is_hide = rout->is_hide;
+    function->is_readonly = rout->is_readonly;
+	function->params = __symt_copy(rout->params);
+	function->statements = __symt_copy(rout->statements);
+	function->name = strcopy(rout->name);
+    function->type = rout->type;
+	return function;
+}
+
+symt_if_else *__symt_copy_if(symt_if_else *if_val)
+{
+    symt_if_else* if_val_ = (symt_if_else*)(ml_malloc(sizeof(symt_if_else)));
+	if_val_->if_statements = __symt_copy(if_val->if_statements);
+	if_val_->else_statements = __symt_copy(if_val->else_statements);
+	if_val_->cond = __symt_copy(if_val->cond);
+    return if_val_;
+}
+
+symt_switch *__symt_copy_switch(symt_switch *switch_val)
+{
+    symt_switch* sw = (symt_switch*)(malloc(sizeof(symt_switch)));
+	sw->key_var = __symt_copy_var(switch_val->key_var);
+	sw->cases = __symt_copy(switch_val->cases);
+    return sw;
+}
+
+symt_while *__symt_copy_while(symt_while *while_val)
+{
+    symt_while* while_val_ = (symt_while*)(ml_malloc(sizeof(symt_while)));
+	while_val_->cond = __symt_copy(while_val->cond);
+	while_val_->statements = __symt_copy(while_val->statements);
+    return while_val_;
+}
+
+symt_for *__symt_copy_for(symt_for *for_val)
+{
+    symt_for* for_val_ = (symt_for*)(ml_malloc(sizeof(symt_for)));
+	for_val_->cond = __symt_copy(for_val->cond);
+	for_val_->statements = __symt_copy(for_val->statements);
+    for_val_->incr = __symt_copy(for_val->incr);
+    for_val_->iter_op = __symt_copy(for_val->iter_op);
+    for_val_->incr->next_node = NULL;
+    return for_val;
+}
+
+symt_node* __symt_copy(symt_node *node)
+{
+    symt_node *copy_node = NULL;
+
+    if (node != NULL)
+    {
+        copy_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
+
+        copy_node->id = node->id;
+        if (node->call != NULL) copy_node->call = __symt_copy_call(node->call);
+        if (node->cons != NULL) copy_node->cons = __symt_copy_cons(node->cons);
+        if (node->for_val != NULL) copy_node->for_val = __symt_copy_for(node->for_val);
+        if (node->while_val != NULL) copy_node->while_val = __symt_copy_while(node->while_val);
+        if (node->if_val != NULL) copy_node->if_val = __symt_copy_if(node->if_val);
+        if (node->switch_val != NULL) copy_node->switch_val = __symt_copy_switch(node->switch_val);
+        if (node->var != NULL) copy_node->var = __symt_copy_var(node->var);
+        if (node->rout != NULL) copy_node->rout = __symt_copy_rout(node->rout);
+        if (node->next_node != NULL) copy_node->next_node = __symt_copy(node->next_node);
+    }
+
+    return copy_node;
+}
+
+symt_node *__symt_search(symt_tab *tab, symt_id_t id)
+{
+    assertp(tab != NULL, "table has not been constructed");
+    symt_node *iter = tab, *result = NULL, *prev = NULL;
+
+    while (iter != NULL)
+    {
+        if (iter->id == id) return prev;
+
+        if (id != FUNCTION && id != PROCEDURE)
+        {
+            switch (iter->id)
+            {
+                case FUNCTION:; case PROCEDURE:;
+                    if (iter->rout->params != NULL)
+                    {
+                        result = __symt_search(iter->rout->params, id);
+                        if (result != NULL) return result;
+                    }
+
+                    if (iter->rout->statements != NULL)
+                    {
+                        result = __symt_search(iter->rout->statements, id);
+                        if (result != NULL) return result;
+                    }
+                break;
+
+                case IF:;
+                    if (iter->if_val->cond != NULL)
+                    {
+                        result = __symt_search(iter->if_val->cond, id);
+                        if (result != NULL) return result;
+                    }
+
+                    if (iter->if_val->if_statements != NULL)
+                    {
+                        result = __symt_search(iter->if_val->if_statements, id);
+                        if (result != NULL) return result;
+                    }
+
+                    if (iter->if_val->else_statements != NULL)
+                    {
+                        result = __symt_search(iter->if_val->else_statements, id);
+                        if (result != NULL) return result;
+                    }
+                break;
+
+                case WHILE:;
+                    if (iter->while_val->cond != NULL)
+                    {
+                        result = __symt_search(iter->while_val->cond, id);
+                        if (result != NULL) return result;
+                    }
+
+                    if (iter->while_val->statements != NULL)
+                    {
+                        result = __symt_search(iter->while_val->statements, id);
+                        if (result != NULL) return result;
+                    }
+                break;
+
+                case FOR:;
+                    if (iter->for_val->cond != NULL)
+                    {
+                        result = __symt_search(iter->for_val->cond, id);
+                        if (result != NULL) return result;
+                    }
+
+                    if (iter->for_val->iter_op != NULL)
+                    {
+                        result = __symt_search(iter->for_val->iter_op, id);
+                        if (result != NULL) return result;
+                    }
+
+                    if (iter->for_val->statements != NULL)
+                    {
+                        result = __symt_search(iter->for_val->statements, id);
+                        if (result != NULL) return result;
+                    }
+                break;
+
+                case SWITCH:;
+                    if (iter->switch_val->cases != NULL)
+                    {
+                        result = __symt_search(iter->switch_val->cases, id);
+                        if (result != NULL) return result;
+                    }
+                break;
+
+                case CALL:;
+                    if (iter->call->params != NULL)
+                    {
+                        result = __symt_search(iter->call->params, id);
+                        if (result != NULL) return result;
+                    }
+                break;
+            }
+        }
+
+        prev = iter;
+        iter = iter->next_node;
+    }
+
+    return NULL;
 }
 
 /* Public */
@@ -294,14 +522,16 @@ symt_tab* symt_push(symt_tab *tab, symt_node *node)
     if (iter->id == SYMT_ROOT_ID)
     {
         symt_delete(iter);
+        node->next_node = NULL;
         return node;
     }
 
     while (iter->next_node != NULL)
         iter = iter->next_node;
 
-    iter->next_node = node;
-    node->next_node = NULL;
+    iter->next_node = __symt_copy(node);
+    iter->next_node->next_node = NULL;
+
     return tab;
 }
 
@@ -309,7 +539,7 @@ symt_tab * symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_va
 {
 	symt_call* call_value = (symt_call*)(ml_malloc(sizeof(symt_call)));
 	call_value->type = type;
-	call_value->params = params;
+	call_value->params = __symt_copy(params);
 	call_value->name = strcopy(name);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
@@ -325,7 +555,7 @@ symt_tab * symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t 
 	symt_var* n_var = (symt_var*)(ml_malloc(sizeof(symt_var)));
     n_var->name = strcopy(name);
 	n_var->type = type;
-	n_var->value = value;
+	n_var->value = __symt_copy_value(value, __symt_get_type_data(type), array_length);
 	n_var->is_array = is_array;
 	n_var->array_length = array_length;
     n_var->is_hide = is_hide;
@@ -343,7 +573,7 @@ symt_tab * symt_insert_const(symt_tab *tab, const symt_name_t name, const symt_c
 {
 	symt_cons* constant = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
 	constant->type = type;
-	constant->value = value;
+    constant->value = __symt_copy_value(value, type, 0);
 	constant->name = strcopy(name);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
@@ -359,8 +589,8 @@ symt_tab * symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t
 	symt_routine* function = (symt_routine*)(ml_malloc(sizeof(symt_routine)));
 	function->is_hide = is_hide;
     function->is_readonly = is_readonly;
-	function->params = params;
-	function->statements = statements;
+	function->params = __symt_copy(params);
+	function->statements = __symt_copy(statements);
 	function->name = strcopy(name);
 	if(id == FUNCTION) function->type = type;
 
@@ -376,9 +606,9 @@ symt_tab * symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t
 symt_tab * symt_insert_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else)
 {
 	symt_if_else* if_val = (symt_if_else*)(ml_malloc(sizeof(symt_if_else)));
-	if_val->if_statements = statements_if;
-	if_val->else_statements = statements_else;
-	if_val->cond = cond;
+	if_val->if_statements = __symt_copy(statements_if);
+	if_val->else_statements = __symt_copy(statements_else);
+	if_val->cond = __symt_copy(cond);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
 	new_node->id = IF;
@@ -391,8 +621,8 @@ symt_tab * symt_insert_if(symt_tab *tab, symt_node *cond, symt_node *statements_
 symt_tab * symt_insert_while(symt_tab *tab, symt_node *cond, symt_node *statements)
 {
 	symt_while* while_val = (symt_while*)(ml_malloc(sizeof(symt_while)));
-	while_val->cond = cond;
-	while_val->statements = statements;
+	while_val->cond = __symt_copy(cond);
+	while_val->statements = __symt_copy(statements);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
 	new_node->id = WHILE;
@@ -404,14 +634,15 @@ symt_tab * symt_insert_while(symt_tab *tab, symt_node *cond, symt_node *statemen
 
 symt_tab * symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_node *iter_var, symt_node *iter_op)
 {
+    if (iter_var != NULL) iter_var->next_node = NULL;
+
 	symt_for* for_val_ = (symt_for*)(ml_malloc(sizeof(symt_for)));
-	for_val_->cond = cond;
-	for_val_->statements = statements;
-    for_val_->incr = iter_var;
-    for_val_->iter_op = iter_op;
+	for_val_->cond = __symt_copy(cond);
+	for_val_->statements = __symt_copy(statements);
+    for_val_->incr = __symt_copy(iter_var);
+    for_val_->iter_op = __symt_copy(iter_op);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
-
 	new_node->id = FOR;
 	new_node->for_val = for_val_;
     new_node->next_node = NULL;
@@ -422,11 +653,10 @@ symt_tab * symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements
 symt_tab * symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases, int num_cases)
 {
 	symt_switch* sw = (symt_switch*)(malloc(sizeof(symt_switch)));
-	sw->key_var = iter_var;
-	sw->cases = cases;
+	sw->key_var = __symt_copy_var(iter_var);
+	sw->cases = __symt_copy(cases);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
-
 	new_node->id = SWITCH;
 	new_node->switch_val = sw;
     new_node->next_node = NULL;
@@ -438,12 +668,12 @@ void symt_end_block(symt_tab *tab, const symt_id_t id_block)
 {
     assertp(tab != NULL, "table has not been constructed");
 
-    symt_node *block_node = symt_search(tab, id_block);
+    symt_node *block_node = __symt_search(tab, id_block);
 
     if (block_node != NULL)
     {
-        symt_delete(block_node);
-        block_node = NULL;
+        if (block_node->next_node != NULL) symt_delete(block_node->next_node);
+        block_node->next_node = NULL;
     }
 }
 
@@ -544,6 +774,7 @@ void symt_delete(symt_tab *tab)
         // For
         if (iter->for_val != NULL)
         {
+            iter->for_val->incr->next_node = NULL;
             if (iter->for_val->cond != NULL) symt_delete(iter->for_val->cond);
             if (iter->for_val->iter_op != NULL) symt_delete(iter->for_val->iter_op);
             if (iter->for_val->statements != NULL) symt_delete(iter->for_val->statements);

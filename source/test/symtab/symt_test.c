@@ -147,13 +147,16 @@ void test_push()
     show_ok();
 }
 
-/*
 void test_search()
 {
     symt_tab* tab;
     symt_node *result, *cond;
     symt_node *if_statements, *else_statements;
     int *val1, *val2, *val3;
+
+    val1 = (int*)(ml_malloc(sizeof(int)));
+    val2 = (int*)(ml_malloc(sizeof(int)));
+    val3 = (int*)(ml_malloc(sizeof(int)));
     *val1 = 10; *val2 = 20; *val3 = 30;
 
     test_name("test_search");
@@ -182,13 +185,12 @@ void test_search()
     else_statements = symt_new();
 
     if_statements = symt_insert_var(if_statements, LOCAL_VAR, "local_var1", I32, false, 0, val1, false, false);
-    else_statements = symt_insert_var(else_statements, GLOBAL_VAR, "local_var1", I32, false, 0, val1, false, false);
-    else_statements = symt_insert_var(else_statements, LOCAL_VAR, "local_var2", I32, false, 0, val1, false, false);
+    else_statements = symt_insert_var(else_statements, GLOBAL_VAR, "local_var2", I32, false, 0, val2, false, false);
 
     tab = symt_new();
-    symt_insert_if(tab, cond, if_statements, NULL);
-    symt_insert_if(tab, cond, NULL, else_statements);
-    symt_insert_if(tab, cond, NULL, NULL);
+    tab = symt_insert_if(tab, cond, if_statements, NULL);
+    tab = symt_insert_if(tab, cond, NULL, else_statements);
+    tab = symt_insert_if(tab, cond, NULL, NULL);
 
     test_assert("test_search_local_var_at_if");
     result = symt_search(tab, LOCAL_VAR);
@@ -200,11 +202,6 @@ void test_search()
     assertp(result != NULL, "else statement must define global val");
     show_ok();
 
-    test_assert("test_search_local_var_at_else");
-    result = symt_search(else_statements, LOCAL_VAR);
-    assertp(result != NULL, "else statement must define local var");
-    show_ok();
-
     symt_delete(tab);
 }
 
@@ -213,6 +210,10 @@ void test_search_by_name()
     symt_tab* tab;
     symt_node *result;
     int *val1, *val2, *val3;
+
+    val1 = (int*)(ml_malloc(sizeof(int)));
+    val2 = (int*)(ml_malloc(sizeof(int)));
+    val3 = (int*)(ml_malloc(sizeof(int)));
     *val1 = 10; *val2 = 20; *val3 = 30;
 
     test_name("test_search_by_name");
@@ -220,29 +221,38 @@ void test_search_by_name()
     tab = symt_new();
     tab = symt_insert_var(tab, GLOBAL_VAR, "gvar1", I32, false, 0, val1, false, false);
 
+    test_assert("test_search_gvar1");
     result = symt_search_by_name(tab, "gvar1", GLOBAL_VAR);
     assertp(result != NULL, "global var should exist");
+    show_ok();
 
     tab = symt_insert_var(tab, GLOBAL_VAR, "gvar2", I32, false, 0, val2, false, false);
     tab = symt_insert_var(tab, GLOBAL_VAR, "gvar3", I32, false, 0, val3, false, false);
     tab = symt_insert_rout(tab, PROCEDURE, "main", VOID, NULL, false, false, NULL);
 
+    test_assert("test_search_main");
     result = symt_search_by_name(tab, "main", PROCEDURE);
     assertp(result != NULL, "procedure should exist");
+    show_ok();
 
+    test_assert("test_search_gvar1_again");
     result = symt_search_by_name(tab, "gvar1", GLOBAL_VAR);
     assertp(result != NULL, "global var 1 should exist");
+    show_ok();
 
+    test_assert("test_search_gvar2");
     result = symt_search_by_name(tab, "gvar2", GLOBAL_VAR);
     assertp(result != NULL, "global var 2 should exist");
+    show_ok();
 
+    test_assert("test_search_gvar3");
     result = symt_search_by_name(tab, "gvar3", GLOBAL_VAR);
     assertp(result != NULL, "global var 3 should exist");
+    show_ok();
 
     symt_delete(tab);
-    show_ok();
 }
-*/
+
 void test_end_block()
 {
     symt_tab *tab, *result;
@@ -264,7 +274,7 @@ void test_end_block()
 
     test_assert("test_end_block_while");
     symt_end_block(tab, WHILE);
-    assertp(tab->next_node->next_node->while_val == NULL, "block statement wasn't clean");
+    assertp(tab->next_node->next_node == NULL, "block statement wasn't clean");
     assertf(tab->var != NULL, "global variable %s must exist", "gvar1");
     assertf(tab->next_node->var != NULL, "global variable %s must exist", "gvar2");
 
@@ -284,7 +294,7 @@ void test_end_block()
     test_assert("test_end_block_for");
     symt_end_block(tab, FOR);
 
-    assertp(tab->next_node->next_node->for_val == NULL, "block statement wasn't clean");
+    assertp(tab->next_node->next_node == NULL, "block statement wasn't clean");
     assertf(tab->var != NULL, "global variable %s must exist", "gvar1");
     assertf(tab->next_node->var != NULL, "global variable %s must exist", "gvar2");
 
@@ -346,10 +356,10 @@ int main(int nargc, char *argv[])
     test_welcome();
     test_new_delete();
     test_push();
-  //  test_search();
-  //  test_search_by_name();
-    test_end_block();
+    test_search();
+    test_search_by_name();
     test_merge();
+    test_end_block();
 
     return 0;
 }
