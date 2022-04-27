@@ -19,7 +19,7 @@ all:
 	make -s clean
 
 install:
-	gcc -o symtab lib/memlib.h lib/memlib.c lib/assertb.h symt.c symt.h
+	gcc -o symtab lib/memlib.h lib/memlib.c lib/assertb.h lib/copy.h lib/copy.c symt.c symt.h
 
 clean:
 	rm -f symtab 2>/dev/null
