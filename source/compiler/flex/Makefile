@@ -25,10 +25,10 @@ all:
 
 install: c3pflex.l
 	flex c3pflex.l
-	gcc -o c3pflex lex.yy.c -lfl
+	gcc -o c3pflex.exe lex.yy.c -lfl
 
-execute: c3pflex lex.yy.c
-	./c3pflex $(src)
+execute: c3pflex.exe lex.yy.c
+	./c3pflex.exe $(src)
 
 clean:
 	rm -f lex.yy.c 2>/dev/null

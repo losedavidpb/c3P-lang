@@ -1,13 +1,9 @@
-.txt
-.output
-lex.yy.c
+*.yy.c
 *.tab.c
 *.tab.h
-c3pflexbison
-document/spanish/.tmp/*
-document/spanish/.tmp
+*.output
 *.old
+*.exe
 .vscode
+document/spanish/.tmp
 build
-symtest
-symtab

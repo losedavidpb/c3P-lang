@@ -17,7 +17,7 @@ bool __symt_is_valid_id(symt_id_t id)
     bool cond = id == LOCAL_VAR ||  id == GLOBAL_VAR;
     cond = cond || id == CONSTANT || id == IF || id == WHILE;
     cond = cond || id == FOR || id == SWITCH || id == FUNCTION;
-    cond = cond || id == PROCEDURE || id == CALL;
+    cond = cond || id == PROCEDURE || id == CALL_;
     return cond;
 }
 
@@ -25,10 +25,10 @@ symt_cons_t __symt_get_type_data(symt_var_t type)
 {
     switch (type)
     {
-        case I8: case I16: case I32: case I64:  return INTEGER; break;
-        case F32: case F64:                     return DOUBLE; break;
-        case C:                                 return CHAR; break;
-        case B:                                 return INTEGER; break;
+        case I8: case I16: case I32: case I64:  return INTEGER_; break;
+        case F32: case F64:                     return DOUBLE_; break;
+        case C:                                 return CHAR_; break;
+        case B:                                 return INTEGER_; break;
         default:                                return -1; break;
     }
 }
@@ -37,9 +37,9 @@ void __symt_delete_value_cons(symt_cons_t type, symt_value_t value)
 {
     switch(type)
     {
-        case INTEGER:   ml_free(((int *)value));    break;
-        case DOUBLE:    ml_free(((double *)value)); break;
-        case CHAR:      ml_free(((char *)value));   break;
+        case INTEGER_:   ml_free(((int *)value));    break;
+        case DOUBLE_:    ml_free(((double *)value)); break;
+        case CHAR_:      ml_free(((char *)value));   break;
     }
 }
 
@@ -51,9 +51,9 @@ void *__symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems)
     {
         switch(type)
         {
-            case INTEGER: copy_value = intcopy((int*)value, num_elems + 1);         break;
-            case DOUBLE: copy_value = doublecopy((double*)value, num_elems + 1);    break;
-            case CHAR: copy_value = strcopy((char*)value);                          break;
+            case INTEGER_: copy_value = intcopy((int*)value, num_elems + 1);         break;
+            case DOUBLE_: copy_value = doublecopy((double*)value, num_elems + 1);    break;
+            case CHAR_: copy_value = strcopy((char*)value);                          break;
         }
     }
 
@@ -252,7 +252,7 @@ symt_node *__symt_search(symt_tab *tab, symt_id_t id, bool search_prev)
                     }
                 break;
 
-                case CALL:;
+                case CALL_:;
                     if (iter->call->params != NULL)
                     {
                         result = __symt_search(iter->call->params, id, search_prev);
@@ -374,7 +374,7 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id)
                         }
                     break;
 
-                    case CALL:;
+                    case CALL_:;
                         if (iter->call->params != NULL)
                         {
                             result = symt_search_by_name(iter->call->params, name, id);
@@ -392,7 +392,7 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id)
                 case LOCAL_VAR:; case GLOBAL_VAR:; if (strcmp(name, iter->var->name) == 0) return iter; break;
                 case CONSTANT:; if (strcmp(name, iter->cons->name) == 0) return iter;                   break;
                 case FUNCTION:; case PROCEDURE:; if (strcmp(name, iter->rout->name) == 0) return iter;  break;
-                case CALL:; if (strcmp(name, iter->call->name) == 0) return iter;                       break;
+                case CALL_:; if (strcmp(name, iter->call->name) == 0) return iter;                       break;
                 default:  /* Just to avoid warning */                                                   break;
             }
         }
@@ -435,7 +435,7 @@ symt_tab * symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_va
 	call_value->name = strcopy(name);
 
 	symt_node *new_node = (symt_node*)(ml_malloc(sizeof(symt_node)));
-	new_node->id = CALL;
+	new_node->id = CALL_;
 	new_node->call = call_value;
     new_node->next_node = NULL;
 
@@ -560,7 +560,7 @@ void symt_end_block(symt_tab *tab, const symt_id_t id_block)
 {
     assertp(tab != NULL, "table has not been constructed");
 
-    symt_node *block_node = __symt_search(tab, id_block, tab);
+    symt_node *block_node = __symt_search(tab, id_block, true);
 
     if (block_node != NULL)
     {

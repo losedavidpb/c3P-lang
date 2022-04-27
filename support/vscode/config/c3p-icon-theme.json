@@ -21,6 +21,9 @@
         "c3p-icon": {
             "iconPath": "../images/icons/c3p-icon.svg"
         },
+        "yacc-icon": {
+            "iconPath": "../images/icons/yacc-icon.svg"
+        },
         "_R_light": {
             "fontCharacter": "\\E001",
             "fontColor": "#498ba7"
@@ -1841,6 +1844,8 @@
     },
     "languageIds": {
         "c3p": "c3p-icon",
+        "yacc": "yacc-icon",
+        "lex": "yacc-icon",
         "bat": "_windows",
         "clojure": "_clojure",
         "coffeescript": "_coffee",

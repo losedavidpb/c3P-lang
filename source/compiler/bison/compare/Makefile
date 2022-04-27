@@ -23,13 +23,13 @@ clean_output:
 install: compare_c3pflexbison.l compare_c3pbison.y
 	bison -d compare_c3pbison.y
 	flex compare_c3pflexbison.l
-	gcc -o c3pflexbison compare_c3pbison.tab.c lex.yy.c -lm -lfl
+	gcc -o c3pflexbison.exe compare_c3pbison.tab.c lex.yy.c -lm -lfl
 
-execute: c3pflexbison compare_c3pbison.tab.c compare_c3pbison.tab.h lex.yy.c
-	./c3pflexbison ../../../test/bison/expressions/s_c_test_*.c3p
+execute: c3pflexbison.exe compare_c3pbison.tab.c compare_c3pbison.tab.h lex.yy.c
+	./c3pflexbison.exe ../../../test/bison/expressions/s_c_test_*.c3p
 
 clean:
 	rm -f compare_c3pbison.tab.c 2>/dev/null
 	rm -f compare_c3pbison.tab.h 2>/dev/null
-	rm -f c3pflexbison 2>/dev/null
+	rm -f c3pflexbison.exe 2>/dev/null
 	rm -f lex.yy.c 2>/dev/null

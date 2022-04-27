@@ -23,10 +23,10 @@ all:
 	make -s clean
 
 install: $(symt_path)/symt.c $(symt_path)/symt.h $(lib_path)/memlib.h $(lib_path)/memlib.c $(lib_path)/assertb.h $(lib_path)/copy.c $(lib_path)/copy.h symt_test.c
-	gcc -o symt_test $(symt_path)/symt.c $(symt_path)/symt.h $(lib_path)/memlib.h $(lib_path)/memlib.c $(lib_path)/assertb.h $(lib_path)/copy.c $(lib_path)/copy.h symt_test.c
+	gcc -o symt_test.exe $(symt_path)/symt.c $(symt_path)/symt.h $(lib_path)/memlib.h $(lib_path)/memlib.c $(lib_path)/assertb.h $(lib_path)/copy.c $(lib_path)/copy.h symt_test.c
 
-execute: symt_test
-	./symt_test
+execute: symt_test.exe
+	./symt_test.exe
 
 clean:
-	rm -f symt_test 2>/dev/null
+	rm -f symt_test.exe 2>/dev/null

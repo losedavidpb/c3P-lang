@@ -31,13 +31,13 @@ clean_output:
 install: c3pflexbison.l c3pbison.y
 	bison -d c3pbison.y
 	flex c3pflexbison.l
-	gcc -o c3pflexbison c3pbison.tab.c lex.yy.c -lfl -lm
+	gcc -o c3pflexbison.exe c3pbison.tab.c lex.yy.c -lfl -lm
 
-execute: c3pflexbison c3pbison.tab.c c3pbison.tab.h lex.yy.c
-	./c3pflexbison ../../test/bison/*.c3p
+execute: c3pflexbison.exe c3pbison.tab.c c3pbison.tab.h lex.yy.c
+	./c3pflexbison.exe ../../test/bison/*.c3p
 
 clean:
 	rm -f c3pbison.tab.c 2>/dev/null
 	rm -f c3pbison.tab.h 2>/dev/null
-	rm -f c3pflexbison 2>/dev/null
+	rm -f c3pflexbison.exe 2>/dev/null
 	rm -f lex.yy.c 2>/dev/null

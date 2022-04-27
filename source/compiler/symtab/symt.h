@@ -40,7 +40,7 @@ typedef enum symt_id_t
     SWITCH,         // switch statement
     FUNCTION,       // routines with a return
     PROCEDURE,      // routines with any return
-    CALL,           // call statement for functions
+    CALL_,          // call statement for functions
 } symt_id_t;
 
 /* Type for values stored at local and global
@@ -48,7 +48,7 @@ typedef enum symt_id_t
 typedef void * symt_value_t;
 
 /* Types for primitive data at constants */
-typedef enum symt_cons_t { INTEGER, DOUBLE, CHAR } symt_cons_t;
+typedef enum symt_cons_t { INTEGER_, DOUBLE_, CHAR_ } symt_cons_t;
 
 /* Primitive types for variables and return functions */
 typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_var_t;
