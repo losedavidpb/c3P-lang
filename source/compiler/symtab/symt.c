@@ -136,7 +136,7 @@ symt_for *__symt_copy_for(symt_for *for_val)
 	for_val_->statements = __symt_copy(for_val->statements);
 	for_val_->incr = __symt_copy(for_val->incr);
 	for_val_->iter_op = __symt_copy(for_val->iter_op);
-	for_val_->incr->next_node = NULL;
+	if(for_val_->incr != NULL) for_val_->incr->next_node = NULL;
 	return for_val;
 }
 
@@ -444,7 +444,7 @@ symt_tab *symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases
 {
 	symt_switch *sw = (symt_switch *)(malloc(sizeof(symt_switch)));
 	sw->key_var = __symt_copy_var(iter_var);
-	sw->cases = __symt_copy(cases);
+	//sw->cases = __symt_copy(cases);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = SWITCH;
