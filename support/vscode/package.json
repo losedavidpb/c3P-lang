@@ -2,7 +2,7 @@
     "name": "c3p",
     "displayName": "c3P Tools",
     "description": "Support for c3P language",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.64.0"

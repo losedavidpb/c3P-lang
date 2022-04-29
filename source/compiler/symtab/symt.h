@@ -142,6 +142,18 @@ typedef struct symt_node
 /* Type for a symbol table */
 typedef symt_node symt_tab;
 
+/* Check if passed identifier is valid */
+bool symt_is_valid_id(symt_id_t id);
+
+/* Get the constant type for passed variable type */
+symt_cons_t symt_get_type_data(symt_var_t type);
+
+/* Get the value of passed node whether that field exists */
+symt_value_t symt_get_value_from_node(symt_node *node);
+
+/* Copy passed node into a new one at a new direction */
+symt_node *symt_copy(symt_node *node);
+
 /* Create dynamically a new symbol table */
 symt_tab* symt_new();
 
@@ -180,7 +192,7 @@ symt_tab* symt_insert_while(symt_tab *tab, symt_node *cond, symt_node *statement
 symt_tab* symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_node *iter_var, symt_node *iter_op);
 
 /* Insert switch symbol to the symbol table */
-symt_tab* symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases, int num_cases);
+symt_tab* symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases);
 
 /* Finish a block statement */
 void symt_end_block(symt_tab *tab, const symt_id_t id_block);

@@ -23,7 +23,7 @@ clean_output:
 install: var_c3pflexbison.l var_c3pbison.y
 	bison -d var_c3pbison.y
 	flex var_c3pflexbison.l
-	gcc -o c3pflexbison.exe var_c3pbison.tab.c lex.yy.c -lm -lfl
+	gcc -g -o c3pflexbison.exe var_c3pbison.tab.c lex.yy.c -lm -lfl
 
 execute: c3pflexbison.exe var_c3pbison.tab.c var_c3pbison.tab.h lex.yy.c
 	./c3pflexbison.exe ../../../test/bison/variable/*.c3p

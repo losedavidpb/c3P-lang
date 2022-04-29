@@ -23,7 +23,7 @@ clean_output:
 install: expr_c3pflexbison.l expr_c3pbison.y
 	bison -d expr_c3pbison.y
 	flex expr_c3pflexbison.l
-	gcc -o c3pflexbison.exe expr_c3pbison.tab.c lex.yy.c -lm -lfl
+	gcc -g -o c3pflexbison.exe expr_c3pbison.tab.c lex.yy.c -lm -lfl
 
 execute: c3pflexbison.exe expr_c3pbison.tab.c expr_c3pbison.tab.h lex.yy.c
 	./c3pflexbison.exe ../../../test/bison/expressions/s_e_test_*.c3p

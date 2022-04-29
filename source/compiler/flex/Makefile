@@ -25,7 +25,7 @@ all:
 
 install: c3pflex.l
 	flex c3pflex.l
-	gcc -o c3pflex.exe lex.yy.c -lfl
+	gcc -g -o c3pflex.exe lex.yy.c -lfl
 
 execute: c3pflex.exe lex.yy.c
 	./c3pflex.exe $(src)
