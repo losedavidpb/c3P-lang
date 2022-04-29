@@ -60,7 +60,6 @@ typedef struct symt_var
     symt_var_t type;
     symt_value_t value;
     bool is_hide;
-    bool is_readonly;
     bool is_array;
     int array_length;
 } symt_var;
@@ -68,7 +67,6 @@ typedef struct symt_var
 /* Type for constants */
 typedef struct symt_cons
 {
-    symt_name_t name;
     symt_cons_t type;
     symt_value_t value;
 } symt_cons;
@@ -79,7 +77,6 @@ typedef struct symt_routine
     symt_name_t name;
     symt_var_t type;
     bool is_hide;
-    bool is_readonly;
     struct symt_node *params;
     struct symt_node *statements;
 } symt_routine;
@@ -174,13 +171,13 @@ symt_tab* symt_push(symt_tab *tab, symt_node *node);
 symt_tab* symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_var_t type, struct symt_node *params);
 
 /* Insert var symbol to the symbol table */
-symt_tab* symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide, bool is_readonly);
+symt_tab* symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
 
 /* Insert const symbol to the symbol table */
-symt_tab* symt_insert_const(symt_tab *tab, const symt_name_t name, const symt_cons_t type, symt_value_t value);
+symt_tab* symt_insert_const(symt_tab *tab, const symt_cons_t type, symt_value_t value);
 
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, bool is_readonly, symt_node *statements);
+symt_tab* symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, symt_node *statements);
 
 /* Insert if symbol to the symbol table */
 symt_tab* symt_insert_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else);

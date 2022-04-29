@@ -46,7 +46,6 @@ symt_var *__symt_copy_var(symt_var *var)
 	n_var->is_array = var->is_array;
 	n_var->array_length = var->array_length;
 	n_var->is_hide = var->is_hide;
-	n_var->is_readonly = var->is_readonly;
 	return n_var;
 }
 
@@ -55,8 +54,6 @@ symt_cons *__symt_copy_cons(symt_cons *cons)
 	symt_cons *constant = (symt_cons *)(ml_malloc(sizeof(symt_cons)));
 	constant->type = cons->type;
 	constant->value = __symt_copy_value(cons->value, cons->type, 0);
-	constant->value = cons->value;
-	constant->name = strcopy(cons->name);
 	return constant;
 }
 
@@ -73,7 +70,6 @@ symt_routine *__symt_copy_rout(symt_routine *rout)
 {
 	symt_routine *function = (symt_routine *)(ml_malloc(sizeof(symt_routine)));
 	function->is_hide = rout->is_hide;
-	function->is_readonly = rout->is_readonly;
 	function->params = symt_copy(rout->params);
 	function->statements = symt_copy(rout->statements);
 	function->name = strcopy(rout->name);
@@ -131,7 +127,6 @@ symt_node *__symt_search(symt_tab *tab, symt_id_t id, symt_name_t name, bool sea
 			switch (iter->id)
 			{
 				case LOCAL_VAR:; case GLOBAL_VAR:; if (strcmp(name, iter->var->name) == 0) return search_prev == true ? prev : iter; 	break;
-				case CONSTANT:; if (strcmp(name, iter->cons->name) == 0) return search_prev == true ? prev : iter; 						break;
 				case FUNCTION:; case PROCEDURE:; if (strcmp(name, iter->rout->name) == 0) return search_prev == true ? prev : iter; 	break;
 				case CALL_:; if (strcmp(name, iter->call->name) == 0) return search_prev == true ? prev : iter; 						break;
 				default: /* Just to avoid warning */ 																					break;
@@ -360,7 +355,7 @@ symt_tab *symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_var
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide, bool is_readonly)
+symt_tab *symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide)
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
 	n_var->name = strcopy(name);
@@ -369,7 +364,6 @@ symt_tab *symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t n
 	n_var->is_array = is_array;
 	n_var->array_length = array_length;
 	n_var->is_hide = is_hide;
-	n_var->is_readonly = is_readonly;
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = id;
@@ -379,12 +373,11 @@ symt_tab *symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t n
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_const(symt_tab *tab, const symt_name_t name, const symt_cons_t type, symt_value_t value)
+symt_tab *symt_insert_const(symt_tab *tab, const symt_cons_t type, symt_value_t value)
 {
 	symt_cons *constant = (symt_cons *)(ml_malloc(sizeof(symt_cons)));
 	constant->type = type;
 	constant->value = __symt_copy_value(value, type, 0);
-	constant->name = strcopy(name);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = CONSTANT;
@@ -394,11 +387,10 @@ symt_tab *symt_insert_const(symt_tab *tab, const symt_name_t name, const symt_co
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, bool is_readonly, symt_node *statements)
+symt_tab *symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, symt_node *statements)
 {
 	symt_routine *function = (symt_routine *)(ml_malloc(sizeof(symt_routine)));
 	function->is_hide = is_hide;
-	function->is_readonly = is_readonly;
 	function->params = symt_copy(params);
 	function->statements = symt_copy(statements);
 	function->name = strcopy(name);
@@ -500,7 +492,7 @@ symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
 				dest = symt_insert_var(dest,
 					iter->id, iter->var->name, iter->var->type,
 					iter->var->is_array, iter->var->array_length,
-					iter->var->value, iter->var->is_hide, iter->var->is_readonly
+					iter->var->value, iter->var->is_hide
 				);
 			}
 		}
@@ -511,7 +503,7 @@ symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
 				dest = symt_insert_rout(dest,
 					iter->id, iter->rout->name, iter->rout->type,
 					iter->rout->params, iter->rout->is_hide,
-					iter->rout->is_readonly, iter->rout->statements
+					iter->rout->statements
 				);
 			}
 		} else dest = symt_push(dest, iter);
@@ -547,8 +539,6 @@ void symt_delete(symt_tab *tab)
 		// Constant
 		if (iter->cons != NULL)
 		{
-			ml_free(iter->cons->name);
-			iter->cons->name = NULL;
 			__symt_delete_value_cons(iter->cons->type, iter->cons->value);
 			iter->cons->value = NULL;
 			iter->cons->type = SYMT_ROOT_ID;

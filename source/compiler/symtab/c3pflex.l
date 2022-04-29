@@ -15,12 +15,15 @@
   #include "c3pbison.tab.h"
 
   #include "symt.h"
+  #include <ctype.h>
 
   int l_error = 0;        // Specify if errors were detected
   int num_lines = 1;      // Number of lines processed
 
   // Show and error message at console
   void showerr(const char *mssg, int cod);
+  double get_double(const char *str);
+  int get_int(const char *str);
 %}
 
 letter          [a-zA-Z]
@@ -42,7 +45,6 @@ comment         \?.*
 
 %%
 
-readonly                                        { return READONLY; }
 hide                                            { return HIDE; }
 
 {integer_type}                                  { return INTEGER_TYPE; }
@@ -88,14 +90,14 @@ call                                            { return CALL; }
 
 #add                                            { return ADD_LIBRARY; }
 
-\".*\"                                          { return STRING; }
-\'.?\'                                          { return CHAR; }
-\-?{digit}+                                     { return INTEGER; }
-\-?{digit}*\.{digit}+                           { return DOUBLE; }
+\".*\"                                          { yylval.string_t = strdup(yytext); return STRING; }
+\'.?\'                                          { yylval.char_t = yytext[0]; return CHAR; }
+\-?{digit}+                                     { yylval.integer_t = get_int(strdup(yytext)); return INTEGER; }
+\-?{digit}*\.{digit}+                           { yylval.double_t =  get_double(strdup(yytext)); return DOUBLE; }
 "T"                                             { yylval.bool_t = 1; return T; }
 "F"                                             { yylval.bool_t = 0; return F; }
 
-{identifier}                                    { return IDENTIFIER; }
+{identifier}                                    { yylval.name_t = strdup(yytext); return IDENTIFIER; }
 
 \<{identifier}(\.{identifier})*\>               { return PATH_ADD_LIBRARY; }
 
@@ -115,4 +117,16 @@ void showerr(const char *mssg, int cod)
     printf("lexical error: \"UNKOWN\" at line %i\n", num_lines);
   else
     printf("lexical error: \"%s\" at line %i (%i)\n", mssg, num_lines, cod);
+}
+
+double get_double(const char *str)
+{
+    while (*str && !(isdigit(*str) || ((*str == '-' || *str == '+') && isdigit(*(str + 1))))) str++;
+    return strtod(str, NULL);
+}
+
+int get_int(const char *str)
+{
+    while (*str && !(isdigit(*str) || ((*str == '-' || *str == '+') && isdigit(*(str + 1))))) str++;
+    return (int)strtod(str, NULL);
 }
