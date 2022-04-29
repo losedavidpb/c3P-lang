@@ -17,9 +17,9 @@
   #include <string.h>
 
   #include "lib/memlib.h"
-  #include "lib/assertb.h"
-  #include "lib/copy.h"
   #include "symt.h"
+  #include "lib/copy.h"
+  #include "lib/assertb.h"
 
   extern int l_error;        // Specify if lexical errors were detected
   extern int num_lines;      // Number of lines processed
@@ -29,8 +29,6 @@
   int yydebug = 1;           // Enable this to active debug mode
   int s_error = 0;           // Specify if syntax errors were detected
 
-  symt_tab* tab;             // Table of symbol
-
   // Return integer which is the equivalent token
   // at current symbol table
   int bison2symt_enum(int);
@@ -39,6 +37,14 @@
   // avoid warnings related to implicit declaration
   int yylex(void);
   void yyerror(const char *s);
+  
+  symt_tab *tab;
+  
+  int array_length = 0;
+  int array_type = 0;
+  int variable_type = 0;
+  void* value_list_expr;
+  
 %}
 
 // __________ Data __________
@@ -51,7 +57,7 @@
     char * string_t;
     char char_t;
     int type_t;
-    struct symt_node *node_t;
+	struct symt_node *node_t;
 }
 
 // __________ Tokens __________
@@ -99,10 +105,11 @@
 %type <string_t> expr_string;
 %type <double_t> int_expr;
 
-%type <node_t> expr;
 %type <node_t> statement;
+%type <node_t> expr;
 %type <node_t> in_var;
 %type <node_t> var_assign;
+%type <node_t> switch_case
 
 // __________ Precedence __________
 
@@ -131,17 +138,8 @@
 
 // __________ Expression __________
 
-
-expr           : expr_num       /*  { double *value = doublecopy($1);
-                                    symt_node* result = symt_new();
-                                    result = symt_insert_const(result, " ", DOUBLE, value);
-                                    $$ = result;
-                                  }*/
-               | expr_char        /*{ char *value = strcopy($1);
-                                    symt_node* result = symt_new();
-                                    result = symt_insert_const(result, " ", CHAR, value);
-                                    $$ = result;
-                                  }*/
+expr           : expr_num
+               | expr_char
                | expr_string
                ;
 
@@ -195,15 +193,18 @@ expr_string    : expr_string '+' expr_string           { int len_result = strlen
 
 // __________ Constants and Data type __________
 
-data_type       : INTEGER_TYPE | DOUBLE_TYPE
-                | CHAR_TYPE | STR_TYPE | BOOL_TYPE
+data_type       : INTEGER_TYPE  { variable_type  = bison2symt_enum($1); } 
+				| DOUBLE_TYPE	{ variable_type  = bison2symt_enum($1); } 
+                | CHAR_TYPE 	{ variable_type  = bison2symt_enum($1); } 
+				| STR_TYPE 		{ variable_type  = bison2symt_enum($1); } 
+				| BOOL_TYPE		{ variable_type  = bison2symt_enum($1); } 
                 ;
 
-arr_data_type   : INTEGER_TYPE '[' int_expr ']'
-                | DOUBLE_TYPE '[' int_expr ']'
-                | CHAR_TYPE '[' int_expr ']'
-                | STR_TYPE '[' int_expr ']'
-                | BOOL_TYPE '[' int_expr ']'
+arr_data_type   : INTEGER_TYPE '[' int_expr ']'					{ array_length = $3; array_type = bison2symt_enum($1); }
+                | DOUBLE_TYPE '[' int_expr ']'					{ array_length = $3; array_type = bison2symt_enum($1); }	
+                | CHAR_TYPE '[' int_expr ']'					{ array_length = $3; array_type = bison2symt_enum($1); }	
+                | STR_TYPE '[' int_expr ']'						{ array_length = $3; array_type = bison2symt_enum($1); }
+                | BOOL_TYPE '[' int_expr ']'					{ array_length = $3; array_type = bison2symt_enum($1); }
                 ;
 
 // __________ Declaration for variables __________
@@ -246,16 +247,127 @@ ext_var        : in_var
                | READONLY HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'
                ;
 
-in_var         : IDENTIFIER ':' data_type
-               | IDENTIFIER ':' arr_data_type
-               | READONLY IDENTIFIER ':' data_type
-               | READONLY IDENTIFIER ':' arr_data_type
-               | IDENTIFIER '=' expr
-               | IDENTIFIER '[' expr ']' '=' expr
-               | IDENTIFIER ':' data_type '=' expr
-               | IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'
-               | READONLY IDENTIFIER ':' data_type '=' expr
-               | READONLY IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'
+in_var         : IDENTIFIER ':' data_type										{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, variable_type, 0,0,NULL,0,0);																				
+																				}
+               | IDENTIFIER ':' arr_data_type									{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, array_type, 1, array_length,NULL,0,0);																		  
+																				}			
+               | READONLY IDENTIFIER ':' arr_data_type							{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, array_type, 1, array_length,NULL,0,1);																		  
+																				}			
+               | IDENTIFIER '=' expr											{ symt_node* var;	
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var != NULL, "variable does not exist");
+																				  var->var->value = $3;
+																				}
+               | IDENTIFIER '[' expr ']' '=' expr								{
+																					symt_node* var;		
+																					var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																					assertp(var != NULL, "variable does not exist);
+																					symt_node* expresion = (symt_node*)$3;
+																					symt_node* new_value = (symt_node*)$6;
+																					void* valor = symt_get_value_from_node(expresion);
+																					void* new_valor = symt_get_value_from_node(new_value);
+																					int* value_int;
+																					double* value_double;
+																					if(expresion->cons->type == INTEGER_){
+																						value_int = (int*)valor;
+																						assertp(value_int >= 0 && value_int < expresion->cons->array_length, "array index out of bounds");
+																						assertp(new_value->var->type == INTEGER_, "type does not match");
+																						int* array_int = (int*)var->var->value;
+																						if(new_value->id == CALL_){
+																							symt_call* value_call  = (symt_call*)new_valor;
+																							//*(array_int+value_int) = value_call;
+																						}else{
+																							int* new_array_int_valor = (int*)new_valor;
+																							*(array_int+value_int) = new_array_int_valor;
+																						}
+																						
+																					}else {
+																						value_double = (double*)valor;
+																						assertp(value_double >= 0 && value_double < expresion->cons->array_length, "array index out of bounds");
+																						assertp(new_value->var->type == DOUBLE_, "type does not match");
+																						double* array_double = (double*)var->var->value;
+																						if(new_value->id == CALL_){
+																							symt_call* value_call  = (symt_call*)new_valor;
+																							//*(array_int+value_int) = value_call;
+																						}else{
+																							double* new_array_double_valor = (double*)new_valor;
+																							*(array_double+value_double) = new_array_valor;
+																						}																						
+																					}
+																				  /*
+																				  switch(expresion->id){
+																					case CONSTANT:
+																						assertp(expresion->cons->type == INTEGER_ || expresion->cons->type == DOUBLE_, "invalid type");
+																						assertp(expresion->cons->type == var->var->type, "constant type does not match array type");
+																						int* value_int;
+																						double* value_double;
+																						if(expresion->cons->type == INTEGER_){
+																							value_int = (int*)expresion->cons->value;
+																							assertp(value_int >= 0 && value_int < expresion->cons->array_length, "array index out of bounds");
+																							int* array_int = (int*)var->var->value;
+																							*(array_int+value_int) = 
+																						}else {
+																							value_double = (double*)expresion->cons->value;
+																							assertp(value_double >= 0 && value_double < expresion->cons->array_length, "array index out of bounds");
+																							double* array_double = (double*)var->var->value;
+																						}
+																						break;
+																					case LOCAL_VAR:
+																					case GLOBAL_VAR:
+																						
+																						break;
+																					case CALL_:
+																					
+																						break;
+																				  }*/
+																				}			
+               | IDENTIFIER ':' data_type '=' expr								{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, variable_type, 0,0,$5,0,0);																				
+																				}
+               | READONLY IDENTIFIER ':' data_type								{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, variable_type, 0, 0,NULL,0,1);																		  
+																				}			
+               | IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, array_type, 1, array_length,NULL,0,0);																		  
+																					var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																					assertp(var != NULL, "variable does not exist");
+																					assertp(var->var->type == array_type, "type does not match");
+																					var->var->value=value_list_expr;
+																				}
+               | READONLY IDENTIFIER ':' data_type '=' expr						{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $2, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $2, variable_type, 0,0,$6,0,1);																				
+																				}
+               | READONLY IDENTIFIER ':' data_type								{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $2, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $2, variable_type, 0,0,NULL,0,1);																				
+																				}
+               | READONLY IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'	{ symt_node* var;		
+																				  var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																				  assertp(var == NULL, "variable already exists");
+																				  tab = symt_insert_var(tab, LOCAL_VAR, $1, array_type, 1, array_length,NULL,0,1);																		  
+																					var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																					assertp(var != NULL, "variable does not exist");
+																					assertp(var->var->type == array_type, "type does not match");
+																					var->var->value=value_list_expr;
+																				}	
                ;
 
 // __________ Procedures and functions __________
@@ -264,7 +376,7 @@ func_declr      : BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' E
                 | HIDE BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement END_FUNCTION
                 ;
 
-proc_declr      : BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement
+proc_declr      : BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement END_PROCEDURE
                 | HIDE BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement END_PROCEDURE
                 ;
 
@@ -298,14 +410,22 @@ more_EOL        : | EOL more_EOL
 // __________ Statement __________
 
 statement       : | in_var EOL statement
-                | BEGIN_IF '(' expr ')' EOL statement break_rule more_else END_IF EOL { symt_end_block(tab, FOR); } statement
-                | BEGIN_WHILE '(' expr ')' EOL statement break_rule /*{ tab = symt_insert_while(tab, $3, $6); } */END_WHILE EOL /*{ symt_end_block(tab, WHILE); } */statement
-                | BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule  {  /*symt_node* cond = (symt_node*)(ml_malloc(sizeof(symt_node))); cond = (symt_node*)$5;
-                                                                                                symt_node* statement = (symt_node*)(ml_malloc(sizeof(symt_node)));statement = (symt_node*)$10;
-                                                                                                symt_node* iter_var = (symt_node*)(ml_malloc(sizeof(symt_node)));iter_var = (symt_node*)$3;
-                                                                                                symt_node* iter_op = (symt_node*)(ml_malloc(sizeof(symt_node)));iter_op = (symt_node*)$7;*/
-                                                                                                tab = symt_insert_for(tab, NULL, NULL, NULL, NULL); } END_FOR EOL statement
-                | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH EOL statement
+                | BEGIN_IF '(' expr ')' EOL statement break_rule more_else END_IF EOL statement
+                | BEGIN_WHILE '(' expr ')' EOL statement break_rule END_WHILE EOL statement
+                | BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule {   symt_node* cond = (symt_node*)(ml_malloc(sizeof(symt_node))); cond = (symt_node*)$5;
+																								symt_node* statement = (symt_node*)(ml_malloc(sizeof(symt_node)));statement = (symt_node*)$10;
+																								symt_node* iter_var = (symt_node*)(ml_malloc(sizeof(symt_node)));iter_var = (symt_node*)$3;
+																								symt_node* iter_op = (symt_node*)(ml_malloc(sizeof(symt_node)));iter_op = (symt_node*)$7;
+																								tab = symt_insert_for(tab, cond, statement, iter_var, iter_op); 
+																							} END_FOR { symt_end_block(tab, FOR); } EOL statement
+                | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case   { 
+																	  symt_node* var;		
+																	  var = symt_search_by_name(tab, $3, GLOBAL_VAR);
+																	  if(var == NULL) var = symt_search_by_name(tab, $3, LOCAL_VAR);
+																	  assertp(var != NULL, "variable does not exist");
+																	  symt_node* casos = (symt_node*)(ml_malloc(sizeof(symt_node)));casos = (symt_node*)$6;
+																	  tab = symt_insert_switch(tab, var, casos, 0);
+																	} END_SWITCH { symt_end_block(tab, SWITCH); } EOL statement
                 | call_func EOL statement
                 | RETURN expr EOL statement
                 | CONTINUE EOL statement
@@ -340,8 +460,7 @@ int main(int argc, char** argv)
 
   for (int i = 1; i < argc; i++)
   {
-    tab = symt_new();
-
+	tab = symt_new();
     num_lines = 1;
     s_error = 0;
     l_error = 0;
@@ -353,7 +472,7 @@ int main(int argc, char** argv)
     fclose(yyin);
 
     if (s_error == 0 && l_error == 0) printf("OK\n");
-    symt_delete(tab);
+	symt_delete(tab);
   }
 
   return 0;
