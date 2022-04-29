@@ -14,6 +14,8 @@
 
   #include "c3pbison.tab.h"
 
+  #include "symt.h"
+
   int l_error = 0;        // Specify if errors were detected
   int num_lines = 1;      // Number of lines processed
 

@@ -35,8 +35,5 @@
             "label": "C3P Icon Theme",
             "path": "./config/c3p-icon-theme.json"
         }]
-    },
-    "extensionPack": [
-        "GitHub.github-vscode-theme"
-    ]
+    }
 }

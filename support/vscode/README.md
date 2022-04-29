@@ -14,7 +14,7 @@ file at the root path of the official Github repository.
 * Seti icon theme with c3P
 * Snippets
 
-![features](https://github.com/losedavidpb/c3p-language/blob/main/support/vscode/images/features.gif)
+![features](https://github.com/losedavidpb/c3P-lang/blob/main/support/vscode/images/features.gif)
 
 ## Install
 

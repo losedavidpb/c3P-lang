@@ -16,6 +16,9 @@
   #include <math.h>
   #include <string.h>
 
+  #include "lib/memlib.h"
+  #include "lib/assertb.h"
+  #include "lib/copy.h"
   #include "symt.h"
 
   extern int l_error;        // Specify if lexical errors were detected
@@ -25,6 +28,8 @@
 
   int yydebug = 1;           // Enable this to active debug mode
   int s_error = 0;           // Specify if syntax errors were detected
+
+  symt_tab* tab;             // Table of symbol
 
   // Return integer which is the equivalent token
   // at current symbol table
@@ -46,6 +51,7 @@
     char * string_t;
     char char_t;
     int type_t;
+    struct symt_node *node_t;
 }
 
 // __________ Tokens __________
@@ -88,10 +94,15 @@
 
 %token EOL
 
-%type <double_t> expr_num
+%type <double_t> expr_num;
 %type <char_t> expr_char;
 %type <string_t> expr_string;
 %type <double_t> int_expr;
+
+%type <node_t> expr;
+%type <node_t> statement;
+%type <node_t> in_var;
+%type <node_t> var_assign;
 
 // __________ Precedence __________
 
@@ -120,8 +131,17 @@
 
 // __________ Expression __________
 
-expr           : expr_num
-               | expr_char
+
+expr           : expr_num       /*  { double *value = doublecopy($1);
+                                    symt_node* result = symt_new();
+                                    result = symt_insert_const(result, " ", DOUBLE, value);
+                                    $$ = result;
+                                  }*/
+               | expr_char        /*{ char *value = strcopy($1);
+                                    symt_node* result = symt_new();
+                                    result = symt_insert_const(result, " ", CHAR, value);
+                                    $$ = result;
+                                  }*/
                | expr_string
                ;
 
@@ -244,7 +264,7 @@ func_declr      : BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' E
                 | HIDE BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement END_FUNCTION
                 ;
 
-proc_declr      : BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement END_PROCEDURE
+proc_declr      : BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement
                 | HIDE BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement END_PROCEDURE
                 ;
 
@@ -278,9 +298,13 @@ more_EOL        : | EOL more_EOL
 // __________ Statement __________
 
 statement       : | in_var EOL statement
-                | BEGIN_IF '(' expr ')' EOL statement break_rule more_else END_IF EOL statement
-                | BEGIN_WHILE '(' expr ')' EOL statement break_rule END_WHILE EOL statement
-                | BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule END_FOR EOL statement
+                | BEGIN_IF '(' expr ')' EOL statement break_rule more_else END_IF EOL { symt_end_block(tab, FOR); } statement
+                | BEGIN_WHILE '(' expr ')' EOL statement break_rule /*{ tab = symt_insert_while(tab, $3, $6); } */END_WHILE EOL /*{ symt_end_block(tab, WHILE); } */statement
+                | BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule  {  /*symt_node* cond = (symt_node*)(ml_malloc(sizeof(symt_node))); cond = (symt_node*)$5;
+                                                                                                symt_node* statement = (symt_node*)(ml_malloc(sizeof(symt_node)));statement = (symt_node*)$10;
+                                                                                                symt_node* iter_var = (symt_node*)(ml_malloc(sizeof(symt_node)));iter_var = (symt_node*)$3;
+                                                                                                symt_node* iter_op = (symt_node*)(ml_malloc(sizeof(symt_node)));iter_op = (symt_node*)$7;*/
+                                                                                                tab = symt_insert_for(tab, NULL, NULL, NULL, NULL); } END_FOR EOL statement
                 | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH EOL statement
                 | call_func EOL statement
                 | RETURN expr EOL statement
@@ -316,6 +340,8 @@ int main(int argc, char** argv)
 
   for (int i = 1; i < argc; i++)
   {
+    tab = symt_new();
+
     num_lines = 1;
     s_error = 0;
     l_error = 0;
@@ -327,6 +353,7 @@ int main(int argc, char** argv)
     fclose(yyin);
 
     if (s_error == 0 && l_error == 0) printf("OK\n");
+    symt_delete(tab);
   }
 
   return 0;
