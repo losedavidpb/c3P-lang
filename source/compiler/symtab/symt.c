@@ -30,7 +30,7 @@ void *__symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems)
 		{
 			case INTEGER_: copy_value = intcopy((int *)value, num_elems + 1); 		break;
 			case DOUBLE_: copy_value = doublecopy((double *)value, num_elems + 1);	break;
-			case CHAR_: copy_value = strcopy((char *)value); 						break;
+			case CHAR_: copy_value = strdup((char *)value); 						break;
 		}
 	}
 
@@ -40,7 +40,7 @@ void *__symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems)
 symt_var *__symt_copy_var(symt_var *var)
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
-	n_var->name = strcopy(var->name);
+	n_var->name = strdup(var->name);
 	n_var->type = var->type;
 	n_var->value = __symt_copy_value(var->value, symt_get_type_data(n_var->type), var->array_length);
 	n_var->is_array = var->is_array;
@@ -62,7 +62,7 @@ symt_call *__symt_copy_call(symt_call *call_value)
 	symt_call *call_value_ = (symt_call *)(ml_malloc(sizeof(symt_call)));
 	call_value_->type = call_value->type;
 	call_value_->params = symt_copy(call_value->params);
-	call_value_->name = strcopy(call_value->name);
+	call_value_->name = strdup(call_value->name);
 	return call_value_;
 }
 
@@ -72,7 +72,7 @@ symt_routine *__symt_copy_rout(symt_routine *rout)
 	function->is_hide = rout->is_hide;
 	function->params = symt_copy(rout->params);
 	function->statements = symt_copy(rout->statements);
-	function->name = strcopy(rout->name);
+	function->name = strdup(rout->name);
 	function->type = rout->type;
 	return function;
 }
@@ -80,9 +80,9 @@ symt_routine *__symt_copy_rout(symt_routine *rout)
 symt_if_else *__symt_copy_if(symt_if_else *if_val)
 {
 	symt_if_else *if_val_ = (symt_if_else *)(ml_malloc(sizeof(symt_if_else)));
-	if_val_->if_statements = symt_copy(if_val->if_statements);
-	if_val_->else_statements = symt_copy(if_val->else_statements);
-	if_val_->cond = symt_copy(if_val->cond);
+	//if_val_->if_statements = symt_copy(if_val->if_statements);
+	//if_val_->else_statements = symt_copy(if_val->else_statements);
+	//if_val_->cond = symt_copy(if_val->cond);
 	return if_val_;
 }
 
@@ -345,7 +345,7 @@ symt_tab *symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_var
 	symt_call *call_value = (symt_call *)(ml_malloc(sizeof(symt_call)));
 	call_value->type = type;
 	call_value->params = symt_copy(params);
-	call_value->name = strcopy(name);
+	call_value->name = strdup(name);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = CALL_;
@@ -358,7 +358,7 @@ symt_tab *symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_var
 symt_tab *symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide)
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
-	n_var->name = strcopy(name);
+	n_var->name = strdup(name);
 	n_var->type = type;
 	n_var->value = __symt_copy_value(value, symt_get_type_data(type), array_length);
 	n_var->is_array = is_array;
@@ -393,7 +393,7 @@ symt_tab *symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t 
 	function->is_hide = is_hide;
 	function->params = symt_copy(params);
 	function->statements = symt_copy(statements);
-	function->name = strcopy(name);
+	function->name = strdup(name);
 	if (id == FUNCTION) function->type = type;
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
@@ -439,9 +439,9 @@ symt_tab *symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements,
 
 	symt_for *for_val_ = (symt_for *)(ml_malloc(sizeof(symt_for)));
 	for_val_->cond = symt_copy(cond);
-	for_val_->statements = symt_copy(statements);
-	for_val_->incr = symt_copy(iter_var);
-	for_val_->iter_op = symt_copy(iter_op);
+	//for_val_->statements = symt_copy(statements);
+	//for_val_->incr = symt_copy(iter_var);
+	//for_val_->iter_op = symt_copy(iter_op);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = FOR;

@@ -101,6 +101,19 @@
 
 %token EOL
 
+%type<node_t> BEGIN_FOR;
+%type<node_t> BEGIN_WHILE;
+%type<node_t> BEGIN_IF;
+%type<node_t> BEGIN_SWITCH;
+%type<node_t> DEFAULT_SWITCH;
+%type<node_t> CONTINUE;
+%type<node_t> BREAK;
+%type<node_t> RETURN;
+%type<node_t> EOL;
+%type<node_t> call_func;
+%type<node_t> CALL;
+%type<node_t> error;
+
 %type<double_t> expr_num;
 %type<char_t> expr_char;
 %type<string_t> expr_string;
@@ -112,6 +125,7 @@
 %type<node_t> ext_var;
 %type<node_t> var_assign;
 %type<node_t> switch_case;
+%type<node_t> more_else;
 %type<integer_t> arr_data_type;
 
 // __________ Precedence __________
@@ -512,19 +526,60 @@ add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries
 
 // __________ Switch case __________
 
-switch_case 	: EOL switch_case
-				| expr ':' EOL statement BREAK EOL switch_case
-				| DEFAULT_SWITCH ':' EOL statement BREAK EOL more_EOL
+switch_case 	: EOL switch_case											{$$ = $2;}
+				| expr ':' EOL statement BREAK EOL switch_case				{
+																				symt_node* caso = symt_new();
+																				symt_node *cond = (symt_node*)$1;
+																				symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																				if($4 != NULL){
+																					statement = (symt_node *)$4;
+																				}else{
+																					statement = NULL;
+																				}
+																				symt_node* other = (symt_node*)$7;
+																				caso = symt_insert_if(caso, cond, statement, other);
+																				$$ = caso;
+																			}
+				| DEFAULT_SWITCH ':' EOL statement BREAK EOL more_EOL		{
+																				symt_node* caso = symt_new();
+																				symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																				if($4 != NULL){
+																					statement = (symt_node *)$4;
+																				}else{
+																					statement = NULL;
+																				}
+																				caso = symt_insert_if(caso, NULL, statement, NULL);
+																				$$ = caso;
+																			}
 				;
 
 more_EOL 		: | EOL more_EOL;
 
 // __________ Statement __________
 
-statement 		: | in_var EOL statement
-				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else END_IF EOL statement
-				| BEGIN_WHILE '(' expr ')' EOL statement break_rule END_WHILE EOL statement
-				| BEGIN_FOR  '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule				{
+statement 		: {$$=NULL;} | in_var EOL statement
+				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else								{
+																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											cond = (symt_node *)$3;
+																											symt_node *statement_if = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											if($6 != NULL){
+																												statement_if = (symt_node *)$6;
+																											}else{
+																												statement_if = NULL;
+																											}
+																											//symt_node *statement_else = (symt_node *)$8;
+																											tab = symt_insert_if(tab, cond, statement_if, NULL);
+
+																										}END_IF { symt_end_block(tab, IF); } EOL statement
+				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 									{
+																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											cond = (symt_node *)$3;
+																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											statement = (symt_node *)$6;
+																											tab = symt_insert_while(tab, cond, statement);
+																											$$ = symt_search(tab, WHILE);
+																										}END_WHILE { symt_end_block(tab, WHILE); } EOL statement
+				| BEGIN_FOR  '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule			{
 																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
 																											cond = (symt_node *)$5;
 																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
@@ -534,6 +589,7 @@ statement 		: | in_var EOL statement
 																											symt_node *iter_op = (symt_node *)(ml_malloc(sizeof(symt_node)));
 																											iter_op = (symt_node *)$7;
 																											tab = symt_insert_for(tab, cond, statement, iter_var, iter_op);
+																											$$ = symt_search(tab, FOR);
 																										} END_FOR { symt_end_block(tab, FOR); } EOL statement
 				| BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case										{
 																											symt_node *var;
@@ -543,6 +599,7 @@ statement 		: | in_var EOL statement
 																											symt_node *casos = (symt_node *)(ml_malloc(sizeof(symt_node)));
 																											casos = (symt_node *)$6;
 																											tab = symt_insert_switch(tab, var->var, casos);
+																											$$ = symt_search(tab, SWITCH);
 																										} END_SWITCH { symt_end_block(tab, SWITCH); } EOL statement
 				| call_func EOL statement
 				| RETURN expr EOL statement
@@ -551,8 +608,21 @@ statement 		: | in_var EOL statement
 				| error EOL { printf(" at expression\n"); } statement
 				;
 
-more_else 		: | ELSE_IF EOL statement break_rule
-				| ELSE_IF BEGIN_IF '(' expr ')' EOL statement break_rule more_else
+more_else 		: {} | ELSE_IF EOL statement break_rule 													{
+																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											statement = (symt_node *)$3;
+																											$$ = statement;
+																										}
+				| ELSE_IF BEGIN_IF '(' expr ')' EOL statement break_rule more_else 						{
+																											symt_node* else_node = symt_new();
+																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											cond = (symt_node *)$4;
+																											symt_node *statement_if = (symt_node *)(ml_malloc(sizeof(symt_node)));
+																											statement_if = (symt_node *)$7;
+																											symt_node *statement_else = (symt_node *)$9;
+																											else_node = symt_insert_if(else_node, cond, statement_if, statement_else);
+																											$$ = else_node;
+																										}
 				;
 
 break_rule 		: | BREAK EOL statement
