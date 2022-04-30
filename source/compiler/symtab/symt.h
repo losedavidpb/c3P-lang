@@ -139,6 +139,18 @@ typedef struct symt_node
 /* Type for a symbol table */
 typedef symt_node symt_tab;
 
+/* Get string representation for identifiers */
+#define symt_strget_id(id)							\
+	(id == LOCAL_VAR? "LOCAL_VAR" :					\
+	(id == GLOBAL_VAR? "GLOBAL_VAR" :				\
+	(id == IF? "IF" :								\
+	(id == WHILE? "WHILE" :							\
+	(id == FOR? "FOR" :								\
+	(id == SWITCH? "SWITCH" :						\
+	(id == FUNCTION? "FUNCTION" :					\
+	(id == PROCEDURE? "PROCEDURE" :					\
+	(id == CALL_? "CALL" : "undefined")))))))))
+
 /* Get string representation for variable types */
 #define symt_strget_vartype(type)				\
 	(type == I8? "i8" :							\
@@ -165,6 +177,9 @@ symt_cons_t symt_get_type_data(symt_var_t type);
 
 /* Get the value of passed node whether that field exists */
 symt_value_t symt_get_value_from_node(symt_node *node);
+
+/* Print value for passed node */
+void symt_printf_value(symt_node* node);
 
 /* Copy passed node into a new one at a new direction */
 symt_node *symt_copy(symt_node *node);

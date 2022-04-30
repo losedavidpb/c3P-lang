@@ -34,4 +34,7 @@
    It is not possible to define variables to define the format as printf */
 #define assertp_no_exit(A, M) if (!(A)) { log_error(M); }
 
+/* Print passed error message to current screen */
+#define show_error(M, ...) log_error(M, ##__VA_ARGS__)
+
 #endif  // ASSERT_B_H

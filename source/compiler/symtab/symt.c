@@ -275,6 +275,58 @@ symt_value_t symt_get_value_from_node(symt_node *node)
 	return node->call;
 }
 
+symt_cons_t symt_get_type_value_from_node(symt_node *node)
+{
+	assertp(node != NULL, "table has not been constructed");
+	assertp(node->id == LOCAL_VAR || node->id == GLOBAL_VAR || node->id == CONSTANT, "passed node has not a valid type");
+
+	if (node->id == LOCAL_VAR || node->id == GLOBAL_VAR)
+		return symt_get_type_data(node->var->type);
+	else
+		return node->cons->type;
+}
+
+void symt_printf_value(symt_node* node)
+{
+	symt_value_t value = symt_get_value_from_node(node);
+	symt_cons_t type = symt_get_type_value_from_node(node);
+
+	if ((node->id == LOCAL_VAR || node->id == GLOBAL_VAR) && node->var->is_array)
+	{
+		if (type == INTEGER_ || type == INTEGER_)
+		{
+			if (type == INTEGER_)
+			{
+				int *int_value = (int*)value;
+				printf(" | value = { ");
+				for (int i = 0; i < node->var->array_length; i++) printf("%d ", *(int_value + i));
+				printf("}");
+			}
+			else
+			{
+				double *double_value = (double*)value;
+				printf(" | value = { ");
+				for (int i = 0; i < node->var->array_length; i++) printf("%lf ", *(double_value + i));
+				printf("}");
+			}
+		}
+		else
+		{
+			char *str_value = (char*)value;
+			printf(" | type = %s", str_value);
+		}
+	}
+	else
+	{
+		switch(type)
+		{
+			case INTEGER_: printf(" | type = %d", *(int*)value); break;
+			case DOUBLE_: printf(" | type = %lf", *(double*)value); break;
+			case CHAR_: printf(" | type = %c", *(char*)value); break;
+		}
+	}
+}
+
 symt_node *symt_copy(symt_node *node)
 {
 	symt_node *copy_node = NULL;
@@ -439,9 +491,9 @@ symt_tab *symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements,
 
 	symt_for *for_val_ = (symt_for *)(ml_malloc(sizeof(symt_for)));
 	for_val_->cond = symt_copy(cond);
-	//for_val_->statements = symt_copy(statements);
-	//for_val_->incr = symt_copy(iter_var);
-	//for_val_->iter_op = symt_copy(iter_op);
+	for_val_->statements = symt_copy(statements);
+	for_val_->incr = symt_copy(iter_var);
+	for_val_->iter_op = symt_copy(iter_op);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = FOR;
