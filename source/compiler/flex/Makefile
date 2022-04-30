@@ -9,7 +9,7 @@
 # 	Flex analyzer for c3P programming language.
 #
 # SYNTAX
-#	make -s src=<<SOURCE_FILES>>
+#	make -s src=<<SOURCE_FILES_SPLIT_WITH_SPACES>>
 #
 # SOURCE_FILES
 #	It is possible to define multiple c3P source files separating them
@@ -17,6 +17,10 @@
 #
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
+
+ifndef src
+	src=../../test/flex/*.c3p
+endif
 
 all:
 	make -s install
@@ -32,4 +36,4 @@ execute: c3pflex.exe lex.yy.c
 
 clean:
 	rm -f lex.yy.c 2>/dev/null
-	rm -f c3pflex 2>/dev/null
+	rm -f c3pflex.exe 2>/dev/null

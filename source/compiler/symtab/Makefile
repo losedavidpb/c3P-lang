@@ -9,7 +9,7 @@
 #	for c3P programming language.
 #
 # SYNTAX
-#	make -s src=<<SOURCE_FILES>>
+#	make -s src=<<SOURCE_FILES_SPLIT_WITH_SPACES>>
 #
 # SOURCE_FILES
 #	It is possible to define multiple c3P source files separating them
@@ -17,6 +17,10 @@
 #
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
+
+ifndef src
+	src=../../test/bison/*.c3p
+endif
 
 all:
 	make -s clean_output
@@ -34,7 +38,7 @@ install: c3pflex.l c3pbison.y
 	gcc -g -o c3psymt.exe lib/memlib.h lib/memlib.c lib/assertb.h lib/copy.h lib/copy.c symt.c symt.h c3pbison.tab.c lex.yy.c -lfl -lm
 
 execute: c3psymt.exe c3pbison.tab.c c3pbison.tab.h lex.yy.c
-	./c3psymt.exe ../../test/bison/*.c3p
+	./c3psymt.exe $(src)
 
 clean:
 	rm -f c3pbison.tab.c 2>/dev/null
