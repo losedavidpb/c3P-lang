@@ -187,7 +187,7 @@ expr 			: expr_num		{
 				| IDENTIFIER	{
 									symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
 									if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
-									assertp(var != NULL, "variable does not exist");
+									assertf(var != NULL, "variable %s has not been declared", $1);
 									$$ = var;
 								}
 				;
@@ -234,7 +234,7 @@ expr_char 		: expr_char '+' expr_char 		{ $$ = $1 + $3; }
 expr_string 	: expr_string '+' expr_string	{
 													int len_result = strlen($1) + strlen($3);
 													char *res = (char *)(malloc(sizeof(char) * len_result));
-													if (res == NULL) yyerror("Not enought memory for malloc");
+													assertp(res != NULL, "internal error at concatenation");
 													strcpy(res, $1); strcat(res, $3); $$ = res;
 												}
 				| STRING		 				{ $$ = $1; }
@@ -275,13 +275,13 @@ param_declr 	: IDENTIFIER ':' data_type
 
 var_assign 		: IDENTIFIER '=' expr						{
 																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
-																assertp(var != NULL, "variable does not exist");
+																assertf(var != NULL, "variable %s has not been declared", $1);
 																var->var->value = $3;
 																$$ = var;
 															}
 				| IDENTIFIER '[' expr ']' '=' expr			{
 																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
-																assertp(var != NULL, "variable does not exist");
+																assertf(var != NULL, "variable %s has not been declared", $1);
 																symt_node *index_node = (symt_node *)$3;
 																symt_node *result_node = (symt_node *)$6;
 																void *index_value = symt_get_value_from_node(index_node);
@@ -292,12 +292,12 @@ var_assign 		: IDENTIFIER '=' expr						{
 																{
 																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
 																	{
-																		assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
-																		assertp(result_node->var->type == INTEGER_, "type does not match");
+																		assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
+																		assertf(result_node->var->type == INTEGER_, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "integer", $1);
 																	}
 																	else if (result_node->id == CONSTANT)
 																	{
-																		assertp(result_node->cons->type == INTEGER_, "type does not match");
+																		assertf(result_node->cons->type == INTEGER_, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "integer", $1);
 																	}
 
 																	if (result_node->id == CALL_)
@@ -316,11 +316,11 @@ var_assign 		: IDENTIFIER '=' expr						{
 																{
 																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
 																	{
-																		assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
-																		assertp(result_node->var->type == DOUBLE_, "type does not match");
+																		assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
+																		assertf(result_node->var->type == DOUBLE_, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "double", $1);
 																	} else if(result_node->id == CONSTANT)
 																	{
-																		assertp(result_node->cons->type == DOUBLE_, "type does not match");
+																		assertf(result_node->cons->type == DOUBLE_, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "double", $1);
 																	}
 
 																	if (result_node->id == CALL_)
@@ -355,29 +355,29 @@ list_expr 		: expr					{
 ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 				| HIDE IDENTIFIER ':' data_type										{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $2);
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
 																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $2);
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
 																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $2);
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 0, 0, $6, 1);
 																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $2);
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
 																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
-																						assertp(var != NULL, "variable does not exist");
-																						assertp(var->var->type == $4, "type does not match");
+																						assertf(var != NULL, "variable %s has not been declared", $2);
+																						assertf(var->var->type == $4, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($4), $2);
 																						var->var->value = value_list_expr;
 																						$$ = var;
 																					}
@@ -386,27 +386,27 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 in_var 			: IDENTIFIER ':' data_type 											{
 																					    if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 																						tab = symt_insert_var(tab, token_id, $1, $3, 0, 0, NULL, 0);
 																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' arr_data_type										{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 																						tab = symt_insert_var(tab, token_id, $1, $3, 1, array_length, NULL, 0);
 																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER '=' expr												{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var != NULL, "variable does not exist");
+																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						var->var->value = $3; $$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var != NULL, "variable does not exist");
+																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						symt_node *index_node = (symt_node *)$3;
 																						symt_node *result_node = (symt_node *)$6;
 																						void *index_value = symt_get_value_from_node(index_node);
@@ -417,12 +417,12 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						{
 																							if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
 																							{
-																								assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
-																								assertp(result_node->var->type == INTEGER_, "type does not match");
+																								assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
+																								assertf(result_node->var->type == INTEGER_, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "integer", $1);
 																							}
 																							else if(result_node->id == CONSTANT)
 																							{
-																								assertp(result_node->cons->type == INTEGER_, "type does not match");
+																								assertf(result_node->cons->type == INTEGER_, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "integer", $1);
 																							}
 
 																							if (result_node->id == CALL_)
@@ -443,11 +443,11 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 																							if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
 																							{
-																								assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
-																								assertp(result_node->var->type == DOUBLE_, "type does not match");
+																								assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
+																								assertf(result_node->var->type == DOUBLE_, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "double", $1);
 																							} else if(result_node->id == CONSTANT)
 																							{
-																								assertp(result_node->cons->type == DOUBLE_, "type does not match");
+																								assertf(result_node->cons->type == DOUBLE_, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "double", $1);
 																							}
 
 																							if (result_node->id == CALL_)
@@ -470,18 +470,18 @@ in_var 			: IDENTIFIER ':' data_type 											{
 				| IDENTIFIER ':' data_type '=' expr									{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 																						tab = symt_insert_var(tab, token_id, $1, $3, 0, 0, $5, 0);
 																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var == NULL, "variable already exists");
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 																						tab = symt_insert_var(tab, token_id, $1, $3, 1, array_length, NULL, 0);
 																						var = symt_search_by_name(tab, $1, token_id);
-																						assertp(var != NULL, "variable does not exist");
-																						assertp(var->var->type == $3, "type does not match");
+																						assertf(var != NULL, "variable %s has not been declared", $1);
+																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
 																						var->var->value = value_list_expr;
 																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
@@ -572,7 +572,7 @@ statement 		: { $$ = NULL; } | in_var EOL statement
 				| BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case										{
 																											symt_node *var = symt_search_by_name(tab, $3, GLOBAL_VAR);
 																											if (var == NULL) var = symt_search_by_name(tab, $3, LOCAL_VAR);
-																											assertp(var != NULL, "variable does not exist");
+																											assertf(var != NULL, "variable %s has not been declared", $3);
 																											symt_node *cases_node = symt_new(); cases_node = (symt_node *)$6;
 
 																											tab = symt_insert_switch(tab, var->var, cases_node);

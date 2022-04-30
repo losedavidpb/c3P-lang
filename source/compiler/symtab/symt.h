@@ -139,6 +139,24 @@ typedef struct symt_node
 /* Type for a symbol table */
 typedef symt_node symt_tab;
 
+/* Get string representation for variable types */
+#define symt_strget_vartype(type)				\
+	(type == I8? "i8" :							\
+	(type == I16? "i16" :						\
+	(type == I32? "i32" :						\
+	(type == I64? "i64" :						\
+	(type == F32? "f32" :						\
+	(type == F64? "f64" :						\
+	(type == C? "c" :							\
+	(type == STR? "str" :						\
+	(type == B? "b" : "undefined")))))))))
+
+/* Get string representation for constant types */
+#define symt_strget_constype(type)				\
+	(type == INTEGER_? "integer" :				\
+	(type == DOUBLE_? "double" :				\
+	(type == CHAR_? "char" : "undefined")))
+
 /* Check if passed identifier is valid */
 bool symt_is_valid_id(symt_id_t id);
 
