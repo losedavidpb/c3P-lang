@@ -112,7 +112,7 @@
 %type<node_t> ext_var;
 %type<node_t> var_assign;
 %type<node_t> switch_case;
-%type<integer_t> arr_data_type
+%type<integer_t> arr_data_type;
 
 // __________ Precedence __________
 
@@ -261,13 +261,14 @@ param_declr 	: IDENTIFIER ':' data_type
 
 var_assign 		: IDENTIFIER '=' expr						{
 																symt_node *var;
-																var = symt_search_by_name(tab, $1, token_id);
+																var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertp(var != NULL, "variable does not exist");
 																var->var->value = $3;
+																$$ = var;
 															}
 				| IDENTIFIER '[' expr ']' '=' expr			{
 																symt_node *var;
-																var = symt_search_by_name(tab, $1, token_id);
+																var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertp(var != NULL, "variable does not exist");
 																symt_node *index_node = (symt_node *)$3;
 																symt_node *result_node = (symt_node *)$6;
@@ -320,6 +321,7 @@ var_assign 		: IDENTIFIER '=' expr						{
 																		*(var_array + *index_value_int) = *(result_value_double);
 																	}
 																}
+																$$ = var;
 															}
 				;
 
@@ -341,18 +343,21 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, variable_type, 0, 0, NULL, 1);
+																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
+																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, variable_type, 0, 0, $6, 1);
+																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
 																						symt_node *var;
@@ -363,28 +368,40 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						assertp(var != NULL, "variable does not exist");
 																						assertp(var->var->type == $4, "type does not match");
 																						var->var->value = value_list_expr;
+																						$$ = var;
+
 																					}
 				;
 
 in_var 			: IDENTIFIER ':' data_type 											{
+																					    if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, token_id, $1, variable_type, 0, 0, NULL, 0);
+																						$$ = var;
+																						token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' arr_data_type										{
+																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, token_id, $1, $3, 1, array_length, NULL, 0);
+																						$$ = var;
+																						token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER '=' expr												{
+																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var != NULL, "variable does not exist");
 																						var->var->value = $3;
+																						$$ = var;
+																						token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
+																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var != NULL, "variable does not exist");
@@ -439,14 +456,20 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																								*(var_array + *index_value_int) = *(result_value_double);
 																							}
 																						}
+																						$$ = var;
+																						token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
+																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, token_id, $1, variable_type, 0, 0, $5, 0);
+																						$$ = var;
+																						token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
+																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
 																						symt_node *var;
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
@@ -455,6 +478,8 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertp(var != NULL, "variable does not exist");
 																						assertp(var->var->type == $3, "type does not match");
 																						var->var->value = value_list_expr;
+																						$$ = var;
+																						token_id = SYMT_ROOT_ID;
 																					}
 				;
 
@@ -499,7 +524,7 @@ more_EOL 		: | EOL more_EOL;
 statement 		: | in_var EOL statement
 				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else END_IF EOL statement
 				| BEGIN_WHILE '(' expr ')' EOL statement break_rule END_WHILE EOL statement
-				| BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule				{
+				| BEGIN_FOR  '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule				{
 																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
 																											cond = (symt_node *)$5;
 																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
