@@ -61,7 +61,7 @@
   #define END_FUNCTION          294
   #define RETURN                295
   #define CALL                  296
-  
+
   #define ADD_LIBRARY           297
   #define PATH_ADD_LIBRARY      298
 
@@ -69,7 +69,7 @@
   int num_lines = 1;      // Number of lines processed
 
   // Show and error message at console
-  void showerr(const char *mssg, int cod);
+  void showerr(const char *mssg);
 %}
 
 letter          [a-zA-Z]
@@ -102,7 +102,7 @@ hide                                            { return HIDE; }
 
 if                                              { return BEGIN_IF; }
 else                                            { return ELSE_IF; }
-endif                                           { return END_IF; } 
+endif                                           { return END_IF; }
 
 switch                                          { return BEGIN_SWITCH; }
 def                                             { return DEFAULT_SWITCH; }
@@ -124,7 +124,7 @@ proc                                            { return BEGIN_PROCEDURE; }
 endproc                                         { return END_PROCEDURE; }
 func                                            { return BEGIN_FUNCTION; }
 endfunc                                         { return END_FUNCTION; }
-ret                                             { return RETURN; } 
+ret                                             { return RETURN; }
 call                                            { return CALL; }
 
 [():,\[\]{}]                                    { return yytext[0]; }
@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 
     fclose(yyin);
   }
-  
+
   return 0;
 }
 
