@@ -549,11 +549,15 @@ statement 		: { $$ = NULL; } | in_var EOL statement
 				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else								{
 																											symt_node *cond = symt_new(); cond = (symt_node *)$3;
 																											symt_node *statement_if = symt_new();
+																											symt_node *statement_else = symt_new();
+
 																											if ($6 != NULL) statement_if = (symt_node *)$6;
 																											else statement_if = NULL;
 
-																											//symt_node *statement_else = (symt_node *)$8;
-																											tab = symt_insert_if(tab, cond, statement_if, NULL);
+																											if ($8 != NULL) statement_else = (symt_node *)$8;
+																											else statement_else = NULL;
+
+																											tab = symt_insert_if(tab, cond, statement_if, statement_else);
 																										} END_IF { symt_end_block(tab, IF); } EOL statement
 				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 									{
 																											symt_node *cond = symt_new(); cond = (symt_node *)$3;

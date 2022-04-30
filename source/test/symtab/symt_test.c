@@ -258,6 +258,12 @@ void test_end_block()
     symt_tab *tab, *result;
     symt_node *cond, *statements;
     symt_node *iter_op, * iter_var;
+	symt_node *if_statements, *else_statements;
+
+	int* val1 = (int*)(ml_malloc(sizeof(int)));
+    int* val2 = (int*)(ml_malloc(sizeof(int)));
+    int* val3 = (int*)(ml_malloc(sizeof(int)));
+    *val1 = 10; *val2 = 20; *val3 = 30;
 
     test_name("test_end_block");
 
@@ -300,6 +306,28 @@ void test_end_block()
 
     result = symt_search_by_name(tab, "i", LOCAL_VAR);
     assertf(result == NULL, "local var %s should not exist", "i");
+    show_ok();
+
+	cond = symt_new();
+    if_statements = symt_new();
+    else_statements = NULL;
+
+    if_statements = symt_insert_var(if_statements, LOCAL_VAR, "local_var1", I32, false, 0, val1, false);
+
+    tab = symt_new();
+	tab = symt_insert_var(tab, GLOBAL_VAR, "local_var2", I32, false, 0, val2, false);
+    tab = symt_insert_if(tab, cond, if_statements, else_statements);
+
+	test_assert("test_end_block_if");
+    symt_end_block(tab, IF);
+
+	result = symt_search(tab, LOCAL_VAR);
+	assertp(result == NULL, "local var must not be defined");
+
+	result = symt_search(tab, GLOBAL_VAR);
+	assertp(result != NULL, "global var must be defined");
+
+	assertp(tab->if_val == NULL, "if statements must not be defined");
     show_ok();
 }
 

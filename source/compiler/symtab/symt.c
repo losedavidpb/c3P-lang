@@ -80,9 +80,9 @@ symt_routine *__symt_copy_rout(symt_routine *rout)
 symt_if_else *__symt_copy_if(symt_if_else *if_val)
 {
 	symt_if_else *if_val_ = (symt_if_else *)(ml_malloc(sizeof(symt_if_else)));
-	//if_val_->if_statements = symt_copy(if_val->if_statements);
-	//if_val_->else_statements = symt_copy(if_val->else_statements);
-	//if_val_->cond = symt_copy(if_val->cond);
+	if_val_->if_statements = symt_copy(if_val->if_statements);
+	if_val_->else_statements = symt_copy(if_val->else_statements);
+	if_val_->cond = symt_copy(if_val->cond);
 	return if_val_;
 }
 
@@ -468,12 +468,18 @@ symt_tab *symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases
 void symt_end_block(symt_tab *tab, const symt_id_t id_block)
 {
 	assertp(tab != NULL, "table has not been constructed");
+
 	symt_node *block_node = __symt_search(tab, id_block, NULL, false, true);
 
 	if (block_node != NULL)
 	{
 		if (block_node->next_node != NULL) symt_delete(block_node->next_node);
 		block_node->next_node = NULL;
+	}
+	else if (tab->next_node == NULL && id_block == tab->id)
+	{
+		symt_delete(tab);
+		tab = NULL;
 	}
 }
 
