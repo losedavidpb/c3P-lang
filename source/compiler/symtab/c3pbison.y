@@ -32,19 +32,16 @@
 	symt_tab *tab; // Table of symbol
 
 	int array_length = 0;  // Array length for current token
-	int variable_type = 0; // Variable data type for curren token
 	void *value_list_expr; // Array value for current token
 	int token_id = SYMT_ROOT_ID;
 
-	// Return integer which is the equivalent token
-	// at current symbol table
-	int bison2symt_enum(int);
+	// Check if passed number has decimals
+	#define has_decimals(num) abs(num - 1)  <= 0.0
 
 	// This functions have to be declared in order to
 	// avoid warnings related to implicit declaration
 	int yylex(void);
 	void yyerror(const char *s);
-	int fuzzy_compare(double a, double b, double c);
 %}
 
 // __________ Data __________
@@ -118,14 +115,17 @@
 %type<char_t> expr_char;
 %type<string_t> expr_string;
 %type<double_t> int_expr;
+%type<node_t> expr;
 
 %type<node_t> statement;
-%type<node_t> expr;
+%type<node_t> switch_case;
+%type<node_t> more_else;
+
 %type<node_t> in_var;
 %type<node_t> ext_var;
 %type<node_t> var_assign;
-%type<node_t> switch_case;
-%type<node_t> more_else;
+
+%type<integer_t> data_type;
 %type<integer_t> arr_data_type;
 
 // __________ Precedence __________
@@ -156,24 +156,24 @@
 // __________ Expression __________
 
 expr 			: expr_num		{
-									if(fuzzy_compare($1,1,0.0)){
-										double *value = (double*)(ml_malloc(sizeof(double)));
-										*value = $1;
+									if (has_decimals($1))
+									{
+										double *value = (double*)(doublecopy(&$1, 1));
 										symt_node* result = symt_new();
 										result = symt_insert_const(result, DOUBLE_, value);
 										$$ = result;
-									}else{
-										int *value = (int*)(ml_malloc(sizeof(int)));
-										*value = $1;
+									}
+									else
+									{
+										int *int_expr_val = (int*)&$1;
+										int *value = (int*)(intcopy(int_expr_val, 1));
 										symt_node* result = symt_new();
 										result = symt_insert_const(result, INTEGER_, value);
 										$$ = result;
 									}
-
 						  		}
 				| expr_char		{
-									char *value = (char*)(ml_malloc(sizeof(char)));
-									*value = $1;
+									char *value = (char*)(ml_malloc(sizeof(char))); *value = $1;
 						  			symt_node* result = symt_new();
 						  			result = symt_insert_const(result, CHAR_, value);
 						  			$$ = result;
@@ -185,12 +185,12 @@ expr 			: expr_num		{
 						  			$$ = result;
 								}
 				| IDENTIFIER	{
-									symt_node *var;
-									var = symt_search_by_name(tab, $1, GLOBAL_VAR);
+									symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
 									if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
 									assertp(var != NULL, "variable does not exist");
 									$$ = var;
-								};
+								}
+				;
 
 int_expr 		: int_expr '+' int_expr 		{ $$ = $1 + $3; }
 				| int_expr '-' int_expr 		{ $$ = $1 - $3; }
@@ -242,11 +242,11 @@ expr_string 	: expr_string '+' expr_string	{
 
 // __________ Constants and Data type __________
 
-data_type 		: INTEGER_TYPE 					{ variable_type = INTEGER_; }
-				| DOUBLE_TYPE 					{ variable_type = DOUBLE_; }
-				| CHAR_TYPE 					{ variable_type = CHAR_; }
-				| STR_TYPE 						{ variable_type = CHAR_; }
-				| BOOL_TYPE 					{ variable_type = INTEGER_; }
+data_type 		: INTEGER_TYPE 					{ $$ = INTEGER_; }
+				| DOUBLE_TYPE 					{ $$ = DOUBLE_; }
+				| CHAR_TYPE 					{ $$ = CHAR_; }
+				| STR_TYPE 						{ $$ = CHAR_; }
+				| BOOL_TYPE 					{ $$ = INTEGER_; }
 				;
 
 arr_data_type 	: INTEGER_TYPE '[' int_expr ']' { array_length = $3; $$ = INTEGER_; }
@@ -274,34 +274,32 @@ param_declr 	: IDENTIFIER ':' data_type
 // __________ Assignation for variables __________
 
 var_assign 		: IDENTIFIER '=' expr						{
-																symt_node *var;
-																var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertp(var != NULL, "variable does not exist");
 																var->var->value = $3;
 																$$ = var;
 															}
 				| IDENTIFIER '[' expr ']' '=' expr			{
-																symt_node *var;
-																var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertp(var != NULL, "variable does not exist");
 																symt_node *index_node = (symt_node *)$3;
 																symt_node *result_node = (symt_node *)$6;
 																void *index_value = symt_get_value_from_node(index_node);
 																void *result_value = symt_get_value_from_node(result_node);
-																int *index_value_int;
+																int *index_value_int = (int *)index_value;
+
 																if (var->var->type == INTEGER_)
 																{
-																	index_value_int = (int *)index_value;
-
-																	if(result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR){
+																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
+																	{
 																		assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
 																		assertp(result_node->var->type == INTEGER_, "type does not match");
-																	}else if(result_node->id == CONSTANT){
+																	}
+																	else if (result_node->id == CONSTANT)
+																	{
 																		assertp(result_node->cons->type == INTEGER_, "type does not match");
 																	}
-																	int *result_value_int = (int*)result_value;
 
-																	int *var_array = (int *)var->var->value;
 																	if (result_node->id == CALL_)
 																	{
 																		symt_call *value_call = (symt_call *)result_value;
@@ -309,22 +307,22 @@ var_assign 		: IDENTIFIER '=' expr						{
 																	}
 																	else
 																	{
+																		int *result_value_int = (int*)result_value;
+																		int *var_array = (int *)var->var->value;
 																		*(var_array + *index_value_int) = *(result_value_int);
 																	}
 																}
 																else
 																{
-																	index_value_int = (int *)index_value;
-
-																	if(result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR){
+																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
+																	{
 																		assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
 																		assertp(result_node->var->type == DOUBLE_, "type does not match");
-																	}else if(result_node->id == CONSTANT){
+																	} else if(result_node->id == CONSTANT)
+																	{
 																		assertp(result_node->cons->type == DOUBLE_, "type does not match");
 																	}
-																	double *result_value_double = (double*)result_value;
 
-																	double *var_array = (double *)var->var->value;
 																	if (result_node->id == CALL_)
 																	{
 																		symt_call *value_call = (symt_call *)result_value;
@@ -332,9 +330,12 @@ var_assign 		: IDENTIFIER '=' expr						{
 																	}
 																	else
 																	{
+																		double *result_value_double = (double*)result_value;
+																		double *var_array = (double *)var->var->value;
 																		*(var_array + *index_value_int) = *(result_value_double);
 																	}
 																}
+
 																$$ = var;
 															}
 				;
@@ -353,29 +354,25 @@ list_expr 		: expr					{
 
 ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 				| HIDE IDENTIFIER ':' data_type										{
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
-																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, variable_type, 0, 0, NULL, 1);
+																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
 																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
 																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
-																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, variable_type, 0, 0, $6, 1);
+																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 0, 0, $6, 1);
 																						$$ = var;
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
 																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
@@ -383,60 +380,51 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						assertp(var->var->type == $4, "type does not match");
 																						var->var->value = value_list_expr;
 																						$$ = var;
-
 																					}
 				;
 
 in_var 			: IDENTIFIER ':' data_type 											{
-																					    if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $1, token_id);
+																					    if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
+																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
-																						tab = symt_insert_var(tab, token_id, $1, variable_type, 0, 0, NULL, 0);
-																						$$ = var;
-																						token_id = SYMT_ROOT_ID;
+																						tab = symt_insert_var(tab, token_id, $1, $3, 0, 0, NULL, 0);
+																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' arr_data_type										{
-																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $1, token_id);
+																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
+																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, token_id, $1, $3, 1, array_length, NULL, 0);
-																						$$ = var;
-																						token_id = SYMT_ROOT_ID;
+																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER '=' expr												{
-																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $1, token_id);
+																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
+																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var != NULL, "variable does not exist");
-																						var->var->value = $3;
-																						$$ = var;
-																						token_id = SYMT_ROOT_ID;
+																						var->var->value = $3; $$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
-																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $1, token_id);
+																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
+																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var != NULL, "variable does not exist");
 																						symt_node *index_node = (symt_node *)$3;
 																						symt_node *result_node = (symt_node *)$6;
 																						void *index_value = symt_get_value_from_node(index_node);
 																						void *result_value = symt_get_value_from_node(result_node);
-																						int *index_value_int;
+																						int *index_value_int = (int *)index_value;
+
 																						if (var->var->type == INTEGER_)
 																						{
-																							index_value_int = (int *)index_value;
-
-																							if(result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR){
+																							if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
+																							{
 																								assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
 																								assertp(result_node->var->type == INTEGER_, "type does not match");
-																							}else if(result_node->id == CONSTANT){
+																							}
+																							else if(result_node->id == CONSTANT)
+																							{
 																								assertp(result_node->cons->type == INTEGER_, "type does not match");
 																							}
-																							int *result_value_int = (int*)result_value;
 
-																							int *var_array = (int *)var->var->value;
 																							if (result_node->id == CALL_)
 																							{
 																								symt_call *value_call = (symt_call *)result_value;
@@ -444,6 +432,8 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																							}
 																							else
 																							{
+																								int *result_value_int = (int*)result_value;
+																								int *var_array = (int *)var->var->value;
 																								*(var_array + *index_value_int) = *(result_value_int);
 																							}
 																						}
@@ -451,49 +441,49 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						{
 																							index_value_int = (int *)index_value;
 
-																							if(result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR){
+																							if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
+																							{
 																								assertp(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds");
 																								assertp(result_node->var->type == DOUBLE_, "type does not match");
-																							}else if(result_node->id == CONSTANT){
+																							} else if(result_node->id == CONSTANT)
+																							{
 																								assertp(result_node->cons->type == DOUBLE_, "type does not match");
 																							}
-																							double *result_value_double = (double*)result_value;
 
-																							double *var_array = (double *)var->var->value;
 																							if (result_node->id == CALL_)
 																							{
+
 																								symt_call *value_call = (symt_call *)result_value;
 																								//*(var_array+index_value_int) = value_call;
 																							}
 																							else
 																							{
+																								double *result_value_double = (double*)result_value;
+																								double *var_array = (double *)var->var->value;
 																								*(var_array + *index_value_int) = *(result_value_double);
 																							}
 																						}
+
 																						$$ = var;
 																						token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
-																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $1, token_id);
+																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
+																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
-																						tab = symt_insert_var(tab, token_id, $1, variable_type, 0, 0, $5, 0);
-																						$$ = var;
-																						token_id = SYMT_ROOT_ID;
+																						tab = symt_insert_var(tab, token_id, $1, $3, 0, 0, $5, 0);
+																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
-																						if(token_id == SYMT_ROOT_ID)token_id = LOCAL_VAR;
-																						symt_node *var;
-																						var = symt_search_by_name(tab, $1, token_id);
+																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
+																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var == NULL, "variable already exists");
 																						tab = symt_insert_var(tab, token_id, $1, $3, 1, array_length, NULL, 0);
 																						var = symt_search_by_name(tab, $1, token_id);
 																						assertp(var != NULL, "variable does not exist");
 																						assertp(var->var->type == $3, "type does not match");
 																						var->var->value = value_list_expr;
-																						$$ = var;
-																						token_id = SYMT_ROOT_ID;
+																						$$ = var; token_id = SYMT_ROOT_ID;
 																					}
 				;
 
@@ -526,30 +516,28 @@ add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries
 
 // __________ Switch case __________
 
-switch_case 	: EOL switch_case											{$$ = $2;}
+switch_case 	: EOL switch_case											{ $$ = $2; }
 				| expr ':' EOL statement BREAK EOL switch_case				{
-																				symt_node* caso = symt_new();
+																				symt_node* case_node = symt_new();
 																				symt_node *cond = (symt_node*)$1;
-																				symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																				if($4 != NULL){
-																					statement = (symt_node *)$4;
-																				}else{
-																					statement = NULL;
-																				}
+																				symt_node *statement = symt_new();
+
+																				if($4 != NULL) statement = (symt_node *)$4;
+																				else statement = NULL;
+
 																				symt_node* other = (symt_node*)$7;
-																				caso = symt_insert_if(caso, cond, statement, other);
-																				$$ = caso;
+																				case_node = symt_insert_if(case_node, cond, statement, other);
+																				$$ = case_node;
 																			}
 				| DEFAULT_SWITCH ':' EOL statement BREAK EOL more_EOL		{
-																				symt_node* caso = symt_new();
-																				symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																				if($4 != NULL){
-																					statement = (symt_node *)$4;
-																				}else{
-																					statement = NULL;
-																				}
-																				caso = symt_insert_if(caso, NULL, statement, NULL);
-																				$$ = caso;
+																				symt_node* case_node = symt_new();
+																				symt_node *statement = symt_new();
+
+																				if($4 != NULL) statement = (symt_node *)$4;
+																				else statement = NULL;
+
+																				case_node = symt_insert_if(case_node, NULL, statement, NULL);
+																				$$ = case_node;
 																			}
 				;
 
@@ -557,49 +545,37 @@ more_EOL 		: | EOL more_EOL;
 
 // __________ Statement __________
 
-statement 		: {$$=NULL;} | in_var EOL statement
+statement 		: { $$ = NULL; } | in_var EOL statement
 				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else								{
-																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											cond = (symt_node *)$3;
-																											symt_node *statement_if = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											if($6 != NULL){
-																												statement_if = (symt_node *)$6;
-																											}else{
-																												statement_if = NULL;
-																											}
+																											symt_node *cond = symt_new(); cond = (symt_node *)$3;
+																											symt_node *statement_if = symt_new();
+																											if ($6 != NULL) statement_if = (symt_node *)$6;
+																											else statement_if = NULL;
+
 																											//symt_node *statement_else = (symt_node *)$8;
 																											tab = symt_insert_if(tab, cond, statement_if, NULL);
-
-																										}END_IF { symt_end_block(tab, IF); } EOL statement
+																										} END_IF { symt_end_block(tab, IF); } EOL statement
 				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 									{
-																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											cond = (symt_node *)$3;
-																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											statement = (symt_node *)$6;
+																											symt_node *cond = symt_new(); cond = (symt_node *)$3;
+																											symt_node *statement = symt_new(); statement = (symt_node *)$6;
+
 																											tab = symt_insert_while(tab, cond, statement);
-																											$$ = symt_search(tab, WHILE);
-																										}END_WHILE { symt_end_block(tab, WHILE); } EOL statement
+																										} END_WHILE { symt_end_block(tab, WHILE); } EOL statement
 				| BEGIN_FOR  '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule			{
-																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											cond = (symt_node *)$5;
-																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											statement = (symt_node *)$10;
-																											symt_node *iter_var = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											iter_var = (symt_node *)$3;
-																											symt_node *iter_op = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											iter_op = (symt_node *)$7;
+																											symt_node *cond = symt_new(); cond = (symt_node *)$5;
+																											symt_node *statement = symt_new(); statement = (symt_node *)$10;
+																											symt_node *iter_var = symt_new(); iter_var = (symt_node *)$3;
+																											symt_node *iter_op = symt_new(); iter_op = (symt_node *)$7;
+
 																											tab = symt_insert_for(tab, cond, statement, iter_var, iter_op);
-																											$$ = symt_search(tab, FOR);
 																										} END_FOR { symt_end_block(tab, FOR); } EOL statement
 				| BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case										{
-																											symt_node *var;
-																											var = symt_search_by_name(tab, $3, GLOBAL_VAR);
+																											symt_node *var = symt_search_by_name(tab, $3, GLOBAL_VAR);
 																											if (var == NULL) var = symt_search_by_name(tab, $3, LOCAL_VAR);
 																											assertp(var != NULL, "variable does not exist");
-																											symt_node *casos = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											casos = (symt_node *)$6;
-																											tab = symt_insert_switch(tab, var->var, casos);
-																											$$ = symt_search(tab, SWITCH);
+																											symt_node *cases_node = symt_new(); cases_node = (symt_node *)$6;
+
+																											tab = symt_insert_switch(tab, var->var, cases_node);
 																										} END_SWITCH { symt_end_block(tab, SWITCH); } EOL statement
 				| call_func EOL statement
 				| RETURN expr EOL statement
@@ -608,17 +584,15 @@ statement 		: {$$=NULL;} | in_var EOL statement
 				| error EOL { printf(" at expression\n"); } statement
 				;
 
-more_else 		: {} | ELSE_IF EOL statement break_rule 													{
-																											symt_node *statement = (symt_node *)(ml_malloc(sizeof(symt_node)));
+more_else 		: {} | ELSE_IF EOL statement break_rule 												{
+																											symt_node *statement = symt_new();
 																											statement = (symt_node *)$3;
 																											$$ = statement;
 																										}
 				| ELSE_IF BEGIN_IF '(' expr ')' EOL statement break_rule more_else 						{
 																											symt_node* else_node = symt_new();
-																											symt_node *cond = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											cond = (symt_node *)$4;
-																											symt_node *statement_if = (symt_node *)(ml_malloc(sizeof(symt_node)));
-																											statement_if = (symt_node *)$7;
+																											symt_node *cond = symt_new(); cond = (symt_node *)$4;
+																											symt_node *statement_if = symt_new(); statement_if = (symt_node *)$7;
 																											symt_node *statement_else = (symt_node *)$9;
 																											else_node = symt_insert_if(else_node, cond, statement_if, statement_else);
 																											$$ = else_node;
@@ -660,8 +634,7 @@ int main(int argc, char **argv)
 
 		fclose(yyin);
 
-		if (s_error == 0 && l_error == 0)
-			printf("OK\n");
+		if (s_error == 0 && l_error == 0) printf("OK\n");
 		symt_delete(tab);
 	}
 
@@ -673,23 +646,4 @@ void yyerror(const char *mssg)
 	s_error = 1;
 	printf("%s at line %i\n", mssg, num_lines);
 	exit(1);
-}
-
-int bison2symt_enum(int value)
-{
-	switch (value)
-	{
-		case INTEGER:
-		case INTEGER_: return INTEGER_; 	break;
-		case DOUBLE:
-		case DOUBLE_: return DOUBLE_; 	break;
-		case CHAR:
-		case CHAR_: return CHAR_; 		break;
-		case CALL:
-		case CALL_: return CALL_; 		break;
-		default: return -1; 			break;
-	}
-}
-int fuzzy_compare(double a, double c, double e) {
-   return abs(a - c)  <= e;
 }

@@ -6,14 +6,14 @@ l : i32[10] = { 10, 20, 30 }
 hide hx : i64 = 10
 hide hl : i32[10] = { 10, 20, 30 }
 
-readonly rx : i64 = 10
-readonly  rl : i32[10] = { 10, 20, 30 }
+rx : i64 = 10
+rl : i32[10] = { 10, 20, 30 }
 
-readonly hide rhx : i64 = 10
-readonly  hide rhl : i32[10] = { 10, 20, 30 }
+hide rhx : i64 = 10
+hide rhl : i32[10] = { 10, 20, 30 }
 
-hide readonly hrx : i64 = 10
-hide readonly hrl : i32[10] = { 10, 20, 30 }
+hide hrx : i64 = 10
+hide hrl : i32[10] = { 10, 20, 30 }
 
 x = 30
 hx[0] = 30
