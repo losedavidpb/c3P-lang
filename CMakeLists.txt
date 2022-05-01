@@ -17,11 +17,12 @@ include(CTest)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
-set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/source)
-set(SYMT_PATH ${SOURCE_DIR}/compiler/symtab)
+set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
+set(SYMT_PATH ${SOURCE_DIR}/symtab)
+set(HEADER_DIR ${PROJECT_SOURCE_DIR}/include)
 
-set(SOURCES ${SYMT_PATH}/symt.c ${SYMT_PATH}/lib/copy.c ${SYMT_PATH}/lib/memlib.c)
-set(HEADERS ${SYMT_PATH}/symt.h ${SYMT_PATH}/lib/copy.h ${SYMT_PATH}/lib/memlib.h ${SYMT_PATH}/lib/assertb.h)
+set(SOURCES ${SYMT_PATH}/symt.c ${SYMT_PATH}/copy.c ${SYMT_PATH}/memlib.c)
+set(HEADERS ${HEADER_DIR}/symt.h ${HEADER_DIR}/arrcopy.h ${HEADER_DIR}/memlib.h ${HEADER_DIR}/assertb.h)
 
 set(LEXER_OUT ${SYMT_PATH}/lex.yy.c)
 set(PARSER_OUT ${SYMT_PATH}/c3pbison.tab.c)

@@ -18,8 +18,9 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
+test_path=../../test/bison
 ifndef src
-	src=../../test/bison/*.c3p
+	src=$(test_path)/*.c3p
 endif
 
 all:
@@ -30,7 +31,7 @@ all:
 
 clean_output:
 	rm -f c3pbison.output 2>/dev/null
-	rm -f ../../test/*.txt 2>/dev/null
+	rm -f $(test_path)/*.txt 2>/dev/null
 
 install: c3pflexbison.l c3pbison.y
 	bison -d c3pbison.y

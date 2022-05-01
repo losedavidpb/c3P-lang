@@ -36,8 +36,6 @@
 	int token_id = SYMT_ROOT_ID;
 	symt_cons_t value_list_expr_t;
 
-
-
 	// Check if passed number has decimals
 	#define has_decimals(num) fmod(num, 1.0) != 0
 

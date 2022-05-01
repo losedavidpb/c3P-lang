@@ -18,8 +18,9 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
+test_path=../../test/flex
 ifndef src
-	src=../../test/flex/*.c3p
+    src=$(test_path)/*.c3p
 endif
 
 all:

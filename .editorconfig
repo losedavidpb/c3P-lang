@@ -8,6 +8,10 @@ end_of_line = lf
 indent_style = tab
 tab_width = 8
 
+[Makefile]
+indent_style = space
+indent_size = 4
+
 [*.{c,h,cpp,hpp,c3p,y,l}]
 indent_style = tab
 tab_width = 4

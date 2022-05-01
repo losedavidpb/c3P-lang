@@ -1,7 +1,7 @@
-#include "copy.h"
+#include "../include/arrcopy.h"
 
-#include "memlib.h"
-#include "assertb.h"
+#include "../include/memlib.h"
+#include "../include/assertb.h"
 
 #include <string.h>
 #include <stdbool.h>

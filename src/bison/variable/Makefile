@@ -1,6 +1,6 @@
 ############################################################################
 #                                                                          #
-#                   Makefile for expressions		        			   #
+#                   Makefile for var expressions					       #
 #                                                                          #
 ############################################################################
 
@@ -11,6 +11,8 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
+test_path=../../../test/bison
+
 all:
 	make -s clean_output
 	make -s install
@@ -20,16 +22,16 @@ all:
 clean_output:
 	rm -f c3pbison.output 2>/dev/null
 
-install: expr_c3pflexbison.l expr_c3pbison.y
-	bison -d expr_c3pbison.y
-	flex expr_c3pflexbison.l
-	gcc -g -o c3pflexbison.exe expr_c3pbison.tab.c lex.yy.c -lm -lfl
+install: var_c3pflexbison.l var_c3pbison.y
+	bison -d var_c3pbison.y
+	flex var_c3pflexbison.l
+	gcc -g -o c3pflexbison.exe var_c3pbison.tab.c lex.yy.c -lm -lfl
 
-execute: c3pflexbison.exe expr_c3pbison.tab.c expr_c3pbison.tab.h lex.yy.c
-	./c3pflexbison.exe ../../../test/bison/expressions/s_e_test_*.c3p
+execute: c3pflexbison.exe var_c3pbison.tab.c var_c3pbison.tab.h lex.yy.c
+	./c3pflexbison.exe $(test_path)/variables/*.c3p
 
 clean:
-	rm -f expr_c3pbison.tab.c 2>/dev/null
-	rm -f expr_c3pbison.tab.h 2>/dev/null
+	rm -f var_c3pbison.tab.c 2>/dev/null
+	rm -f var_c3pbison.tab.h 2>/dev/null
 	rm -f c3pflexbison.exe 2>/dev/null
 	rm -f lex.yy.c 2>/dev/null

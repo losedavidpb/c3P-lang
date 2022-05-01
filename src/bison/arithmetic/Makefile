@@ -11,6 +11,8 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
+test_path=../../../test/bison
+
 all:
 	make -s clean_output
 	make -s install
@@ -26,7 +28,7 @@ install: arithmetic_c3pflexbison.l arithmetic_c3pbison.y
 	gcc -g -o c3pflexbison arithmetic_c3pbison.tab.c lex.yy.c -lm -lfl
 
 execute: c3pflexbison.exe arithmetic_c3pbison.tab.c arithmetic_c3pbison.tab.h lex.yy.c
-	./c3pflexbison.exe ../../../test/bison/expressions/s_a_test_*.c3p
+	./c3pflexbison.exe $(test_path)/expressions/b_arithmetic_test_*.c3p
 
 clean:
 	rm -f arithmetic_c3pbison.tab.c 2>/dev/null

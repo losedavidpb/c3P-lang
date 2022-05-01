@@ -18,8 +18,10 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
+test_path=../../test/bison
+include_path=../../include
 ifndef src
-	src=../../test/bison/*.c3p
+	src=$(test_path)/*.c3p
 endif
 
 all:
@@ -30,12 +32,13 @@ all:
 
 clean_output:
 	rm -f c3pbison.output 2>/dev/null
-	rm -f ../../test/*.txt 2>/dev/null
+	rm -f $(test_path)/../*.txt 2>/dev/null
 
 install: c3pflex.l c3pbison.y
 	bison -d c3pbison.y
 	flex c3pflex.l
-	gcc -g -o c3psymt.exe lib/memlib.h lib/memlib.c lib/assertb.h lib/copy.h lib/copy.c symt.c symt.h c3pbison.tab.c lex.yy.c -lfl -lm
+	gcc -g -o c3psymt.exe $(include_path)/memlib.h $(include_path)/assertb.h $(include_path)/copy.h $(include_path)/symt.h \
+		memlib.c copy.c symt.c c3pbison.tab.c lex.yy.c -lfl -lm
 
 execute: c3psymt.exe c3pbison.tab.c c3pbison.tab.h lex.yy.c
 	./c3psymt.exe $(src)

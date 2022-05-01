@@ -1,8 +1,8 @@
-#include "symt.h"
+#include "../include/symt.h"
 
-#include "lib/assertb.h"
-#include "lib/copy.h"
-#include "lib/memlib.h"
+#include "../include/assertb.h"
+#include "../include/arrcopy.h"
+#include "../include/memlib.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -359,10 +359,11 @@ void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons)
 			}
 		break;
 
-		case CHAR_:;
+		/*case CHAR_:;
 			char *char_value = (char*)cons->value;
-			//assertf(symt_check_range(*char_value, CHAR_MIN, CHAR_MAX), "passed value is not at range for %s", "c");
-		break;
+			assertf(symt_check_range(*char_value, CHAR_MIN, CHAR_MAX), "passed value is not at range for %s", "c");
+		break;*/
+		case default: break;
 	}
 }
 
