@@ -20,8 +20,20 @@ set(SYMT_PATH ${SOURCE_DIR}/symtab)
 set(HEADER_DIR ${PROJECT_SOURCE_DIR}/include)
 
 # Source files and headers located at SYMT_PATH and HEADER_DIR.
-set(SOURCES ${SYMT_PATH}/symt.c ${SYMT_PATH}/arrcopy.c ${SYMT_PATH}/memlib.c)
-set(HEADERS ${HEADER_DIR}/symt.h ${HEADER_DIR}/arrcopy.h ${HEADER_DIR}/memlib.h ${HEADER_DIR}/assertb.h)
+set(SOURCES
+	${SYMT_PATH}/symt.c ${SYMT_PATH}/lib/arrcopy.c ${SYMT_PATH}/lib/memlib.c
+	${SYMT_PATH}/symt/symt_for.c ${SYMT_PATH}/symt/symt_if.c ${SYMT_PATH}/symt/symt_while.c
+	${SYMT_PATH}/symt/symt_call.c ${SYMT_PATH}/symt/symt_rout.c
+	${SYMT_PATH}/symt/symt_node.c ${SYMT_PATH}/symt/symt_switch.c
+)
+
+set(HEADERS
+	${HEADER_DIR}/symt.h ${HEADER_DIR}/symt_var.h ${HEADER_DIR}/symt_cons.h
+	${HEADER_DIR}/symt_type.h ${HEADER_DIR}/symt_for.h ${HEADER_DIR}/symt_if.h
+	${HEADER_DIR}/symt_while.h ${HEADER_DIR}/symt_call.h ${HEADER_DIR}/symt_rout.h
+	${HEADER_DIR}/symt_node.h ${HEADER_DIR}/symt_switch.h
+	${HEADER_DIR}/arrcopy.h ${HEADER_DIR}/memlib.h ${HEADER_DIR}/assertb.h
+)
 
 # Output for Flex and Bison
 set(LEXER_OUT ${SYMT_PATH}/lex.yy.c)

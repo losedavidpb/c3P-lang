@@ -1,4 +1,4 @@
-#include "../../../include/symt_routine.h"
+#include "../../../include/symt_rout.h"
 
 #include "../../../include/memlib.h"
 #include "../../../include/symt_type.h"

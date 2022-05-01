@@ -10,7 +10,7 @@
 #include "../../../include/symt_if.h"
 #include "../../../include/symt_while.h"
 #include "../../../include/symt_switch.h"
-#include "../../../include/symt_routine.h"
+#include "../../../include/symt_rout.h"
 #include "../../../include/symt_var.h"
 #include "../../../include/symt_call.h"
 #include <stdlib.h>
