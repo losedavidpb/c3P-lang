@@ -327,6 +327,45 @@ void symt_printf_value(symt_node* node)
 	}
 }
 
+void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons)
+{
+	assertp(cons != NULL, "passed constant has not be defined");
+	assertp(cons->value != NULL, "constant has not a valid value");
+	assertf(symt_get_type_data(type) == cons->type, "type does not match for assignation");
+
+	switch(cons->type)
+	{
+		case INTEGER_:;
+			int *int_value = (int*)cons->value;
+
+			switch(type)
+			{
+				case I8: assertf(symt_check_range(*int_value, I8_MIN, I8_MAX), "passed value is not at range for %s", "i8"); break;
+				case I16: assertf(symt_check_range(*int_value, I16_MIN, I16_MAX), "passed value is not at range for %s", "i16"); break;
+				case I32: assertf(symt_check_range(*int_value, I32_MIN, I32_MAX), "passed value is not at range for %s", "i32"); break;
+				//case I64: assertf(symt_check_range(*int_value, I64_MIN, I64_MAX), "passed value is not at range for %s", "i64"); break;
+				default: break;
+			}
+		break;
+
+		case DOUBLE_:;
+			double *double_value = (double*)cons->value;
+
+			switch(type)
+			{
+				case F32: assertf(symt_check_range(*double_value, F32_MIN, F32_MAX), "passed value is not at range for %s", "f32"); break;
+				case F64: assertf(symt_check_range(*double_value, F64_MIN, F64_MAX), "passed value is not at range for %s", "f64"); break;
+				default: break;
+			}
+		break;
+
+		case CHAR_:;
+			char *char_value = (char*)cons->value;
+			//assertf(symt_check_range(*char_value, CHAR_MIN, CHAR_MAX), "passed value is not at range for %s", "c");
+		break;
+	}
+}
+
 symt_node *symt_copy(symt_node *node)
 {
 	symt_node *copy_node = NULL;

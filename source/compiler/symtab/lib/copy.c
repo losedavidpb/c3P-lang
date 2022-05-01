@@ -56,7 +56,6 @@ char *strcopy(char *src)
     assertp(src != NULL, "passed pointer must be not null");
     assertf(strlen(src) > 0, "%d is not valid for num_elems", (int)strlen(src));
 
-    dest = (char *)(ml_malloc(strlen(src) * sizeof(char)));
-    strcpy(dest, src);
+    dest = strdup(src);
     return dest;
 }

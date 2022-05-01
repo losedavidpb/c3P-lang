@@ -139,6 +139,33 @@ typedef struct symt_node
 /* Type for a symbol table */
 typedef symt_node symt_tab;
 
+/* Range of values for integers */
+#define I8_MIN -128
+#define I8_MAX 127
+#define I16_MIN -32768
+#define I16_MAX 32768
+#define I32_MIN -214.483648
+#define I32_MAX 2147483647
+#define I64_MIN -9223372036854775808
+#define I64_MAX 9223372036854775807
+
+/* Range of values for floats */
+#define F32_MIN 1.5e-45
+#define F32_MAX 3.4e38
+#define F64_MIN 5.0e-324
+#define F64_MAX 1.7e308
+
+/* Range of values for characters */
+#define CHAR_MIN I64_MIN
+#define CHAR_MAX I64_MAX
+
+/* Range of values for booleans */
+#define BOOL_MIN false
+#define BOOL_MAX true
+
+/* Check if passed value is between passed limits */
+#define symt_check_range(value, min, max) value >= min && value <= max
+
 /* Get string representation for identifiers */
 #define symt_strget_id(id)							\
 	(id == LOCAL_VAR? "LOCAL_VAR" :					\
@@ -178,8 +205,14 @@ symt_cons_t symt_get_type_data(symt_var_t type);
 /* Get the value of passed node whether that field exists */
 symt_value_t symt_get_value_from_node(symt_node *node);
 
+/* Get the primitive type for passed node */
+symt_cons_t symt_get_type_value_from_node(symt_node *node);
+
 /* Print value for passed node */
 void symt_printf_value(symt_node* node);
+
+/* Check if passed constant could be assigned to the variable */
+void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons);
 
 /* Copy passed node into a new one at a new direction */
 symt_node *symt_copy(symt_node *node);
