@@ -3,6 +3,7 @@
 #include "../../include/assertb.h"
 #include "../../include/arrcopy.h"
 #include "../../include/memlib.h"
+
 #include "../../include/symt_type.h"
 #include "../../include/symt_call.h"
 #include "../../include/symt_cons.h"
@@ -13,6 +14,7 @@
 #include "../../include/symt_var.h"
 #include "../../include/symt_while.h"
 #include "../../include/symt_node.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>

@@ -14,24 +14,25 @@
 
   #include "c3pbison.tab.h"
 
-  #include "../../include/assertb.h"
-  #include "../../include/arrcopy.h"
-  #include "../../include/memlib.h"
-  #include "../../include/symt_type.h"
-  #include "../../include/symt_call.h"
-  #include "../../include/symt_cons.h"
-  #include "../../include/symt_for.h"
-  #include "../../include/symt_if.h"
-  #include "../../include/symt_rout.h"
-  #include "../../include/symt_switch.h"
-  #include "../../include/symt_var.h"
-  #include "../../include/symt_while.h"
-  #include "../../include/symt_node.h"
   #include "../../include/symt.h"
+  #include "../../include/symt_cons.h"
+  #include "../../include/symt_var.h"
+  #include "../../include/symt_if.h"
+  #include "../../include/symt_while.h"
+  #include "../../include/symt_for.h"
+  #include "../../include/symt_switch.h"
+  #include "../../include/symt_call.h"
+  #include "../../include/symt_rout.h"
+  #include "../../include/symt_node.h"
+
+  #include <stdio.h>
+  #include <stdlib.h>
   #include <ctype.h>
 
   int l_error = 0;        // Specify if errors were detected
   int num_lines = 1;      // Number of lines processed
+
+	// integer_type    i8|i16|i32|i64 double_type     f32|f64
 
   // Show and error message at console
   void showerr(const char *mssg, int cod);
@@ -44,8 +45,6 @@ digit           [0-9]
 word            {letter}|{digit}|_
 identifier      {letter}{word}+|{letter}
 
-integer_type    i8|i16|i32|i64
-double_type     f32|f64
 char_type       c
 str_type        str
 bool_type       b
@@ -60,8 +59,12 @@ comment         \?.*
 
 hide                                            { return HIDE; }
 
-{integer_type}                                  { return INTEGER_TYPE; }
-{double_type}                                   { return DOUBLE_TYPE; }
+i8                  	                		{ return I8_TYPE; }
+i16                                  			{ return I16_TYPE; }
+i32                                				{ return I32_TYPE; }
+i64                                				{ return I64_TYPE; }
+f32												{ return F32_TYPE; }
+f64												{ return F64_TYPE; }
 {char_type}                                     { return CHAR_TYPE; }
 {str_type}                                      { return STR_TYPE; }
 {bool_type}                                     { return BOOL_TYPE; }
