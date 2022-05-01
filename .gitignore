@@ -1,9 +1,29 @@
+# ===================================
+# Ignore files for c3P repo
+# ===================================
+
+# Flex =======
 *.yy.c
+
+# Bison =======
 *.tab.c
 *.tab.h
 *.output
+
+# Old files which could ge created by developers
+# in order to keep some files not prepared for repo
 *.old
+
+# Executable files =======
+# Set .exe extension at executable files
+# in order to apply this line
 *.exe
+
+# Visual Studio Code =======
 .vscode
-document/spanish/.tmp
+
+# CMake =======
 build
+
+# LaTeX temporary files
+document/spanish/.tmp

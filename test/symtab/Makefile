@@ -14,22 +14,26 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
-symt_path = ../../compiler/symtab
-lib_path = ../../compiler/symtab/lib
+src_path=../../src
+include_path=../../include
+symt_src_path=$(src_path)/symtab
 
 all:
 	make -s install
 	make -s execute
 	make -s clean
 
-install: $(symt_path)/symt.c $(symt_path)/symt.h $(lib_path)/memlib.h $(lib_path)/memlib.c $(lib_path)/assertb.h $(lib_path)/copy.c $(lib_path)/copy.h symt_test.c
-	gcc -o symt_test.exe $(symt_path)/symt.c $(symt_path)/symt.h $(lib_path)/memlib.h $(lib_path)/memlib.c $(lib_path)/assertb.h $(lib_path)/copy.c $(lib_path)/copy.h symt_test.c
-	gcc -o copy_test.exe $(lib_path)/memlib.h $(lib_path)/memlib.c $(lib_path)/assertb.h $(lib_path)/copy.h $(lib_path)/copy.c copy_test.c
+install: $(symt_src_path)/symt.c $(include_path)/symt.h $(include_path)/memlib.h $(symt_src_path)/memlib.c $(include_path)/assertb.h $(symt_src_path)/arrcopy.c $(include_path)/arrcopy.h symt_test.c
+	gcc -o symt_test.exe $(symt_src_path)/symt.c $(include_path)/symt.h $(include_path)/memlib.h \
+		$(symt_src_path)/memlib.c $(include_path)/assertb.h $(symt_src_path)/arrcopy.c $(include_path)/arrcopy.h symt_test.c
+
+	gcc -o copy_test.exe $(include_path)/memlib.h $(symt_src_path)/memlib.c \
+		$(include_path)/assertb.h $(include_path)/arrcopy.h $(symt_src_path)/copy.c copy_test.c
 
 execute: symt_test.exe copy_test.exe
 	./copy_test.exe
 	./symt_test.exe
 
 clean:
-	rm -f symt_test.exe 2>/dev/null
 	rm -f copy_test.exe 2>/dev/null
+	rm -f symt_test.exe 2>/dev/null

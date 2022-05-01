@@ -1,5 +1,12 @@
+# ===================================
+# Git attributes for c3P repo
+# ===================================
+
+# This is the root editor config so all
+# general settings would be set here
 root = true
 
+# General settings for Linux machine
 [*]
 charset = utf-8
 trim_trailing_whitespace = true
@@ -8,10 +15,18 @@ end_of_line = lf
 indent_style = tab
 tab_width = 8
 
+# Reduce indent at Makefile since code usually
+# has not many lines at ifdef token
 [Makefile]
-indent_style = space
-indent_size = 4
+indent_style = tab
+tab_width = 2
 
-[*.{c,h,cpp,hpp,c3p,y,l}]
+# C/C++ source files
+[*.{c,h,cpp,hpp,c3p}]
+indent_style = tab
+tab_width = 4
+
+# Flex/Bison source files
+[*.{l,y}]
 indent_style = tab
 tab_width = 4

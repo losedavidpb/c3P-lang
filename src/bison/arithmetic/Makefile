@@ -25,7 +25,7 @@ clean_output:
 install: arithmetic_c3pflexbison.l arithmetic_c3pbison.y
 	bison -d arithmetic_c3pbison.y
 	flex arithmetic_c3pflexbison.l
-	gcc -g -o c3pflexbison arithmetic_c3pbison.tab.c lex.yy.c -lm -lfl
+	gcc -g -o c3pflexbison.exe arithmetic_c3pbison.tab.c lex.yy.c -lm -lfl
 
 execute: c3pflexbison.exe arithmetic_c3pbison.tab.c arithmetic_c3pbison.tab.h lex.yy.c
 	./c3pflexbison.exe $(test_path)/expressions/b_arithmetic_test_*.c3p

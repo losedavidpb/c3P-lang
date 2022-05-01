@@ -28,7 +28,7 @@ install: expr_c3pflexbison.l expr_c3pbison.y
 	gcc -g -o c3pflexbison.exe expr_c3pbison.tab.c lex.yy.c -lm -lfl
 
 execute: c3pflexbison.exe expr_c3pbison.tab.c expr_c3pbison.tab.h lex.yy.c
-	./c3pflexbison.exe .$(test_path)/expressions/b_expression_test_*.c3p
+	./c3pflexbison.exe $(test_path)/expressions/b_expression_test_*.c3p
 
 clean:
 	rm -f expr_c3pbison.tab.c 2>/dev/null

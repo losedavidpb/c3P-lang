@@ -1,6 +1,6 @@
-#include "../../compiler/symtab/lib/copy.h"
-#include "../../compiler/symtab/lib/memlib.h"
-#include "../../compiler/symtab/lib/assertb.h"
+#include "include/arrcopy.h"
+#include "include/memlib.h"
+#include "include/assertb.h"
 
 #include <stdio.h>
 #include <string.h>
