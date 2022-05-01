@@ -568,7 +568,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | CHAR                          {
-                                                    symt_cons* cons = symt_insert_cons(CONS_CHAR, &$1);
+                                                    symt_cons* cons = symt_new_cons(CONS_CHAR, &$1);
 													symt_node *result = symt_new();
 													result->id = CONSTANT;
 													result->cons = cons;
@@ -612,15 +612,60 @@ data_type 		: I8_TYPE 						{ $$ = I8; }
 				| BOOL_TYPE 					{ $$ = CONS_INTEGER; }
 				;
 
-arr_data_type 	: I8_TYPE '[' int_expr ']'    	{ value_list_expr_t = CONS_INTEGER; array_length = $3; $$ = I8; }
-				| I16_TYPE '[' int_expr ']' 	{ value_list_expr_t = CONS_INTEGER; array_length = $3; $$ = I16; }
-				| I32_TYPE '[' int_expr ']'		{ value_list_expr_t = CONS_INTEGER; array_length = $3; $$ = I32; }
-				| I64_TYPE '[' int_expr ']'		{ value_list_expr_t = CONS_INTEGER; array_length = $3; $$ = I64; }
-				| F32_TYPE '[' int_expr ']'		{ value_list_expr_t = CONS_DOUBLE; array_length = $3; $$ = F32; }
-				| F64_TYPE '[' int_expr ']'		{ value_list_expr_t = CONS_DOUBLE; array_length = $3; $$ = F64; }
-				| CHAR_TYPE '[' int_expr ']'	{ value_list_expr_t = CONS_CHAR; array_length = $3; $$ = CONS_CHAR; }
-				| STR_TYPE '[' int_expr ']'		{ value_list_expr_t = CONS_CHAR; array_length = $3; $$ = CONS_CHAR; }
-				| BOOL_TYPE '[' int_expr ']'	{ value_list_expr_t = CONS_INTEGER; array_length = $3; $$ = CONS_INTEGER; }
+arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
+													value_list_expr_t = CONS_INTEGER;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = I8;
+												}
+				| I16_TYPE '[' int_expr ']' 	{
+													value_list_expr_t = CONS_INTEGER;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = I16;
+												}
+				| I32_TYPE '[' int_expr ']'		{
+													value_list_expr_t = CONS_INTEGER;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = I32;
+												}
+				| I64_TYPE '[' int_expr ']'		{
+													value_list_expr_t = CONS_INTEGER;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = I64;
+												}
+				| F32_TYPE '[' int_expr ']'		{
+													value_list_expr_t = CONS_DOUBLE;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = F32;
+												}
+				| F64_TYPE '[' int_expr ']'		{
+													value_list_expr_t = CONS_DOUBLE;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = F64;
+												}
+				| CHAR_TYPE '[' int_expr ']'	{
+													value_list_expr_t = CONS_CHAR;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = CONS_CHAR;
+												}
+				| STR_TYPE '[' int_expr ']'		{
+													value_list_expr_t = CONS_CHAR;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = CONS_CHAR;
+												}
+				| BOOL_TYPE '[' int_expr ']'	{
+													value_list_expr_t = CONS_INTEGER;
+													symt_node *node = (symt_node*)$3;
+													array_length = *((int*)node->cons->value);
+													$$ = CONS_INTEGER;
+												}
 				;
 
 // __________ Declaration for variables __________
