@@ -186,36 +186,21 @@
 
 // __________ Expression __________
 
+// FALTA BORRAR BASURA TEMPORAL QUE SE USA COMO LAS CONSTANTES
+
 expr 			: expr_num		{
-									if (has_decimals($1))
-									{
-										double double_expr_val = (double)$1;
-										double *value = (double*)(doublecopy(&double_expr_val, 1));
-										symt_node* result = symt_new();
-										result = symt_insert_cons(result, CONS_DOUBLE, value);
-										$$ = result;
-									}
-									else
-									{
-										int int_expr_val = (int)$1;
-										int *value = (int*)(intcopy(&int_expr_val, 1));
-										symt_node* result = symt_new();
-										result = symt_insert_cons(result, CONS_INTEGER, value);
-										$$ = result;
-									}
-						  		}
+									symt_cons *value = (symt_cons*)$1;
+									symt_node *result = symt_new_node();
+									result = symt_push(result, value);
+									$$ = result;
+								}
 				| expr_char		{
-									char *value = (char*)(ml_malloc(sizeof(char))); *value = $1;
-						  			symt_node* result = symt_new();
-						  			result = symt_insert_cons(result, CONS_CHAR, value);
-						  			$$ = result;
-								}
-				| expr_string	{
-									char *value = strdup($1);
-						  			symt_node* result = symt_new();
-						  			result = symt_insert_cons(result, CONS_CHAR, value);
-						  			$$ = result;
-								}
+									symt_cons *value = (symt_cons*)$1;
+									symt_node *result = symt_new_node();
+									result = symt_push(result, value);
+									$$ = result;
+				 				}
+				| expr_string	{ $$ = $1; }
 				| IDENTIFIER	{
 									symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
 									if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
@@ -224,53 +209,85 @@ expr 			: expr_num		{
 								}
 				;
 
-int_expr 		: int_expr '+' int_expr 		{ $$ = symt_cons_add(CONS_INTEGER, $1, $3); }
-				| int_expr '-' int_expr 		{ $$ = symt_cons_sub(CONS_INTEGER, $1, $3); }
+int_expr 		: int_expr '+' int_expr 		{ $$ = symt_cons_add(CONS_INTEGER, $1, $3);  }
+				| int_expr '-' int_expr 		{ $$ = symt_cons_sub(CONS_INTEGER, $1, $3);  }
 				| int_expr '*' int_expr 		{ $$ = symt_cons_mult(CONS_INTEGER, $1, $3); }
-				| int_expr '/' int_expr 		{ $$ = symt_cons_div(CONS_INTEGER, $1, $3); }
-				| int_expr '%' int_expr 		{ $$ = symt_cons_mod(CONS_INTEGER, $1, $3); }
-				| int_expr '^' int_expr 		{ $$ = symt_cons_pow(CONS_INTEGER, $1, $3); }
+				| int_expr '/' int_expr 		{ $$ = symt_cons_div(CONS_INTEGER, $1, $3);  }
+				| int_expr '%' int_expr 		{ $$ = symt_cons_mod(CONS_INTEGER, $1, $3);  }
+				| int_expr '^' int_expr 		{ $$ = symt_cons_pow(CONS_INTEGER, $1, $3);  }
 				| '(' expr_num ')' 				{ $$ = $2; }
-				| DOUBLE 						{ $$ = symt_new_cons(CONS_INTEGER, &$1); }
-				| INTEGER 						{ $$ = symt_new_cons(CONS_INTEGER, &$1); }
+				| DOUBLE 						{ $$ = symt_new_cons(CONS_INTEGER, &$1); 	 }
+				| INTEGER 						{ $$ = symt_new_cons(CONS_INTEGER, &$1); 	 }
 				;
 
-expr_num 		: expr_num '<' expr_num 		{ $$ = $1 < $3; }
-				| expr_num '>' expr_num 		{ $$ = $1 > $3; }
-				| expr_num EQUAL expr_num 		{ $$ = $1 == $3; }
-				| expr_num NOTEQUAL expr_num 	{ $$ = $1 != $3; }
-				| expr_num LESSEQUAL expr_num 	{ $$ = $1 <= $3; }
-				| expr_num MOREEQUAL expr_num 	{ $$ = $1 >= $3; }
-				| expr_num AND expr_num 		{ $$ = $1 && $3; }
-				| expr_num OR expr_num 			{ $$ = $1 || $3; }
-				| NOT expr_num 					{ $$ = !$2; }
+expr_num 		: expr_num '<' expr_num 		{ $$ = symt_cons_lt($1, $3);  }
+				| expr_num '>' expr_num 		{ $$ = symt_cons_gt($1, $3);  }
+				| expr_num EQUAL expr_num 		{ $$ = symt_cons_eq($1, $3);  }
+				| expr_num NOTEQUAL expr_num 	{ $$ = symt_cons_neq($1, $3); }
+				| expr_num LESSEQUAL expr_num 	{ $$ = symt_cons_leq($1, $3); }
+				| expr_num MOREEQUAL expr_num 	{ $$ = symt_cons_geq($1, $3); }
+				| expr_num AND expr_num 		{
+													symt_node* num1 = $1;
+													symt_node* num2 = $3;
+													int value1_int = *((int*)num1->value);
+													int value2_int = *((int*)num2->value);
+													int result = value1_int && value2_int;
+													$$ = symt_insert_cons(CONS_INTEGER, &result);
+				 								}
+				| expr_num OR expr_num 			{
+													symt_node* num1 = $1;
+													symt_node* num2 = $3;
+													int value1_int = *((int*)num1->value);
+													int value2_int = *((int*)num2->value);
+													int result = value1_int || value2_int;
+													$$ = symt_insert_cons(CONS_INTEGER, &result);
+												}
+				| NOT expr_num 					{
+													symt_node* num1 = $1;
+													int value1 = *((int*)num1->value);
+													int result = !value1;
+													$$ = symt_insert_cons(CONS_INTEGER, &result);
+												}
 				| int_expr 						{ $$ = $1; }
-				| T 							{ $$ = 1; }
-				| F 							{ $$ = 0; }
+				| T 							{ int true_val = 1; $$ = symt_new_cons(CONS_INTEGER, &true_val);   }
+				| F 							{ int false_val = 0; $$ = symt_new_cons(CONS_INTEGER, &false_val); }
 				;
 
-expr_char 		: expr_char '+' expr_char 		{ $$ = $1 + $3; }
-				| expr_char '-' expr_char 		{ $$ = $1 - $3; }
-				| expr_char '*' expr_char 		{ $$ = $1 * $3; }
-				| expr_char '/' expr_char 		{ $$ = $1 / $3; }
-				| expr_char '%' expr_char 		{ $$ = (int)fmod((double)$1, (double)$3); }
-				| expr_char '^' expr_char 		{ $$ = (int)pow((double)$1, (double)$3); }
-				| expr_char '<' expr_char 		{ $$ = $1 < $3; }
-				| expr_char '>' expr_char 		{ $$ = $1 > $3; }
-				| expr_char EQUAL expr_char 	{ $$ = $1 == $3; }
-				| expr_char NOTEQUAL expr_char 	{ $$ = $1 != $3; }
-				| expr_char LESSEQUAL expr_char { $$ = $1 <= $3; }
-				| expr_char MOREEQUAL expr_char { $$ = $1 >= $3; }
-				| CHAR 							{ $$ = $1; }
+expr_char 		: expr_char '+' expr_char 		{ $$ = symt_cons_add(CONS_CHAR, $1, $3);  }
+				| expr_char '-' expr_char 		{ $$ = symt_cons_sub(CONS_CHAR, $1, $3);  }
+				| expr_char '*' expr_char 		{ $$ = symt_cons_mult(CONS_CHAR, $1, $3); }
+				| expr_char '/' expr_char 		{ $$ = symt_cons_div(CONS_CHAR, $1, $3);  }
+				| expr_char '%' expr_char 		{ $$ = symt_cons_mod(CONS_CHAR, $1, $3);  }
+				| expr_char '^' expr_char 		{ $$ = symt_cons_pow(CONS_CHAR, $1, $3);  }
+				| expr_char '<' expr_char 		{ $$ = symt_cons_lt($1, $3); 			  }
+				| expr_char '>' expr_char 		{ $$ = symt_cons_gt($1, $3); 			  }
+				| expr_char EQUAL expr_char 	{ $$ = symt_cons_eq($1, $3); 			  }
+				| expr_char NOTEQUAL expr_char 	{ $$ = symt_cons_neq($1, $3); 			  }
+				| expr_char LESSEQUAL expr_char { $$ = symt_cons_leq($1, $3); 			  }
+				| expr_char MOREEQUAL expr_char { $$ = symt_cons_geq($1, $3);			  }
+				| CHAR 							{ $$ = symt_insert_cons(CONS_CHAR, &$1); 	}
 				;
 
 expr_string 	: expr_string '+' expr_string	{
-													int len_result = strlen($1) + strlen($3);
+													symt_var *str1 = (symt_var*)$1;
+													symt_var *str2 = (symt_var*)$3;
+
+													int len_result = str1->array_length + str2->array_length;
 													char *res = (char *)(malloc(sizeof(char) * len_result));
 													assertp(res != NULL, "internal error at concatenation");
-													strcpy(res, $1); strcat(res, $3); $$ = res;
+													strcpy(res, (char*)str1->value); strcat(res, (char*)str2->value);
+
+													symt_var *var_n = symt_new_var(LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
+													symt_node *result = symt_new_new();
+													symt_push(result, var);
+													$$ = result;
 												}
-				| STRING		 				{ $$ = $1; }
+				| STRING		 				{
+													symt_var *var_n = symt_new_var(LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
+													symt_node *result = symt_new_node();
+													result = symt_push(result, var_n);
+													$$ = result;
+												}
 				;
 
 // __________ Constants and Data type __________
