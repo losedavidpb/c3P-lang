@@ -141,10 +141,10 @@
 %type<node_t> CALL;
 %type<node_t> error;
 
-%type<double_t> expr_num;
-%type<char_t> expr_char;
-%type<string_t> expr_string;
-%type<double_t> int_expr;
+%type<node_t> expr_num;
+%type<node_t> expr_char;
+%type<node_t> expr_string;
+%type<node_t> int_expr;
 %type<node_t> expr;
 %type<stack> list_expr;
 
@@ -191,13 +191,15 @@
 expr 			: expr_num		{
 									symt_cons *value = (symt_cons*)$1;
 									symt_node *result = symt_new_node();
-									result = symt_push(result, value);
+									result->id = CONSTANT;
+									result->cons = value;
 									$$ = result;
 								}
 				| expr_char		{
 									symt_cons *value = (symt_cons*)$1;
 									symt_node *result = symt_new_node();
-									result = symt_push(result, value);
+									result->id = CONSTANT;
+									result->cons = value;
 									$$ = result;
 				 				}
 				| expr_string	{ $$ = $1; }
@@ -209,64 +211,369 @@ expr 			: expr_num		{
 								}
 				;
 
-int_expr 		: int_expr '+' int_expr 		{ $$ = symt_cons_add(CONS_INTEGER, $1, $3);  }
-				| int_expr '-' int_expr 		{ $$ = symt_cons_sub(CONS_INTEGER, $1, $3);  }
-				| int_expr '*' int_expr 		{ $$ = symt_cons_mult(CONS_INTEGER, $1, $3); }
-				| int_expr '/' int_expr 		{ $$ = symt_cons_div(CONS_INTEGER, $1, $3);  }
-				| int_expr '%' int_expr 		{ $$ = symt_cons_mod(CONS_INTEGER, $1, $3);  }
-				| int_expr '^' int_expr 		{ $$ = symt_cons_pow(CONS_INTEGER, $1, $3);  }
+int_expr 		: int_expr '+' int_expr 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+													symt_cons* res_cons = symt_cons_add(CONS_INTEGER, num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| int_expr '-' int_expr 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+													symt_cons* res_cons = symt_cons_sub(CONS_INTEGER, num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| int_expr '*' int_expr 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons* res_cons = symt_cons_mult(CONS_INTEGER, num1->cons, num2->cons);
+													symt_delete_node(num1); symt_delete_node(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| int_expr '/' int_expr 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons* res_cons = symt_cons_div(CONS_INTEGER, num1->cons, num2->cons);
+													symt_delete_node(num1); symt_delete_node(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| int_expr '%' int_expr 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons* res_cons = symt_cons_mod(CONS_INTEGER, num1->cons, num2->cons);
+													symt_delete_node(num1); symt_delete_node(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| int_expr '^' int_expr 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons* res_cons = symt_cons_pow(CONS_INTEGER, num1->cons, num2->cons);
+													symt_delete_node(num1); symt_delete_node(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
 				| '(' expr_num ')' 				{ $$ = $2; }
-				| DOUBLE 						{ $$ = symt_new_cons(CONS_INTEGER, &$1); 	 }
-				| INTEGER 						{ $$ = symt_new_cons(CONS_INTEGER, &$1); 	 }
+				| DOUBLE 						{
+													symt_node *num1 = symt_new();
+													num1 = symt_insert_tab_cons(num1, CONS_DOUBLE, &$1);
+
+													symt_cons* res_cons = symt_new_cons(CONS_INTEGER, num1->cons);
+													symt_delete_node(num1);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| INTEGER 						{
+													symt_node *num1 = symt_new();
+													num1 = symt_insert_tab_cons(num1, CONS_INTEGER, &$1);
+
+													symt_cons* res_cons = symt_new_cons(CONS_INTEGER, num1->cons);
+													symt_delete_node(num1);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
 				;
 
-expr_num 		: expr_num '<' expr_num 		{ $$ = symt_cons_lt($1, $3);  }
-				| expr_num '>' expr_num 		{ $$ = symt_cons_gt($1, $3);  }
-				| expr_num EQUAL expr_num 		{ $$ = symt_cons_eq($1, $3);  }
-				| expr_num NOTEQUAL expr_num 	{ $$ = symt_cons_neq($1, $3); }
-				| expr_num LESSEQUAL expr_num 	{ $$ = symt_cons_leq($1, $3); }
-				| expr_num MOREEQUAL expr_num 	{ $$ = symt_cons_geq($1, $3); }
+expr_num 		: expr_num '<' expr_num 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| expr_num '>' expr_num 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| expr_num EQUAL expr_num 		{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| expr_num NOTEQUAL expr_num 	{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| expr_num LESSEQUAL expr_num 	{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| expr_num MOREEQUAL expr_num 	{
+													symt_node *num1 = (symt_node*)$1;
+													symt_node *num2 = (symt_node*)$3;
+
+													symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
 				| expr_num AND expr_num 		{
 													symt_node* num1 = $1;
 													symt_node* num2 = $3;
-													int value1_int = *((int*)num1->value);
-													int value2_int = *((int*)num2->value);
+													int value1_int = *((int*)num1->cons->value);
+													int value2_int = *((int*)num2->cons->value);
 													int result = value1_int && value2_int;
-													$$ = symt_insert_cons(CONS_INTEGER, &result);
+
+													symt_cons *res_cons = symt_new_cons(CONS_INTEGER, &result);
+
+													symt_node *result_n = symt_new();
+													result_n->id = CONSTANT;
+													result_n->cons = res_cons;
+													$$ = result_n;
 				 								}
 				| expr_num OR expr_num 			{
 													symt_node* num1 = $1;
 													symt_node* num2 = $3;
-													int value1_int = *((int*)num1->value);
-													int value2_int = *((int*)num2->value);
+													int value1_int = *((int*)num1->cons->value);
+													int value2_int = *((int*)num2->cons->value);
 													int result = value1_int || value2_int;
-													$$ = symt_insert_cons(CONS_INTEGER, &result);
+
+													symt_cons *res_cons = symt_new_cons(CONS_INTEGER, &result);
+
+													symt_node *result_n = symt_new();
+													result_n->id = CONSTANT;
+													result_n->cons = res_cons;
+													$$ = result_n;
 												}
 				| NOT expr_num 					{
-													symt_node* num1 = $1;
-													int value1 = *((int*)num1->value);
+													symt_node* num1 = $2;
+													int value1 = *((int*)num1->cons->value);
 													int result = !value1;
-													$$ = symt_insert_cons(CONS_INTEGER, &result);
+
+													symt_cons *res_cons = symt_new_cons(CONS_INTEGER, &result);
+
+													symt_node *result_n = symt_new();
+													result_n->id = CONSTANT;
+													result_n->cons = res_cons;
+													$$ = result_n;
 												}
 				| int_expr 						{ $$ = $1; }
-				| T 							{ int true_val = 1; $$ = symt_new_cons(CONS_INTEGER, &true_val);   }
-				| F 							{ int false_val = 0; $$ = symt_new_cons(CONS_INTEGER, &false_val); }
+				| T 							{
+													int true_val = 1;
+													symt_cons* res_cons = symt_new_cons(CONS_INTEGER, &true_val);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
+				| F 							{
+													int false_val = 0;
+													symt_cons* res_cons = symt_new_cons(CONS_INTEGER, &false_val);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+												}
 				;
 
-expr_char 		: expr_char '+' expr_char 		{ $$ = symt_cons_add(CONS_CHAR, $1, $3);  }
-				| expr_char '-' expr_char 		{ $$ = symt_cons_sub(CONS_CHAR, $1, $3);  }
-				| expr_char '*' expr_char 		{ $$ = symt_cons_mult(CONS_CHAR, $1, $3); }
-				| expr_char '/' expr_char 		{ $$ = symt_cons_div(CONS_CHAR, $1, $3);  }
-				| expr_char '%' expr_char 		{ $$ = symt_cons_mod(CONS_CHAR, $1, $3);  }
-				| expr_char '^' expr_char 		{ $$ = symt_cons_pow(CONS_CHAR, $1, $3);  }
-				| expr_char '<' expr_char 		{ $$ = symt_cons_lt($1, $3); 			  }
-				| expr_char '>' expr_char 		{ $$ = symt_cons_gt($1, $3); 			  }
-				| expr_char EQUAL expr_char 	{ $$ = symt_cons_eq($1, $3); 			  }
-				| expr_char NOTEQUAL expr_char 	{ $$ = symt_cons_neq($1, $3); 			  }
-				| expr_char LESSEQUAL expr_char { $$ = symt_cons_leq($1, $3); 			  }
-				| expr_char MOREEQUAL expr_char { $$ = symt_cons_geq($1, $3);			  }
-				| CHAR 							{ $$ = symt_insert_cons(CONS_CHAR, &$1); 	}
-				;
+expr_char       : expr_char '+' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_add(CONS_CHAR , num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '-' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_sub(CONS_CHAR , num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '*' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_mult(CONS_CHAR , num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '/' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_div(CONS_CHAR , num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '%' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_mod(CONS_CHAR , num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '^' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_pow(CONS_CHAR , num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '<' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char '>' expr_char       {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char EQUAL expr_char     {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char NOTEQUAL expr_char  {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char LESSEQUAL expr_char {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | expr_char MOREEQUAL expr_char {
+                                                    symt_node* num1 = (symt_node*)$1;
+                                                    symt_node* num2 = (symt_node*)$3;
+                                                    symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
+													symt_delete(num1); symt_delete(num2);
+
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = res_cons;
+													$$ = result;
+                                                }
+                | CHAR                          {
+                                                    symt_cons* cons = symt_insert_cons(CONS_CHAR, &$1);
+													symt_node *result = symt_new();
+													result->id = CONSTANT;
+													result->cons = cons;
+                                                }
+                ;
 
 expr_string 	: expr_string '+' expr_string	{
 													symt_var *str1 = (symt_var*)$1;
@@ -278,14 +585,16 @@ expr_string 	: expr_string '+' expr_string	{
 													strcpy(res, (char*)str1->value); strcat(res, (char*)str2->value);
 
 													symt_var *var_n = symt_new_var(LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
-													symt_node *result = symt_new_new();
-													symt_push(result, var);
+													symt_node *result = symt_new_node();
+													result->id = LOCAL_VAR;
+													result->var = var_n;
 													$$ = result;
 												}
 				| STRING		 				{
 													symt_var *var_n = symt_new_var(LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
 													symt_node *result = symt_new_node();
-													result = symt_push(result, var_n);
+													result->id = LOCAL_VAR;
+													result->var = var_n;
 													$$ = result;
 												}
 				;
@@ -483,7 +792,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 
 																						char *str_type_1 = symt_strget_vartype(var->var->type);
 																						char *str_type_2 = symt_strget_vartype($4);
-																						assertf(var->var->type == $4, "type %s does not match %s at %s variable declaration", str_type, str_type_2, $2);
+																						assertf(var->var->type == $4, "type %s does not match %s at %s variable declaration", str_type_1, str_type_2, $2);
 
 																						struct Stack *pila = $7;
 																						struct Stack *valores_pila = $7;
@@ -602,7 +911,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 																						symt_node *value = (symt_node *)$3;
 																						symt_can_assign(var->var->type, value->cons);
-																						symt_assign_var(var, value);
+																						symt_assign_var(var->var, value->cons->value);
 																						$$ = var; token_id = SYMT_ROOT_ID;
 																						print_tab(tab);
 																					}
@@ -612,7 +921,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						symt_cons *index = (symt_cons*)$3;
-																						symt_assign_var_at(var, (symt_cons*)$6, *((int*)index->value));
+																						symt_assign_var_at(var->var, (symt_cons*)$6, *((int*)index->value));
 																						$$ = var; token_id = SYMT_ROOT_ID; print_tab(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
@@ -620,12 +929,13 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_node *var_without_value = symt_search_by_name(tab, $1, token_id);
 																						assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
-																						symt_var* var_result = symt_insert_var(token_id, $1, $3, 0, 0, NULL, 0);
-																						symt_push(tab, var_result);
+																						symt_node *result_node = symt_new();
+																						result_node = symt_insert_tab_var(result_node, token_id, $1, $3, 0, 0, NULL, 0);
+																						tab = symt_push(tab, result_node);
 
 																						symt_node *value = (symt_node *)$5;
-																						symt_assign_var(var_result, value->cons->value);
-																						$$ = var_result; token_id = SYMT_ROOT_ID;
+																						symt_assign_var(result_node->var, value->cons->value);
+																						$$ = result_node; token_id = SYMT_ROOT_ID;
 																						print_tab(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{

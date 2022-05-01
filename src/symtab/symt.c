@@ -188,7 +188,7 @@ symt_tab *symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, sym
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_tab_const(symt_tab *tab, const symt_cons_t type, symt_value_t value)
+symt_tab *symt_insert_tab_cons(symt_tab *tab, const symt_cons_t type, symt_value_t value)
 {
 	symt_node *new_node = symt_insert_cons(type, value);
 	return symt_push(tab, new_node);
