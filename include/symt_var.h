@@ -24,7 +24,7 @@ symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_
 symt_node* symt_insert_var(const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
 
 /* Check if passed constant could be assigned to the variable */
-void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons);
+void symt_can_assign(symt_var_t type, symt_cons *cons);
 
 /* Assign value of passed constant at variable whether it is not an array */
 void symt_assign_var(symt_var *var, symt_cons *value);

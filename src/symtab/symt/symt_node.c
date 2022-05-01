@@ -16,16 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void symt_delete_value_cons(symt_cons_t type, symt_value_t value)
-{
-	switch (type)
-	{
-		case CONS_INTEGER: ml_free(((int *)value)); 	break;
-		case CONS_DOUBLE: ml_free(((double *)value)); 	break;
-		case CONS_CHAR: ml_free(((char *)value)); 		break;
-	}
-}
-
 symt_node* symt_new_node()
 {
 	symt_tab *tab = NULL;
@@ -141,44 +131,18 @@ void symt_delete_node(symt_node *node)
 	while (iter != NULL)
 	{
 		iter->id = SYMT_ROOT_ID;
+		symt_delete_var(iter->var); iter->var = NULL;
+		symt_delete_cons(iter->cons); iter->cons = NULL;
+		symt_delete_if(iter->if_val); iter->if_val = NULL;
+		symt_delete_while(iter->while_val); iter->while_val = NULL;
+		symt_delete_switch(iter->switch_val); iter->switch_val = NULL;
+		symt_delete_for(iter->for_val); iter->for_val = NULL;
+		symt_delete_rout(iter->rout); iter->rout = NULL;
+		symt_delete_call(iter->call); iter->call = NULL;
 
-		// Global and local variables
-		symt_delete_var(iter->var);
-		iter->var = NULL;
-
-		// Constant
-		symt_delete_cons(iter->cons);
-		iter->cons = NULL;
-
-		// If
-		symt_delete_if(iter->if_val);
-		iter->if_val = NULL;
-
-		// While
-		symt_delete_while(iter->while_val);
-		iter->while_val = NULL;
-
-		// Switch
-		symt_delete_switch(iter->switch_val);
-		iter->switch_val = NULL;
-
-		// For
-		symt_delete_for(iter->for_val);
-		iter->for_val = NULL;
-
-		// Procedures and Functions
-		symt_delete_rout(iter->rout);
-		iter->rout = NULL;
-
-		// Call
-		symt_delete_call(iter->call);
-		iter->call = NULL;
-
-		prev = iter;
-		iter = iter->next_node;
+		prev = iter; iter = iter->next_node;
 		prev->next_node = NULL;
-		ml_free(prev);
-		prev = NULL;
+		ml_free(prev); prev = NULL;
 	}
 
 	node = NULL;

@@ -38,9 +38,6 @@ void *symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems);
    if has been created before */
 void symt_delete_node(symt_node *node);
 
-/* Delete passed constant */
-void symt_delete_value_cons(symt_cons_t type, symt_value_t value);
-
 /* Copy passed node into a new one at a new direction */
 symt_node *symt_copy_node(symt_node *node);
 

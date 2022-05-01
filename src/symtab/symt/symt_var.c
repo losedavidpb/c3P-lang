@@ -1,4 +1,4 @@
-#include "../../../include/symt_routine.h"
+#include "../../../include/symt_var.h"
 
 #include "../../../include/assertb.h"
 #include "../../../include/memlib.h"
@@ -17,7 +17,7 @@ symt_cons_t symt_get_type_data(symt_var_t type)
 		case F32: case F64: return CONS_DOUBLE; 					break;
 		case C: return CONS_CHAR;									break;
 		case B: return CONS_INTEGER;								break;
-		default: return -1;										break;
+		default: return -1;											break;
 	}
 }
 
@@ -44,7 +44,7 @@ symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool
 	return new_node;
 }
 
-void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons)
+void symt_can_assign(symt_var_t type, symt_cons *cons)
 {
 	assertp(cons != NULL, "passed constant has not be defined");
 	assertp(cons->value != NULL, "constant has not a valid value");
@@ -57,7 +57,7 @@ void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons)
 
 			switch(type)
 			{
-				case I8: assertf(symt_check_range(*int_value, I8_MIN, I8_MAX), "passed value is not at range for %s", "i8"); break;
+				case I8: assertf(symt_check_range(*int_value, I8_MIN, I8_MAX), "passed value is not at range for %s", "i8"); 	 break;
 				case I16: assertf(symt_check_range(*int_value, I16_MIN, I16_MAX), "passed value is not at range for %s", "i16"); break;
 				case I32: assertf(symt_check_range(*int_value, I32_MIN, I32_MAX), "passed value is not at range for %s", "i32"); break;
 				default: break;
@@ -79,9 +79,41 @@ void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons)
 	}
 }
 
-void symt_assign_var(symt_var *var, symt_cons *value);
+void symt_assign_var(symt_var *var, symt_cons *value)
+{
+	assertp(var != NULL, "variable has not been defined");
+	assertp(value != NULL, "constant has not been defined");
+	symt_can_assign(var->type, value);
 
-void symt_assign_var_at(symt_var *, symt_cons *value, int index);
+	var->value = value->value;
+}
+
+void symt_assign_var_at(symt_var *var, symt_cons *value, int index)
+{
+	assertp(var != NULL, "variable has not been defined");
+	assertp(value != NULL, "constant has not been defined");
+	symt_can_assign(var->type, value);
+
+	switch(var->type)
+	{
+		case CONS_INTEGER:;
+			int *int_value = (int*)var->value;
+			*(int_value + index) = *((int*)value->value);
+		break;
+
+		case CONS_DOUBLE:;
+			double *double_value = (double*)var->value;
+			*(double_value + index) = *((double*)value->value);
+		break;
+
+		case CONS_CHAR:;
+			char *char_value = (char*)var->value;
+			*(char_value + index) = *((char*)value->value);
+		break;
+
+		default: break;
+	}
+}
 
 void symt_delete_var(symt_var *var)
 {

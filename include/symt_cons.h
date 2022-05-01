@@ -58,6 +58,9 @@ symt_cons *symt_cons_leq(symt_cons_t type, symt_cons* num1, symt_cons* num2);
 /* Return a constant with the result of greater or equal to operation*/
 symt_cons *symt_cons_geq(symt_cons_t type, symt_cons* num1, symt_cons* num2);
 
+/* Delete passed value of a constant of passed type */
+void symt_delete_value_cons(symt_cons_t type, symt_value_t value);
+
 /* Delete passed constant symbol */
 void symt_delete_cons(symt_cons *cons);
 

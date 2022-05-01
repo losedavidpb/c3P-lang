@@ -39,9 +39,7 @@ void symt_delete_for(symt_for *for_val)
 		if (for_val->iter_op != NULL) symt_delete_node(for_val->iter_op);
 		if (for_val->statements != NULL) symt_delete_node(for_val->statements);
 		if (for_val->incr != NULL) symt_delete_node(for_val->incr);
-
-		ml_free(for_val);
-		for_val = NULL;
+		ml_free(for_val); for_val = NULL;
 	}
 }
 

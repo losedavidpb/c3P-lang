@@ -1,5 +1,6 @@
-#include "../../../include/symt_routine.h"
+#include "../../../include/symt_cons.h"
 
+#include "../../../include/assertb.h"
 #include "../../../include/memlib.h"
 #include "../../../include/arrcopy.h"
 #include "../../../include/symt_type.h"
@@ -26,44 +27,81 @@ symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value)
 	return new_node;
 }
 
-/* Assign value at passed constant */
-void symt_assign_cons(symt_cons *var, symt_value_t value);
+void symt_assign_cons(symt_cons *var, symt_value_t value)
+{
+	assertp(var != NULL, "passed constant has not been defined");
+	var->value = value;
+}
 
-/* Return a constant with the result of the addition */
-symt_cons *symt_cons_add(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+symt_cons *symt_cons_add(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
 
-/* Return a constant with the result of the subtraction */
-symt_cons *symt_cons_sub(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+}
 
-/* Return a constant with the result of the multiplication */
-symt_cons *symt_cons_mult(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+symt_cons *symt_cons_sub(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
 
-/* Return a constant with the result of the division */
-symt_cons *symt_cons_div(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+}
 
-/* Return a constant with the result of the modular operation */
-symt_cons *symt_cons_mod(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+symt_cons *symt_cons_mult(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
 
-/* Return a constant with the result of the pow operation */
-symt_cons *symt_cons_pow(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+}
 
-/* Return a constant with the result of greater than operation*/
-symt_cons *symt_cons_gt(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+symt_cons *symt_cons_div(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
 
-/* Return a constant with the result of less than operation*/
-symt_cons *symt_cons_lt(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+}
 
-/* Return a constant with the result of equal to operation*/
-symt_cons *symt_cons_eq(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+symt_cons *symt_cons_mod(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
 
-/* Return a constant with the result of not equal to operation*/
-symt_cons *symt_cons_neq(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+}
 
-/* Return a constant with the result of less or equal to operation*/
-symt_cons *symt_cons_leq(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+symt_cons *symt_cons_pow(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
 
-/* Return a constant with the result of greater or equal to operation*/
-symt_cons *symt_cons_geq(symt_cons_t type, symt_cons* num1, symt_cons* num2);
+}
+
+symt_cons *symt_cons_gt(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
+
+}
+
+symt_cons *symt_cons_lt(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
+
+}
+
+symt_cons *symt_cons_eq(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
+
+}
+
+symt_cons *symt_cons_neq(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
+
+}
+
+symt_cons *symt_cons_leq(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
+
+}
+
+symt_cons *symt_cons_geq(symt_cons_t type, symt_cons* num1, symt_cons* num2)
+{
+
+}
+
+void symt_delete_value_cons(symt_cons_t type, symt_value_t value)
+{
+	switch (type)
+	{
+		case CONS_INTEGER: ml_free(((int *)value)); 	break;
+		case CONS_DOUBLE: ml_free(((double *)value)); 	break;
+		case CONS_CHAR: ml_free(((char *)value)); 		break;
+	}
+}
 
 void symt_delete_cons(symt_cons *cons)
 {
