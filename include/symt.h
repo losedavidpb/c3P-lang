@@ -14,208 +14,11 @@
 #ifndef SYMT_H
 #define SYMT_H 1
 
+#include "symt_type.h"
 #include <stdbool.h>
 
 // Uncomment this to compile library with main
 //#define _SYMT_JUST_COMPILE
-
-// Identifier which only could be associated
-// to first element which is defined at stack
-#define SYMT_ROOT_ID -1
-
-/* Optional identifier for symbols used to
-   distinguish instances with the same id */
-typedef char * symt_name_t;
-
-/* Available symbols for symbol tables which
-   which will be used as identifiers */
-typedef enum symt_id_t
-{
-    LOCAL_VAR,      // local variables inside routines
-    GLOBAL_VAR,     // global variables outside routines
-    CONSTANT,       // constants for primitive data
-    IF,             // if and if-else statements
-    WHILE,          // while loops
-    FOR,            // for loops
-    SWITCH,         // switch statement
-    FUNCTION,       // routines with a return
-    PROCEDURE,      // routines with any return
-    CALL_,          // call statement for functions
-} symt_id_t;
-
-/* Type for values stored at local and global
-   variables, which has not been casted */
-typedef void * symt_value_t;
-
-/* Types for primitive data at constants */
-typedef enum symt_cons_t { INTEGER_, DOUBLE_, CHAR_ } symt_cons_t;
-
-/* Primitive types for variables and return functions */
-typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_var_t;
-
-/* Type for local and global variables */
-typedef struct symt_var
-{
-    symt_name_t name;
-    symt_var_t type;
-    symt_value_t value;
-    bool is_hide;
-    bool is_array;
-    int array_length;
-} symt_var;
-
-/* Type for constants */
-typedef struct symt_cons
-{
-    symt_cons_t type;
-    symt_value_t value;
-} symt_cons;
-
-/* Type for functions and procedures */
-typedef struct symt_routine
-{
-    symt_name_t name;
-    symt_var_t type;
-    bool is_hide;
-    struct symt_node *params;
-    struct symt_node *statements;
-} symt_routine;
-
-/* Type for if and if-else statements */
-typedef struct symt_if_else
-{
-    struct symt_node *cond;
-    struct symt_node *if_statements;
-    struct symt_node *else_statements;
-} symt_if_else;
-
-/* Type for while loops */
-typedef struct symt_while
-{
-    struct symt_node *cond;
-    struct symt_node *statements;
-} symt_while;
-
-/* Type for "for" loops */
-typedef struct symt_for
-{
-    struct symt_node *incr;
-    struct symt_node *cond;
-    struct symt_node *iter_op;
-    struct symt_node *statements;
-} symt_for;
-
-/* Type for switch statements */
-typedef struct symt_switch
-{
-    symt_id_t type_key;
-    symt_var *key_var;
-    struct symt_node *cases;
-} symt_switch;
-
-/* Type for calling routines */
-typedef struct symt_call
-{
-    symt_name_t name;
-    symt_var_t type;
-    struct symt_node *params;
-} symt_call;
-
-/* Type for a node which is are at a symbol table */
-typedef struct symt_node
-{
-    symt_id_t id;
-    symt_routine* rout;
-    symt_var* var;
-    symt_cons* cons;
-    symt_call* call;
-    symt_if_else* if_val;
-    symt_while* while_val;
-    symt_for* for_val;
-    symt_switch* switch_val;
-    struct symt_node *next_node;
-} symt_node;
-
-/* Type for a symbol table */
-typedef symt_node symt_tab;
-
-/* Range of values for integers */
-#define I8_MIN -128
-#define I8_MAX 127
-#define I16_MIN -32768
-#define I16_MAX 32768
-#define I32_MIN -214.483648
-#define I32_MAX 2147483647
-#define I64_MIN -9223372036854775808
-#define I64_MAX 9223372036854775807
-
-/* Range of values for floats */
-#define F32_MIN 1.5e-45
-#define F32_MAX 3.4e38
-#define F64_MIN 5.0e-324
-#define F64_MAX 1.7e308
-
-/* Range of values for characters */
-#define CHAR_MIN I64_MIN
-#define CHAR_MAX I64_MAX
-
-/* Range of values for booleans */
-#define BOOL_MIN false
-#define BOOL_MAX true
-
-/* Check if passed value is between passed limits */
-#define symt_check_range(value, min, max) value >= min && value <= max
-
-/* Get string representation for identifiers */
-#define symt_strget_id(id)							\
-	(id == LOCAL_VAR? "LOCAL_VAR" :					\
-	(id == GLOBAL_VAR? "GLOBAL_VAR" :				\
-	(id == IF? "IF" :								\
-	(id == WHILE? "WHILE" :							\
-	(id == FOR? "FOR" :								\
-	(id == SWITCH? "SWITCH" :						\
-	(id == FUNCTION? "FUNCTION" :					\
-	(id == PROCEDURE? "PROCEDURE" :					\
-	(id == CALL_? "CALL" : "undefined")))))))))
-
-/* Get string representation for variable types */
-#define symt_strget_vartype(type)				\
-	(type == I8? "i8" :							\
-	(type == I16? "i16" :						\
-	(type == I32? "i32" :						\
-	(type == I64? "i64" :						\
-	(type == F32? "f32" :						\
-	(type == F64? "f64" :						\
-	(type == C? "c" :							\
-	(type == STR? "str" :						\
-	(type == B? "b" : "undefined")))))))))
-
-/* Get string representation for constant types */
-#define symt_strget_constype(type)				\
-	(type == INTEGER_? "integer" :				\
-	(type == DOUBLE_? "double" :				\
-	(type == CHAR_? "char" : "undefined")))
-
-/* Check if passed identifier is valid */
-bool symt_is_valid_id(symt_id_t id);
-
-/* Get the constant type for passed variable type */
-symt_cons_t symt_get_type_data(symt_var_t type);
-
-/* Get the value of passed node whether that field exists */
-symt_value_t symt_get_value_from_node(symt_node *node);
-
-/* Get the primitive type for passed node */
-symt_cons_t symt_get_type_value_from_node(symt_node *node);
-
-/* Print value for passed node */
-void symt_printf_value(symt_node* node);
-
-/* Check if passed constant could be assigned to the variable */
-void symt_can_assign(symt_var_t type, symt_value_t value, symt_cons *cons);
-
-/* Copy passed node into a new one at a new direction */
-symt_node *symt_copy(symt_node *node);
 
 /* Create dynamically a new symbol table */
 symt_tab* symt_new();
@@ -234,28 +37,28 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id);
 symt_tab* symt_push(symt_tab *tab, symt_node *node);
 
 /* Insert call symbol to the symbol table */
-symt_tab* symt_insert_call(symt_tab *tab, const symt_name_t name, const symt_var_t type, struct symt_node *params);
+symt_tab* symt_insert_tab_call(symt_tab *tab, const symt_name_t name, const symt_var_t type, struct symt_node *params);
 
 /* Insert var symbol to the symbol table */
-symt_tab* symt_insert_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
+symt_tab* symt_insert_tab_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
 
 /* Insert const symbol to the symbol table */
-symt_tab* symt_insert_const(symt_tab *tab, const symt_cons_t type, symt_value_t value);
+symt_tab* symt_insert_tab_cons(symt_tab *tab, const symt_cons_t type, symt_value_t value);
 
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, symt_node *statements);
+symt_tab* symt_insert_tab_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, symt_node *statements);
 
 /* Insert if symbol to the symbol table */
-symt_tab* symt_insert_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else);
+symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else);
 
 /* Insert while symbol to the symbol table */
-symt_tab* symt_insert_while(symt_tab *tab, symt_node *cond, symt_node *statements);
+symt_tab* symt_insert_tab_while(symt_tab *tab, symt_node *cond, symt_node *statements);
 
 /* Insert for symbol to the symbol table */
-symt_tab* symt_insert_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_node *iter_var, symt_node *iter_op);
+symt_tab* symt_insert_tab_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_node *iter_var, symt_node *iter_op);
 
 /* Insert switch symbol to the symbol table */
-symt_tab* symt_insert_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases);
+symt_tab* symt_insert_tab_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases);
 
 /* Finish a block statement */
 void symt_end_block(symt_tab *tab, const symt_id_t id_block);

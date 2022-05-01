@@ -1,8 +1,7 @@
-#include "../include/arrcopy.h"
+#include "../../../include/arrcopy.h"
 
-#include "../include/memlib.h"
-#include "../include/assertb.h"
-
+#include "../../../include/memlib.h"
+#include "../../../include/assertb.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -57,5 +56,6 @@ char *strcopy(char *src)
     assertf(strlen(src) > 0, "%d is not valid for num_elems", (int)strlen(src));
 
     dest = strdup(src);
+	assertp(dest != NULL, "copy could not be executed because of internal errors");
     return dest;
 }

@@ -14,7 +14,20 @@
 
   #include "c3pbison.tab.h"
 
-  #include "symt.h"
+  #include "../../include/assertb.h"
+  #include "../../include/arrcopy.h"
+  #include "../../include/memlib.h"
+  #include "../../include/symt_type.h"
+  #include "../../include/symt_call.h"
+  #include "../../include/symt_cons.h"
+  #include "../../include/symt_for.h"
+  #include "../../include/symt_if.h"
+  #include "../../include/symt_routine.h"
+  #include "../../include/symt_switch.h"
+  #include "../../include/symt_var.h"
+  #include "../../include/symt_while.h"
+  #include "../../include/symt_node.h"
+  #include "../../include/symt.h"
   #include <ctype.h>
 
   int l_error = 0;        // Specify if errors were detected

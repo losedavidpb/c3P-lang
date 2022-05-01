@@ -16,10 +16,20 @@
 	#include <stdlib.h>
 	#include <string.h>
 
-	#include "lib/assertb.h"
-	#include "lib/copy.h"
-	#include "lib/memlib.h"
-	#include "symt.h"
+	#include "../../include/assertb.h"
+	#include "../../include/arrcopy.h"
+	#include "../../include/memlib.h"
+	#include "../../include/symt_type.h"
+	#include "../../include/symt_call.h"
+	#include "../../include/symt_cons.h"
+	#include "../../include/symt_for.h"
+	#include "../../include/symt_if.h"
+	#include "../../include/symt_routine.h"
+	#include "../../include/symt_switch.h"
+	#include "../../include/symt_var.h"
+	#include "../../include/symt_while.h"
+	#include "../../include/symt_node.h"
+	#include "../../include/symt.h"
 
 	extern int l_error;	  // Specify if lexical errors were detected
 	extern int num_lines; // Number of lines processed

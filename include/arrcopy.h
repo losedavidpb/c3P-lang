@@ -1,4 +1,4 @@
-/* Utilities to copy new references */
+/* Utilities to copy array into new referencies */
 #ifndef COPY_H
 #define COPY_H
 

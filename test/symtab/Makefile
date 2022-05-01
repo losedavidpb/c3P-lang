@@ -23,12 +23,9 @@ all:
 	make -s execute
 	make -s clean
 
-install: $(symt_src_path)/symt.c $(include_path)/symt.h $(include_path)/memlib.h $(symt_src_path)/memlib.c $(include_path)/assertb.h $(symt_src_path)/arrcopy.c $(include_path)/arrcopy.h symt_test.c
-	gcc -o symt_test.exe $(symt_src_path)/symt.c $(include_path)/symt.h $(include_path)/memlib.h \
-		$(symt_src_path)/memlib.c $(include_path)/assertb.h $(symt_src_path)/arrcopy.c $(include_path)/arrcopy.h symt_test.c
-
-	gcc -o copy_test.exe $(include_path)/memlib.h $(symt_src_path)/memlib.c \
-		$(include_path)/assertb.h $(include_path)/arrcopy.h $(symt_src_path)/copy.c copy_test.c
+install: $(symt_src_path) $(include_path)
+	gcc -o symt_test.exe $(symt_src_path)/symt.c $(include_path)/*.h $(symt_src_path)/lib/*.c $(symt_src_path)/symt/*.c symt_test.c
+	gcc -o copy_test.exe $(include_path)/*.h $(symt_src_path)/lib/*.c copy_test.c
 
 execute: symt_test.exe copy_test.exe
 	./copy_test.exe

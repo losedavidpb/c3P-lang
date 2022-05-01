@@ -37,8 +37,8 @@ clean_output:
 install: c3pflex.l c3pbison.y
 	bison -d c3pbison.y
 	flex c3pflex.l
-	gcc -g -o c3psymt.exe $(include_path)/memlib.h $(include_path)/assertb.h $(include_path)/arrcopy.h $(include_path)/symt.h \
-		memlib.c arrcopy.c symt.c c3pbison.tab.c lex.yy.c -lfl -lm
+	gcc -g -o c3psymt.exe $(include_path)/*.h \
+		symt.c lib/*.c symt/*.c c3pbison.tab.c lex.yy.c -lfl -lm
 
 execute: c3psymt.exe c3pbison.tab.c c3pbison.tab.h lex.yy.c
 	./c3psymt.exe $(src)
