@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
+#include <stddef.h>
 
 /* Default value of errno that defines
    that if has no errors */

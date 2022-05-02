@@ -6,8 +6,6 @@
 #include "../../../include/symt_type.h"
 #include "../../../include/symt_node.h"
 #include "../../../include/symt_cons.h"
-#include <stdlib.h>
-#include <string.h>
 
 symt_cons_t symt_get_type_data(symt_var_t type)
 {
@@ -17,23 +15,33 @@ symt_cons_t symt_get_type_data(symt_var_t type)
 		case F32: case F64: return CONS_DOUBLE; 					break;
 		case C: return CONS_CHAR;									break;
 		case B: return CONS_INTEGER;								break;
-		default: return -1;											break;
+		case STR: return CONS_STR;									break;
+		default: return (symt_cons_t)SYMT_ROOT_ID;					break;
 	}
 }
 
-symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide)
+symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide)
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
-	n_var->name = strdup(name);
+	n_var->name = strcopy(name);
 	n_var->type = type;
-	n_var->value = symt_copy_value(value, symt_get_type_data(type), array_length);
+
+	if (type != B)
+		n_var->value = symt_copy_value(value, symt_get_type_data(type), array_length);
+	else if (value != NULL)
+	{
+		n_var->value = (bool*)(ml_malloc(sizeof(bool)));
+		bool value_bool = to_bool(*((int*)value));
+		n_var->value = &value_bool;
+	}
+
 	n_var->is_array = is_array;
 	n_var->array_length = array_length;
 	n_var->is_hide = is_hide;
 	return n_var;
 }
 
-symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide)
+symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide)
 {
 	symt_var *n_var = symt_new_var(id, name, type, is_array, array_length, value, is_hide);
 
@@ -50,10 +58,13 @@ void symt_can_assign(symt_var_t type, symt_cons *cons)
 	assertp(cons->value != NULL, "constant has not a valid value");
 	assertf(symt_get_type_data(type) == cons->type, "type does not match for assignation");
 
+	int *int_value = NULL;
+	double *double_value = NULL;
+
 	switch(cons->type)
 	{
-		case CONS_INTEGER:;
-			int *int_value = (int*)cons->value;
+		case CONS_INTEGER:
+			int_value = (int*)cons->value;
 
 			switch(type)
 			{
@@ -64,8 +75,8 @@ void symt_can_assign(symt_var_t type, symt_cons *cons)
 			}
 		break;
 
-		case CONS_DOUBLE:;
-			double *double_value = (double*)cons->value;
+		case CONS_DOUBLE:
+			double_value = (double*)cons->value;
 
 			switch(type)
 			{
@@ -75,7 +86,7 @@ void symt_can_assign(symt_var_t type, symt_cons *cons)
 			}
 		break;
 
-		default: break;
+		default: break;	// Just to avoid warnings
 	}
 }
 
@@ -88,26 +99,30 @@ void symt_assign_var(symt_var *var, symt_cons *value)
 	var->value = symt_copy_value(value->value, value->type, 0);
 }
 
-void symt_assign_var_at(symt_var *var, symt_cons *value, int index)
+void symt_assign_var_at(symt_var *var, symt_cons *value, size_t index)
 {
 	assertp(var != NULL, "variable has not been defined");
 	assertp(value != NULL, "constant has not been defined");
 	symt_can_assign(var->type, value);
 
-	switch(var->type)
+	int *int_value = NULL;
+	double *double_value = NULL;
+	char *char_value = NULL;
+
+	switch(symt_get_type_data(var->type))
 	{
-		case CONS_INTEGER:;
-			int *int_value = (int*)var->value;
+		case CONS_INTEGER:
+			int_value = (int*)var->value;
 			*(int_value + index) = *((int*)value->value);
 		break;
 
-		case CONS_DOUBLE:;
-			double *double_value = (double*)var->value;
+		case CONS_DOUBLE:
+			double_value = (double*)var->value;
 			*(double_value + index) = *((double*)value->value);
 		break;
 
-		case CONS_CHAR:;
-			char *char_value = (char*)var->value;
+		case CONS_CHAR: case CONS_STR:
+			char_value = (char*)var->value;
 			*(char_value + index) = *((char*)value->value);
 		break;
 
@@ -119,25 +134,27 @@ void symt_delete_var(symt_var *var)
 {
 	if (var != NULL)
 	{
-		ml_free(var->name);
-		var->name = NULL;
+		ml_free(var->name); var->name = NULL;
 		symt_cons_t var_type = symt_get_type_data(var->type);
 		symt_delete_value_cons(var_type, var->value);
-		var->value = NULL;
-		var->type = SYMT_ROOT_ID;
-		ml_free(var);
-		var = NULL;
+		var->type = (symt_var_t)SYMT_ROOT_ID;
+		ml_free(var); var = NULL;
 	}
 }
 
 symt_var *symt_copy_var(symt_var *var)
 {
-	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
-	n_var->name = strdup(var->name);
-	n_var->type = var->type;
-	n_var->value = symt_copy_value(var->value, symt_get_type_data(n_var->type), var->array_length);
-	n_var->is_array = var->is_array;
-	n_var->array_length = var->array_length;
-	n_var->is_hide = var->is_hide;
-	return n_var;
+	if (var != NULL)
+	{
+		symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
+		n_var->name = strcopy(var->name);
+		n_var->type = var->type;
+		n_var->value = symt_copy_value(var->value, symt_get_type_data(n_var->type), var->array_length);
+		n_var->is_array = var->is_array;
+		n_var->array_length = var->array_length;
+		n_var->is_hide = var->is_hide;
+		return n_var;
+	}
+
+	return NULL;
 }

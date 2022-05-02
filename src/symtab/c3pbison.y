@@ -56,16 +56,13 @@
 	// Stack for list expression
 	struct Stack *cola;
 
-	// Check if passed number has decimals
-	#define has_decimals(num) fmod(num, 1.0) != 0
-
-	// %token<type_t> INTEGER_TYPE %token<type_t> DOUBLE_TYPE
+	// Print content of passed stack
+	void print_stack(struct Stack *p);
 
 	// This functions have to be declared in order to
 	// avoid warnings related to implicit declaration
 	int yylex(void);
 	void yyerror(const char *s);
-	void print_stack(struct Stack *p);
 %}
 
 // __________ Data __________
@@ -191,7 +188,7 @@ expr 			: expr_num		{ $$ = $1; }
 				| IDENTIFIER	{
 									symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
 									if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
-									assertf(var != NULL, "variable %s has not been declared", $1);
+									assertf(var != NULL, "variable %s has not been declared at line ", $1);
 									$$ = var;
 								}
 				;
@@ -221,7 +218,6 @@ int_expr 		: int_expr '+' int_expr 		{
 				| int_expr '*' int_expr 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons* res_cons = symt_cons_mult(CONS_INTEGER, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
 
@@ -233,7 +229,6 @@ int_expr 		: int_expr '+' int_expr 		{
 				| int_expr '/' int_expr 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons* res_cons = symt_cons_div(CONS_INTEGER, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
 
@@ -245,7 +240,6 @@ int_expr 		: int_expr '+' int_expr 		{
 				| int_expr '%' int_expr 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons* res_cons = symt_cons_mod(CONS_INTEGER, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
 
@@ -257,7 +251,6 @@ int_expr 		: int_expr '+' int_expr 		{
 				| int_expr '^' int_expr 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons* res_cons = symt_cons_pow(CONS_INTEGER, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
 
@@ -282,7 +275,6 @@ int_expr 		: int_expr '+' int_expr 		{
 expr_num 		: expr_num '<' expr_num 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -294,7 +286,6 @@ expr_num 		: expr_num '<' expr_num 		{
 				| expr_num '>' expr_num 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -306,7 +297,6 @@ expr_num 		: expr_num '<' expr_num 		{
 				| expr_num EQUAL expr_num 		{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -318,7 +308,6 @@ expr_num 		: expr_num '<' expr_num 		{
 				| expr_num NOTEQUAL expr_num 	{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -330,7 +319,6 @@ expr_num 		: expr_num '<' expr_num 		{
 				| expr_num LESSEQUAL expr_num 	{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -342,7 +330,6 @@ expr_num 		: expr_num '<' expr_num 		{
 				| expr_num MOREEQUAL expr_num 	{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-
 													symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -543,18 +530,18 @@ expr_string 	: expr_string '+' expr_string	{
 													symt_node *str1 = (symt_node*)$1;
 													symt_node *str2 = (symt_node*)$3;
 
-													int len_result = str1->var->array_length + str2->var->array_length;
+													int len_result = strlen((char*)str1->cons->value); strlen((char*)str2->cons->value);
 													char *res = (char *)(ml_malloc(sizeof(char) * len_result));
-													strcpy(res, (char*)str1->var->value); strcat(res, (char*)str2->var->value);
+													strcpy(res, (char*)str1->cons->value); strcat(res, (char*)str2->cons->value);
 													symt_delete(str1); symt_delete(str2);
 
 													symt_node *result = symt_new();
-													result = symt_insert_tab_var(result, LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
+													result = symt_insert_tab_cons(result, CONS_STR, $1);
 													$$ = result;
 												}
 				| STRING		 				{
 													symt_node *result = symt_new_node();
-													result = symt_insert_tab_var(result, LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
+													result = symt_insert_tab_cons(result, CONS_STR, $1);
 													$$ = result;
 												}
 				;
@@ -567,9 +554,9 @@ data_type 		: I8_TYPE 						{ $$ = I8; }
 				| I64_TYPE 						{ $$ = I64; }
 				| F32_TYPE 						{ $$ = F32; }
 				| F64_TYPE 						{ $$ = F64; }
-				| CHAR_TYPE 					{ $$ = CONS_CHAR; }
-				| STR_TYPE 						{ $$ = CONS_CHAR; }
-				| BOOL_TYPE 					{ $$ = CONS_INTEGER; }
+				| CHAR_TYPE 					{ $$ = C; }
+				| STR_TYPE 						{ $$ = STR; }
+				| BOOL_TYPE 					{ $$ = B; }
 				;
 
 arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
@@ -657,73 +644,17 @@ var_assign 		: IDENTIFIER '=' expr						{
 																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertf(var != NULL, "variable %s has not been declared", $1);
 																symt_node *value = (symt_node *)$3;
-																symt_can_assign(var->var->type, value->cons);
-																//var->var->value = value->cons->value;
 																symt_assign_var(var->var, value->cons);
-																$$ = var;
-																symt_print(tab);
+																$$ = var; symt_print(tab);
 															}
 				| IDENTIFIER '[' expr ']' '=' expr			{
 																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertf(var != NULL, "variable %s has not been declared", $1);
 																symt_node *index_node = (symt_node *)$3;
-																symt_node *result_node = (symt_node *)$6;
-																void *index_value = symt_get_value_from_node(index_node);
-																void *result_value = symt_get_value_from_node(result_node);
-																int *index_value_int = (int *)index_value;
-
-																if (var->var->type == CONS_INTEGER)
-																{
-																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
-																	{
-																		assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
-																		assertf(result_node->var->type == CONS_INTEGER, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "integer", $1);
-																	}
-																	else if (result_node->id == CONSTANT)
-																	{
-																		assertf(result_node->cons->type == CONS_INTEGER, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "integer", $1);
-																	}
-
-																	if (result_node->id == CALL_FUNC)
-																	{
-																		symt_call *value_call = (symt_call *)result_value;
-																		//*(var_array+index_value_int) = value_call;
-																	}
-																	else
-																	{
-																		//int *result_value_int = (int*)result_value;
-																		//int *var_array = (int *)var->var->value;
-																		//*(var_array + *index_value_int) = *(result_value_int);
-																		symt_assign_var_at(var->var, result_node->cons, *index_value_int);
-																	}
-																}
-																else
-																{
-																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
-																	{
-																		assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
-																		assertf(result_node->var->type == CONS_DOUBLE, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "double", $1);
-																	} else if(result_node->id == CONSTANT)
-																	{
-																		assertf(result_node->cons->type == CONS_DOUBLE, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "double", $1);
-																	}
-
-																	if (result_node->id == CALL_FUNC)
-																	{
-																		symt_call *value_call = (symt_call *)result_value;
-																		//*(var_array+index_value_int) = value_call;
-																	}
-																	else
-																	{
-																		//double *result_value_double = (double*)result_value;
-																		//double *var_array = (double *)var->var->value;
-																		//*(var_array + *index_value_int) = *(result_value_double);
-																		symt_assign_var_at(var->var, result_node->cons, *index_value_int);
-																	}
-																}
-
-																$$ = var;
-																symt_print(tab);
+																int index = *((int*)index_node->cons->value);
+																symt_node *result = (symt_node *)$6;
+																symt_assign_var_at(var->var, result->cons, index);
+																$$ = var; symt_print(tab);
 															}
 				;
 
@@ -761,28 +692,24 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
-																						tab = symt_push(tab, var);
-																						$$ = var; symt_print(tab);
+																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
-																						tab = symt_push(tab, var);
-																						$$ = var; symt_print(tab);
+																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
-																						tab = symt_push(tab, var);
 
 																						symt_node *value = (symt_node *)$6;
-																						symt_can_assign(var->var->type, value->cons);
 																						symt_assign_var(var->var, value->cons);
-
+																						tab = symt_push(tab, var);
 																						$$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
@@ -806,6 +733,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						switch(value_list_expr_t)
 																						{
 																							case CONS_INTEGER:;
+																								int *zero_int = (int *)(ml_malloc(sizeof(int)));
 																								int* value_int = (int*)value_list_expr;
 
 																								for(int i = 0; i < array_length; i++)
@@ -814,7 +742,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																									constate->type = value_list_expr_t;
 
 																									if(pila) constate->value = pila->value;
-																									else constate->value = (void*)zero;
+																									else constate->value = (void*)zero_int;
 
 																									symt_can_assign(var->var->type, constate);
 																									if(pila) pila = pila->next_value;
@@ -833,6 +761,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																							break;
 
 																							case CONS_DOUBLE:;
+																								double *zero_double = (double *)(ml_malloc(sizeof(double)));
 																								double* value_double = (double*)value_list_expr;
 
 																								for(int i = 0; i < array_length; i++)
@@ -840,7 +769,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																									symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
 																									constate->type = value_list_expr_t;
 
-																									if(pila->value) constate->value = pila->value;
+																									if(pila) constate->value = pila->value;
 																									else constate->value = (void*)zero;
 
 																									symt_can_assign(var->var->type, constate);
@@ -852,7 +781,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 
 																								for(int i = 0; valores_pila; i++)
 																								{
-																									*(valores_double+i) = *((int*)valores_pila->value);
+																									*(valores_double+i) = *((double*)valores_pila->value);
 																									valores_pila = valores_pila->next_value;
 																								}
 
@@ -860,6 +789,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																							break;
 
 																							case CONS_CHAR:;
+																								char *zero_char = (char *)(ml_malloc(sizeof(char)));
 																								char* value_char = (char*)value_list_expr;
 
 																								for(int i = 0; i < array_length; i++)
@@ -867,8 +797,8 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																									symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
 																									constate->type = value_list_expr_t;
 
-																									if(pila->value) constate->value = pila->value;
-																									else constate->value = (void*)zero;
+																									if(pila) constate->value = pila->value;
+																									else constate->value = (void*)zero_char;
 
 																									symt_can_assign(var->var->type, constate);
 																									if(pila) pila = pila->next_value;
@@ -879,7 +809,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 
 																								for(int i = 0; valores_pila; i++)
 																								{
-																									*(valores_char+i) = *((int*)valores_pila->value);
+																									*(valores_char+i) = *((char*)valores_pila->value);
 																									valores_pila = valores_pila->next_value;
 																								}
 
@@ -898,9 +828,8 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 																						symt_node* node = symt_new();
 																						node = symt_insert_tab_var(node, token_id, $1, $3, 0, 0, NULL, 0);
-																						tab = symt_push(tab, node);
-																						$$ = node; token_id = SYMT_ROOT_ID;
-																						symt_print(tab);
+																						tab = symt_push(tab, node); $$ = node;
+																						token_id = SYMT_ROOT_ID; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type										{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
@@ -908,9 +837,9 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, token_id, $1, $3, 0, 0, NULL, 0);
-																						$$ = node; token_id = SYMT_ROOT_ID;
-																						symt_print(tab);
+																						node = symt_insert_tab_var(node, token_id, $1, $3, 1, array_length, NULL, 0);
+																						tab = symt_push(tab, node);
+																						$$ = node; token_id = SYMT_ROOT_ID; symt_print(tab);
 																					}
 				| IDENTIFIER '=' expr												{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
@@ -927,8 +856,10 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
-																						symt_cons *index = (symt_cons*)$3;
-																						symt_assign_var_at(var->var, (symt_cons*)$6, *((int*)index->value));
+																						symt_node *index = (symt_node*)$3;
+																						symt_node *value = (symt_node*)$6;
+
+																						symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
 																						$$ = var; token_id = SYMT_ROOT_ID; symt_print(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
@@ -938,12 +869,12 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 																						symt_node *result_node = symt_new();
 																						result_node = symt_insert_tab_var(result_node, token_id, $1, $3, 0, 0, NULL, 0);
-																						tab = symt_push(tab, result_node);
 
 																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(result_node->var, value->cons);
-																						$$ = result_node; token_id = SYMT_ROOT_ID;
-																						symt_print(tab);
+																						tab = symt_push(tab, result_node);
+
+																						$$ = result_node; token_id = SYMT_ROOT_ID; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
@@ -956,16 +887,16 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
 																						struct Stack *pila = $6;
 																						struct Stack *valores_pila = $6;
-																						int *zero = (int *)(ml_malloc(sizeof(int)));
 																						switch(value_list_expr_t){
 																							case CONS_INTEGER:;
+																								int *zero_int = (int *)(ml_malloc(sizeof(int)));
 																								for(int i = 0; i < array_length; i++){
 																									symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
 																									constate->type = value_list_expr_t;
 																									if(pila){
 																										constate->value = pila->value;
 																									}else {
-																										constate->value = (void*)zero;
+																										constate->value = (void*)zero_int;
 																									}
 																									symt_can_assign(var->var->type, constate);
 																									if(pila) pila = pila->next_value;
@@ -979,14 +910,15 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																								var->var->value = (void*)valores_int;
 																								break;
 																							case CONS_DOUBLE:;
+																								double *zero_double = (double *)(ml_malloc(sizeof(double)));
 																								double* value_double = (double*)value_list_expr;
 																								for(int i = 0; i < array_length; i++){
 																									symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
 																									constate->type = value_list_expr_t;
-																									if(pila->value){
+																									if(pila){
 																										constate->value = pila->value;
 																									}else {
-																										constate->value = (void*)zero;
+																										constate->value = (void*)zero_double;
 																									}
 																									symt_can_assign(var->var->type, constate);
 																									if(pila) pila = pila->next_value;
@@ -994,20 +926,21 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																								}
 																								double *valores_double = (double *)(ml_malloc(sizeof(double)*array_length));
 																								for(int i = 0; valores_pila; i++){
-																									*(valores_double+i) = *((int*)valores_pila->value);
+																									*(valores_double+i) = *((double*)valores_pila->value);
 																									valores_pila = valores_pila->next_value;
 																								}
 																								var->var->value = (void*)valores_double;
 																								break;
 																							case CONS_CHAR:;
+																								char *zero_char = (char *)(ml_malloc(sizeof(char)));
 																								char* value_char = (char*)value_list_expr;
 																								for(int i = 0; i < array_length; i++){
 																									symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
 																									constate->type = value_list_expr_t;
-																									if(pila->value){
+																									if(pila){
 																										constate->value = pila->value;
 																									}else {
-																										constate->value = (void*)zero;
+																										constate->value = (void*)zero_char;
 																									}
 																									symt_can_assign(var->var->type, constate);
 																									if(pila) pila = pila->next_value;
@@ -1015,7 +948,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																								}
 																								char *valores_char = (char *)(ml_malloc(sizeof(char)*array_length));
 																								for(int i = 0; valores_pila; i++){
-																									*(valores_char+i) = *((int*)valores_pila->value);
+																									*(valores_char+i) = *((char*)valores_pila->value);
 																									valores_pila = valores_pila->next_value;
 																								}
 																								var->var->value = (void*)valores_char;

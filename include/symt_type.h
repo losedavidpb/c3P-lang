@@ -3,6 +3,10 @@
 #define SYMT_TYPE_H
 
 #include <stdbool.h>
+#include <stddef.h>
+
+// Cast an integer to a boolean value
+#define to_bool(num) num != 1? false : true
 
 // Identifier which only could be associated
 // to first element which is defined at stack
@@ -33,7 +37,7 @@ typedef enum symt_id_t
 typedef void * symt_value_t;
 
 /* Types for primitive data at constants */
-typedef enum symt_cons_t { CONS_INTEGER, CONS_DOUBLE, CONS_CHAR } symt_cons_t;
+typedef enum symt_cons_t { CONS_INTEGER, CONS_DOUBLE, CONS_CHAR, CONS_STR } symt_cons_t;
 
 /* Primitive types for variables and return functions */
 typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_var_t;
@@ -69,8 +73,8 @@ typedef struct symt_var
     symt_var_t type;
     symt_value_t value;
     bool is_hide;
-    bool is_array;
-    int array_length;
+	bool is_array;
+    size_t array_length;
 } symt_var;
 
 /* Type for constants */
@@ -81,14 +85,14 @@ typedef struct symt_cons
 } symt_cons;
 
 /* Type for functions and procedures */
-typedef struct symt_routine
+typedef struct symt_rout
 {
     symt_name_t name;
     symt_var_t type;
     bool is_hide;
     struct symt_node *params;
     struct symt_node *statements;
-} symt_routine;
+} symt_rout;
 
 /* Type for if and if-else statements */
 typedef struct symt_if_else
@@ -134,7 +138,7 @@ typedef struct symt_call
 typedef struct symt_node
 {
     symt_id_t id;
-    symt_routine* rout;
+    symt_rout* rout;
     symt_var* var;
     symt_cons* cons;
     symt_call* call;

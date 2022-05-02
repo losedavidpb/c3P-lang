@@ -3,8 +3,6 @@
 #include "../../../include/memlib.h"
 #include "../../../include/symt_type.h"
 #include "../../../include/symt_node.h"
-#include <stdlib.h>
-#include <string.h>
 
 symt_if_else* symt_new_if(symt_node *cond, symt_node *statements_if, symt_node *statements_else)
 {
@@ -30,19 +28,23 @@ void symt_delete_if(symt_if_else *if_val)
 {
 	if (if_val != NULL)
 	{
-		if (if_val->cond != NULL) symt_delete_node(if_val->cond);
-		if (if_val->if_statements != NULL) symt_delete_node(if_val->if_statements);
-		if (if_val->else_statements != NULL) symt_delete_node(if_val->else_statements);
-		ml_free(if_val);
-		if_val = NULL;
+		symt_delete_node(if_val->cond);
+		symt_delete_node(if_val->if_statements);
+		symt_delete_node(if_val->else_statements);
+		ml_free(if_val); if_val = NULL;
 	}
 }
 
 symt_if_else *symt_copy_if(symt_if_else *if_val)
 {
-	symt_if_else *if_val_ = (symt_if_else *)(ml_malloc(sizeof(symt_if_else)));
-	if_val_->if_statements = symt_copy_node(if_val->if_statements);
-	if_val_->else_statements = symt_copy_node(if_val->else_statements);
-	if_val_->cond = symt_copy_node(if_val->cond);
-	return if_val_;
+	if (if_val != NULL)
+	{
+		symt_if_else *if_val_ = (symt_if_else *)(ml_malloc(sizeof(symt_if_else)));
+		if_val_->if_statements = symt_copy_node(if_val->if_statements);
+		if_val_->else_statements = symt_copy_node(if_val->else_statements);
+		if_val_->cond = symt_copy_node(if_val->cond);
+		return if_val_;
+	}
+
+	return NULL;
 }

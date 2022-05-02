@@ -24,8 +24,8 @@ all:
 	make -s clean
 
 install: $(symt_src_path) $(include_path)
-	gcc -o symt_test.exe $(symt_src_path)/symt.c $(include_path)/*.h $(symt_src_path)/lib/*.c $(symt_src_path)/symt/*.c symt_test.c
-	gcc -o copy_test.exe $(include_path)/*.h $(symt_src_path)/lib/*.c copy_test.c
+	gcc -g -o symt_test.exe $(symt_src_path)/symt.c $(include_path)/*.h $(symt_src_path)/lib/*.c $(symt_src_path)/symt/*.c symt_test.c -lm
+	gcc -g -o copy_test.exe $(include_path)/*.h $(symt_src_path)/lib/*.c copy_test.c -lm
 
 execute: symt_test.exe copy_test.exe
 	./copy_test.exe

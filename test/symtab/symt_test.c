@@ -4,7 +4,7 @@
 #include "../../include/symt_cons.h"
 #include "../../include/symt_for.h"
 #include "../../include/symt_if.h"
-#include "../../include/symt_routine.h"
+#include "../../include/symt_rout.h"
 #include "../../include/symt_switch.h"
 #include "../../include/symt_var.h"
 #include "../../include/symt_while.h"
@@ -13,7 +13,6 @@
 #include "../../include/memlib.h"
 #include "../../include/arrcopy.h"
 
-#include <stdio.h>
 #include <string.h>
 
 // Show main title for the list of unit tests
@@ -56,10 +55,10 @@ void test_new_delete()
     assertf(test_tab2 != NULL, "%s must be defined", "test_tab2");
     show_ok();
 
-    test_tab1 = symt_insert_tab_var(test_tab1, GLOBAL_VAR, "gvar1", I32, false, 0, val1, false);
-    test_tab1 = symt_insert_tab_var(test_tab1, GLOBAL_VAR, "gvar2", I32, false, 0, val2, false);
-    test_tab1 = symt_insert_tab_var(test_tab1, GLOBAL_VAR, "gvar3", I32, false, 0, val3, false);
-    test_tab1 = symt_insert_tab_rout(test_tab1, PROCEDURE, "main", VOID, NULL, false, NULL);
+    test_tab1 = symt_insert_tab_var(test_tab1, GLOBAL_VAR, (char*)"gvar1", I32, false, 0, val1, false);
+    test_tab1 = symt_insert_tab_var(test_tab1, GLOBAL_VAR, (char*)"gvar2", I32, false, 0, val2, false);
+    test_tab1 = symt_insert_tab_var(test_tab1, GLOBAL_VAR, (char*)"gvar3", I32, false, 0, val3, false);
+    test_tab1 = symt_insert_tab_rout(test_tab1, PROCEDURE, (char*)"main", VOID, NULL, false, NULL);
 
     test_assert("test_delete_tab1");
     symt_delete(test_tab1); test_tab1 = NULL;
@@ -76,7 +75,7 @@ void test_push()
 {
     symt_tab *tab;
     symt_var *var1, *var2;
-    symt_routine *rout1, *rout2;
+    symt_rout *rout1, *rout2;
     symt_node *node1, *node2, *node3, *node4;
 
     test_name("test_push");
@@ -88,13 +87,13 @@ void test_push()
 
     var1 = (symt_var*)(ml_malloc(sizeof(symt_var)));
     var2 = (symt_var*)(ml_malloc(sizeof(symt_var)));
-    rout1 = (symt_routine*)(ml_malloc(sizeof(symt_routine)));
-    rout2 = (symt_routine*)(ml_malloc(sizeof(symt_routine)));
+    rout1 = (symt_rout*)(ml_malloc(sizeof(symt_rout)));
+    rout2 = (symt_rout*)(ml_malloc(sizeof(symt_rout)));
 
-    var1->name = strcopy("gvar1"); var1->value = NULL;
-    var2->name = strcopy("gvar2"); var2->value = NULL;
-    rout1->name = strcopy("rout1"); rout1->params = NULL;
-    rout2->name = strcopy("rout2"); rout2->params = NULL;
+    var1->name = strcopy((char*)"gvar1"); var1->value = NULL;
+    var2->name = strcopy((char*)"gvar2"); var2->value = NULL;
+    rout1->name = strcopy((char*)"rout1"); rout1->params = NULL;
+    rout2->name = strcopy((char*)"rout2"); rout2->params = NULL;
 
     node1 = (symt_node*)(ml_malloc(sizeof(symt_node)));
     node2 = (symt_node*)(ml_malloc(sizeof(symt_node)));
@@ -172,16 +171,16 @@ void test_search()
     test_name("test_search");
 
     tab = symt_new();
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar1", I32, false, 0, val1, false);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar1", I32, false, 0, val1, false);
 
     test_assert("test_search_one_var");
     result = symt_search(tab, GLOBAL_VAR);
     assertp(result != NULL, "global variable should exist");
     show_ok();
 
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar2", I32, false, 0, val2, false);
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar3", I32, false, 0, val3, false);
-    tab = symt_insert_tab_rout(tab, PROCEDURE, "main", VOID, NULL, false, NULL);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar2", I32, false, 0, val2, false);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar3", I32, false, 0, val3, false);
+    tab = symt_insert_tab_rout(tab, PROCEDURE, (char*)"main", VOID, NULL, false, NULL);
 
     test_assert("test_search_procedure");
     result = symt_search(tab, PROCEDURE);
@@ -194,8 +193,8 @@ void test_search()
     if_statements = symt_new();
     else_statements = symt_new();
 
-    if_statements = symt_insert_tab_var(if_statements, LOCAL_VAR, "local_var1", I32, false, 0, val1, false);
-    else_statements = symt_insert_tab_var(else_statements, GLOBAL_VAR, "local_var2", I32, false, 0, val2, false);
+    if_statements = symt_insert_tab_var(if_statements, LOCAL_VAR, (char*)"local_var1", I32, false, 0, val1, false);
+    else_statements = symt_insert_tab_var(else_statements, GLOBAL_VAR, (char*)"local_var2", I32, false, 0, val2, false);
 
     tab = symt_new();
     tab = symt_insert_tab_if(tab, cond, if_statements, NULL);
@@ -229,34 +228,34 @@ void test_search_by_name()
     test_name("test_search_by_name");
 
     tab = symt_new();
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar1", I32, false, 0, val1, false);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar1", I32, false, 0, val1, false);
 
     test_assert("test_search_gvar1");
-    result = symt_search_by_name(tab, "gvar1", GLOBAL_VAR);
+    result = symt_search_by_name(tab, (char*)"gvar1", GLOBAL_VAR);
     assertp(result != NULL, "global var should exist");
     show_ok();
 
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar2", I32, false, 0, val2, false);
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar3", I32, false, 0, val3, false);
-    tab = symt_insert_tab_rout(tab, PROCEDURE, "main", VOID, NULL, false, NULL);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar2", I32, false, 0, val2, false);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar3", I32, false, 0, val3, false);
+    tab = symt_insert_tab_rout(tab, PROCEDURE, (char*)"main", VOID, NULL, false, NULL);
 
     test_assert("test_search_main");
-    result = symt_search_by_name(tab, "main", PROCEDURE);
+    result = symt_search_by_name(tab, (char*)"main", PROCEDURE);
     assertp(result != NULL, "procedure should exist");
     show_ok();
 
     test_assert("test_search_gvar1_again");
-    result = symt_search_by_name(tab, "gvar1", GLOBAL_VAR);
+    result = symt_search_by_name(tab, (char*)"gvar1", GLOBAL_VAR);
     assertp(result != NULL, "global var 1 should exist");
     show_ok();
 
     test_assert("test_search_gvar2");
-    result = symt_search_by_name(tab, "gvar2", GLOBAL_VAR);
+    result = symt_search_by_name(tab, (char*)"gvar2", GLOBAL_VAR);
     assertp(result != NULL, "global var 2 should exist");
     show_ok();
 
     test_assert("test_search_gvar3");
-    result = symt_search_by_name(tab, "gvar3", GLOBAL_VAR);
+    result = symt_search_by_name(tab, (char*)"gvar3", GLOBAL_VAR);
     assertp(result != NULL, "global var 3 should exist");
     show_ok();
 
@@ -281,11 +280,11 @@ void test_end_block()
     cond = symt_new();
     statements = symt_new();
 
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar1", I32, false, 0, NULL, false);
-    tab = symt_insert_tab_var(tab, GLOBAL_VAR, "gvar2", I32, false, 0, NULL, false);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar1", I32, false, 0, NULL, false);
+    tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"gvar2", I32, false, 0, NULL, false);
 
-    statements = symt_insert_tab_var(statements, LOCAL_VAR, "lvar1", I64, false, 0, NULL, false);
-    statements = symt_insert_tab_var(statements, LOCAL_VAR, "lvar2", I64, false, 0, NULL, false);
+    statements = symt_insert_tab_var(statements, LOCAL_VAR, (char*)"lvar1", I64, false, 0, NULL, false);
+    statements = symt_insert_tab_var(statements, LOCAL_VAR, (char*)"lvar2", I64, false, 0, NULL, false);
     tab = symt_insert_tab_while(tab, cond, statements);
 
     test_assert("test_end_block_while");
@@ -294,15 +293,15 @@ void test_end_block()
     assertf(tab->var != NULL, "global variable %s must exist", "gvar1");
     assertf(tab->next_node->var != NULL, "global variable %s must exist", "gvar2");
 
-    result = symt_search_by_name(tab, "lvar1", LOCAL_VAR);
+    result = symt_search_by_name(tab, (char*)"lvar1", LOCAL_VAR);
     assertf(result == NULL, "local var %s should not exist", "lvar1");
 
-    result = symt_search_by_name(tab, "lvar2", LOCAL_VAR);
+    result = symt_search_by_name(tab, (char*)"lvar2", LOCAL_VAR);
     assertf(result == NULL, "local var %s should not exist", "lvar2");
     show_ok();
 
     iter_var = symt_new();
-    iter_var = symt_insert_tab_var(iter_var, LOCAL_VAR, "i", I32, false, 0, NULL, false);
+    iter_var = symt_insert_tab_var(iter_var, LOCAL_VAR, (char*)"i", I32, false, 0, NULL, false);
 
     cond = NULL; statements = NULL; iter_op = NULL;
     tab = symt_insert_tab_for(tab, cond, statements, iter_var, iter_op);
@@ -314,7 +313,7 @@ void test_end_block()
     assertf(tab->var != NULL, "global variable %s must exist", "gvar1");
     assertf(tab->next_node->var != NULL, "global variable %s must exist", "gvar2");
 
-    result = symt_search_by_name(tab, "i", LOCAL_VAR);
+    result = symt_search_by_name(tab, (char*)"i", LOCAL_VAR);
     assertf(result == NULL, "local var %s should not exist", "i");
     show_ok();
 
@@ -322,10 +321,10 @@ void test_end_block()
     if_statements = symt_new();
     else_statements = NULL;
 
-    if_statements = symt_insert_tab_var(if_statements, LOCAL_VAR, "local_var1", I32, false, 0, val1, false);
+    if_statements = symt_insert_tab_var(if_statements, LOCAL_VAR, (char*)"local_var1", I32, false, 0, val1, false);
 
     tab = symt_new();
-	tab = symt_insert_tab_var(tab, GLOBAL_VAR, "local_var2", I32, false, 0, val2, false);
+	tab = symt_insert_tab_var(tab, GLOBAL_VAR, (char*)"local_var2", I32, false, 0, val2, false);
     tab = symt_insert_tab_if(tab, cond, if_statements, else_statements);
 
 	test_assert("test_end_block_if");
@@ -351,12 +350,12 @@ void test_merge()
     tab1 = symt_new();
     tab2 = symt_new();
 
-    tab1 = symt_insert_tab_var(tab1, GLOBAL_VAR, "gvar", F32, false, 10, NULL, false);
+    tab1 = symt_insert_tab_var(tab1, GLOBAL_VAR, (char*)"gvar", F32, false, 10, NULL, false);
 
-    tab2 = symt_insert_tab_var(tab2, LOCAL_VAR, "lvar1", C, true, 10, NULL, false);
-    tab2 = symt_insert_tab_var(tab2, LOCAL_VAR, "lvar2", C, true, 10, NULL, true);
-    tab2 = symt_insert_tab_rout(tab2, PROCEDURE, "main", VOID, NULL, true, NULL);
-    tab2 = symt_insert_tab_rout(tab2, FUNCTION, "func", I32, NULL, false, NULL);
+    tab2 = symt_insert_tab_var(tab2, LOCAL_VAR, (char*)"lvar1", C, true, 10, NULL, false);
+    tab2 = symt_insert_tab_var(tab2, LOCAL_VAR, (char*)"lvar2", C, true, 10, NULL, true);
+    tab2 = symt_insert_tab_rout(tab2, PROCEDURE, (char*)"main", VOID, NULL, true, NULL);
+    tab2 = symt_insert_tab_rout(tab2, FUNCTION, (char*)"func", I32, NULL, false, NULL);
 
     tab1 = symt_merge(tab2, tab1);
 
@@ -376,12 +375,12 @@ void test_merge()
     show_ok();
 
     test_assert("test_search_local_var_public");
-    result = symt_search_by_name(tab1, "lvar1", LOCAL_VAR);
+    result = symt_search_by_name(tab1, (char*)"lvar1", LOCAL_VAR);
     assertf(result != NULL, "%s must exist after merging", "lvar1");
     show_ok();
 
     test_assert("test_search_local_var_hide");
-    result = symt_search_by_name(tab1, "lvar2", LOCAL_VAR);
+    result = symt_search_by_name(tab1, (char*)"lvar2", LOCAL_VAR);
     assertf(result == NULL, "%s must not exist after merging", "lvar2");
     show_ok();
 

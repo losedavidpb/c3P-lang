@@ -14,10 +14,7 @@
 #include "../../include/symt_var.h"
 #include "../../include/symt_while.h"
 #include "../../include/symt_node.h"
-
-#include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 
 symt_node *__symt_search(symt_tab *tab, symt_id_t id, symt_name_t name, bool search_name, bool search_prev)
 {
@@ -176,25 +173,25 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 	return tab;
 }
 
-symt_tab *symt_insert_tab_call(symt_tab *tab, const symt_name_t name, const symt_var_t type, struct symt_node *params)
+symt_tab *symt_insert_tab_call(symt_tab *tab, symt_name_t name, symt_var_t type, symt_node *params)
 {
 	symt_node *new_node = symt_insert_call(name, type, params);
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide)
+symt_tab *symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide)
 {
 	symt_node *new_node = symt_insert_var(id, name, type, is_array, array_length, value, is_hide);
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_tab_cons(symt_tab *tab, const symt_cons_t type, symt_value_t value)
+symt_tab *symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value)
 {
 	symt_node *new_node = symt_insert_cons(type, value);
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, struct symt_node *params, bool is_hide, symt_node *statements)
+symt_tab *symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements)
 {
 	symt_node *new_node = symt_insert_rout(id, name, type, params, is_hide, statements);
 	return symt_push(tab, new_node);
@@ -224,7 +221,7 @@ symt_tab *symt_insert_tab_switch(symt_tab *tab, symt_var *iter_var, symt_node *c
 	return symt_push(tab, new_node);
 }
 
-void symt_end_block(symt_tab *tab, const symt_id_t id_block)
+void symt_end_block(symt_tab *tab, symt_id_t id_block)
 {
 	assertp(tab != NULL, "table has not been constructed");
 

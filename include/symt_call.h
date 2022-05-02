@@ -5,10 +5,10 @@
 #include "symt_type.h"
 
 /* Create a call symbol */
-symt_call* symt_new_call(symt_name_t name, symt_var_t type, struct symt_node *params);
+symt_call* symt_new_call(symt_name_t name, symt_var_t type, symt_node *params);
 
 /* Insert call symbol to a symbol node */
-symt_node* symt_insert_call(symt_name_t name, symt_var_t type, struct symt_node *params);
+symt_node* symt_insert_call(symt_name_t name, symt_var_t type, symt_node *params);
 
 /* Delete passed call symbol */
 void symt_delete_call(symt_call *call);

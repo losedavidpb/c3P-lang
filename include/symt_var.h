@@ -4,6 +4,8 @@
 
 #include "symt_type.h"
 #include "symt_cons.h"
+#include <stddef.h>
+#include <stdbool.h>
 
 /* Get string representation for variable types */
 #define symt_strget_vartype(type)				\
@@ -18,10 +20,10 @@
 	(type == B? "b" : "undefined")))))))))
 
 /* Create a new variable symbol */
-symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
+symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide);
 
 /* Insert var symbol to a node */
-symt_node* symt_insert_var(const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
+symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide);
 
 /* Check if passed constant could be assigned to the variable */
 void symt_can_assign(symt_var_t type, symt_cons *cons);
@@ -30,7 +32,7 @@ void symt_can_assign(symt_var_t type, symt_cons *cons);
 void symt_assign_var(symt_var *var, symt_cons *value);
 
 /* Assign value of passed constant at variable index whether it is an array */
-void symt_assign_var_at(symt_var *, symt_cons *value, int index);
+void symt_assign_var_at(symt_var *, symt_cons *value, size_t index);
 
 /* Get the constant type for passed variable type */
 symt_cons_t symt_get_type_data(symt_var_t type);

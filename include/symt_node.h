@@ -14,7 +14,8 @@
 	(id == SWITCH? "SWITCH" :						\
 	(id == FUNCTION? "FUNCTION" :					\
 	(id == PROCEDURE? "PROCEDURE" :					\
-	(id == CALL_FUNC? "CALL" : "undefined")))))))))
+	(id == CONSTANT? "CONSTANT" : 					\
+	(id == CALL_FUNC? "CALL" : "undefined"))))))))))
 
 /* Create dynamically a new symbol node */
 symt_node* symt_new_node();
@@ -32,7 +33,7 @@ symt_cons_t symt_get_type_value_from_node(symt_node *node);
 void symt_printf_value(symt_node* node);
 
 /* Copy passed value into a new reference */
-void *symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems);
+symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_elems);
 
 /* Clean from memory passed symbol node
    if has been created before */

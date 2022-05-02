@@ -12,10 +12,11 @@
    --------------------------------------------------------------- */
 
 #ifndef SYMT_H
-#define SYMT_H 1
+#define SYMT_H
 
 #include "symt_type.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 // Uncomment this to compile library with main
 //#define _SYMT_JUST_COMPILE
@@ -37,16 +38,16 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id);
 symt_tab* symt_push(symt_tab *tab, symt_node *node);
 
 /* Insert call symbol to the symbol table */
-symt_tab* symt_insert_tab_call(symt_tab *tab, const symt_name_t name, const symt_var_t type, struct symt_node *params);
+symt_tab* symt_insert_tab_call(symt_tab *tab, symt_name_t name, symt_var_t type, symt_node *params);
 
 /* Insert var symbol to the symbol table */
-symt_tab* symt_insert_tab_var(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, bool is_array, int array_length, symt_value_t value, bool is_hide);
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide);
 
 /* Insert const symbol to the symbol table */
-symt_tab* symt_insert_tab_cons(symt_tab *tab, const symt_cons_t type, symt_value_t value);
+symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value);
 
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_tab_rout(symt_tab *tab, const symt_id_t id, const symt_name_t name, const symt_var_t type, struct symt_node *params, bool is_hide, symt_node *statements);
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements);
 
 /* Insert if symbol to the symbol table */
 symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else);
@@ -61,7 +62,7 @@ symt_tab* symt_insert_tab_for(symt_tab *tab, symt_node *cond, symt_node *stateme
 symt_tab* symt_insert_tab_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases);
 
 /* Finish a block statement */
-void symt_end_block(symt_tab *tab, const symt_id_t id_block);
+void symt_end_block(symt_tab *tab, symt_id_t id_block);
 
 /* Include all the elements of source at dest,
    deleting private instances at stack */
