@@ -63,10 +63,6 @@
 	// avoid warnings related to implicit declaration
 	int yylex(void);
 	void yyerror(const char *s);
-<<<<<<< HEAD:src/symtab/c3pbison.y
-=======
-	void print_stack(struct Stack *p);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 %}
 
 // __________ Data __________
@@ -542,24 +538,11 @@ expr_string 	: expr_string '+' expr_string	{
 
 													symt_node *result = symt_new();
 													result = symt_insert_tab_cons(result, CONS_STR, $1);
-=======
-													int len_result = str1->var->array_length + str2->var->array_length;
-													char *res = (char *)(ml_malloc(sizeof(char) * len_result));
-													strcpy(res, (char*)str1->var->value); strcat(res, (char*)str2->var->value);
-													symt_delete(str1); symt_delete(str2);
-
-													symt_node *result = symt_new();
-													result = symt_insert_tab_var(result, LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 													$$ = result;
 												}
 				| STRING		 				{
 													symt_node *result = symt_new_node();
-<<<<<<< HEAD:src/symtab/c3pbison.y
 													result = symt_insert_tab_cons(result, CONS_STR, $1);
-=======
-													result = symt_insert_tab_var(result, LOCAL_VAR, "", CONS_CHAR, true, strlen((char*)$1), $1, false);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 													$$ = result;
 												}
 				;
@@ -572,15 +555,9 @@ data_type 		: I8_TYPE 						{ $$ = I8; 	}
 				| I64_TYPE 						{ $$ = I64; }
 				| F32_TYPE 						{ $$ = F32; }
 				| F64_TYPE 						{ $$ = F64; }
-<<<<<<< HEAD:src/symtab/c3pbison.y
-				| CHAR_TYPE 					{ $$ = C; }
-				| STR_TYPE 						{ $$ = STR; }
-				| BOOL_TYPE 					{ $$ = B; }
-=======
 				| CHAR_TYPE 					{ $$ = C; 	}
 				| STR_TYPE 						{ $$ = STR; }
 				| BOOL_TYPE 					{ $$ = B; 	}
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 				;
 
 arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
@@ -669,81 +646,17 @@ var_assign 		: IDENTIFIER '=' expr						{
 																assertf(var != NULL, "variable %s has not been declared", $1);
 																symt_node *value = (symt_node *)$3;
 																symt_assign_var(var->var, value->cons);
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																$$ = var; symt_print(tab);
-=======
-																$$ = var;
-																symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 															}
 				| IDENTIFIER '[' expr ']' '=' expr			{
 																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
 																assertf(var != NULL, "variable %s has not been declared", $1);
 																symt_node *index_node = (symt_node *)$3;
-<<<<<<< HEAD:src/symtab/c3pbison.y
+
 																int index = *((int*)index_node->cons->value);
 																symt_node *result = (symt_node *)$6;
 																symt_assign_var_at(var->var, result->cons, index);
 																$$ = var; symt_print(tab);
-=======
-																symt_node *result_node = (symt_node *)$6;
-																void *index_value = symt_get_value_from_node(index_node);
-																void *result_value = symt_get_value_from_node(result_node);
-																int *index_value_int = (int *)index_value;
-
-																if (var->var->type == CONS_INTEGER)
-																{
-																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
-																	{
-																		assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
-																		assertf(result_node->var->type == CONS_INTEGER, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "integer", $1);
-																	}
-																	else if (result_node->id == CONSTANT)
-																	{
-																		assertf(result_node->cons->type == CONS_INTEGER, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "integer", $1);
-																	}
-
-																	if (result_node->id == CALL_FUNC)
-																	{
-																		symt_call *value_call = (symt_call *)result_value;
-																		//*(var_array+index_value_int) = value_call;
-																	}
-																	else
-																	{
-																		//int *result_value_int = (int*)result_value;
-																		//int *var_array = (int *)var->var->value;
-																		//*(var_array + *index_value_int) = *(result_value_int);
-																		symt_assign_var_at(var->var, result_node->cons, *index_value_int);
-																	}
-																}
-																else
-																{
-																	if (result_node->id == LOCAL_VAR || result_node->id == GLOBAL_VAR)
-																	{
-																		assertf(*index_value_int >= 0 && *index_value_int < var->var->array_length, "array index out of bounds at %s", $1);
-																		assertf(result_node->var->type == CONS_DOUBLE, "type %s does not match %s at %s indexation", symt_strget_vartype(result_node->var->type), "double", $1);
-																	} else if(result_node->id == CONSTANT)
-																	{
-																		assertf(result_node->cons->type == CONS_DOUBLE, "type %s does not match %s at %s indexation", symt_strget_constype(result_node->cons->type), "double", $1);
-																	}
-
-																	if (result_node->id == CALL_FUNC)
-																	{
-																		symt_call *value_call = (symt_call *)result_value;
-																		//*(var_array+index_value_int) = value_call;
-																	}
-																	else
-																	{
-																		//double *result_value_double = (double*)result_value;
-																		//double *var_array = (double *)var->var->value;
-																		//*(var_array + *index_value_int) = *(result_value_double);
-																		symt_assign_var_at(var->var, result_node->cons, *index_value_int);
-																	}
-																}
-
-																$$ = var;
-																symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 															}
 				;
 
@@ -781,24 +694,14 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
-=======
-																						tab = symt_push(tab, var);
-																						$$ = var; symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
-=======
-																						tab = symt_push(tab, var);
-																						$$ = var; symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
 																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
@@ -808,11 +711,7 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 
 																						symt_node *value = (symt_node *)$6;
 																						symt_assign_var(var->var, value->cons);
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																						tab = symt_push(tab, var);
-=======
-
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																						$$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
@@ -931,14 +830,9 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 																						symt_node* node = symt_new();
 																						node = symt_insert_tab_var(node, token_id, $1, $3, 0, 0, NULL, 0);
-<<<<<<< HEAD:src/symtab/c3pbison.y
+
 																						tab = symt_push(tab, node); $$ = node;
 																						token_id = SYMT_ROOT_ID; symt_print(tab);
-=======
-																						tab = symt_push(tab, node);
-																						$$ = node; token_id = SYMT_ROOT_ID;
-																						symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																					}
 				| IDENTIFIER ':' arr_data_type										{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
@@ -946,15 +840,9 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																						node = symt_insert_tab_var(node, token_id, $1, $3, 1, array_length, NULL, 0);
 																						tab = symt_push(tab, node);
 																						$$ = node; token_id = SYMT_ROOT_ID; symt_print(tab);
-=======
-																						node = symt_insert_tab_var(node, token_id, $1, $3, 0, 0, NULL, 0);
-																						$$ = node; token_id = SYMT_ROOT_ID;
-																						symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																					}
 				| IDENTIFIER '=' expr												{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
@@ -970,16 +858,10 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
 																						symt_node *var = symt_search_by_name(tab, $1, token_id);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
-
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																						symt_node *index = (symt_node*)$3;
 																						symt_node *value = (symt_node*)$6;
 
 																						symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
-=======
-																						symt_cons *index = (symt_cons*)$3;
-																						symt_assign_var_at(var->var, (symt_cons*)$6, *((int*)index->value));
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																						$$ = var; token_id = SYMT_ROOT_ID; symt_print(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
@@ -992,14 +874,9 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(result_node->var, value->cons);
-<<<<<<< HEAD:src/symtab/c3pbison.y
 																						tab = symt_push(tab, result_node);
 
 																						$$ = result_node; token_id = SYMT_ROOT_ID; symt_print(tab);
-=======
-																						$$ = result_node; token_id = SYMT_ROOT_ID;
-																						symt_print(tab);
->>>>>>> 587e689f533d45f3c04878db27332fcb6e05ee16:source/compiler/symtab/c3pbison.y
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
 																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
