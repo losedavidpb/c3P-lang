@@ -4,7 +4,7 @@ __c3P__ is a strongly typed, imperative, and declarative programming language,
 inspired by other languages such as C, Go, HolyC, and Java. This extensions
 includes some features that facilities the use of __c3P__ on Visual Studio Code.
 For more information about __c3P__ design, see
-[README.md](https://github.com/losedavidpb/c3p-language/blob/main/README.md)
+[README.md](https://github.com/losedavidpb/c3P-lang/blob/main/README.md)
 file at the root path of the official Github repository.
 
 ## Features

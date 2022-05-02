@@ -3,10 +3,10 @@
 __c3P__ is a strongly typed, imperative, and declarative programming language,
 inspired by other languages such as C, Go, HolyC, and Java. This theme includes
 syntax-highlighting for Notepad++ text editor. For more information about __c3P__
-design, see  [README.md](https://github.com/losedavidpb/c3p-language/blob/main/README.md)
+design, see  [README.md](https://github.com/losedavidpb/c3P-lang/blob/main/README.md)
 file at the root path of the official Github repository.
 
-![features](https://github.com/losedavidpb/c3p-language/blob/main/support/notepad/example.jpg)
+![features](https://github.com/losedavidpb/c3p-lang/blob/main/support/notepad/example.jpg)
 
 ## Install
 
