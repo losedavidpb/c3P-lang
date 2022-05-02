@@ -19,8 +19,6 @@
   #include "../../include/symt_var.h"
   #include "../../include/symt_if.h"
   #include "../../include/symt_while.h"
-  #include "../../include/symt_for.h"
-  #include "../../include/symt_switch.h"
   #include "../../include/symt_call.h"
   #include "../../include/symt_rout.h"
   #include "../../include/symt_node.h"
@@ -73,12 +71,6 @@ if                                              { return BEGIN_IF; }
 else                                            { return ELSE_IF; }
 endif                                           { return END_IF; }
 
-switch                                          { return BEGIN_SWITCH; }
-def                                             { return DEFAULT_SWITCH; }
-endswitch                                       { return END_SWITCH; }
-
-for                                             { return BEGIN_FOR; }
-endfor                                          { return END_FOR; }
 while                                           { return BEGIN_WHILE; }
 endwhile                                        { return END_WHILE; }
 continue                                        { return CONTINUE; }

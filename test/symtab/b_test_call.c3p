@@ -1,0 +1,10 @@
+#add <c3p.base>
+#add <c3p.math>
+
+proc main()
+
+    call show 1
+    call show "Hello World"
+    call function 1, 2
+
+endproc

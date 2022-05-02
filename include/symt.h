@@ -55,12 +55,6 @@ symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statemen
 /* Insert while symbol to the symbol table */
 symt_tab* symt_insert_tab_while(symt_tab *tab, symt_node *cond, symt_node *statements);
 
-/* Insert for symbol to the symbol table */
-symt_tab* symt_insert_tab_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_node *iter_var, symt_node *iter_op);
-
-/* Insert switch symbol to the symbol table */
-symt_tab* symt_insert_tab_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases);
-
 /* Finish a block statement */
 void symt_end_block(symt_tab *tab, symt_id_t id_block);
 

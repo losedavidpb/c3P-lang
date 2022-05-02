@@ -21,8 +21,6 @@
 	#include "../../include/symt_var.h"
   	#include "../../include/symt_if.h"
   	#include "../../include/symt_while.h"
-  	#include "../../include/symt_for.h"
-  	#include "../../include/symt_switch.h"
   	#include "../../include/symt_call.h"
   	#include "../../include/symt_rout.h"
   	#include "../../include/symt_node.h"
@@ -104,9 +102,7 @@
 %token<type_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
-%token BEGIN_SWITCH END_SWITCH DEFAULT_SWITCH
-
-%token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE
+%token BEGIN_WHILE END_WHILE
 %token CONTINUE BREAK
 
 %token BEGIN_PROCEDURE END_PROCEDURE
@@ -124,11 +120,8 @@
 
 %token EOL
 
-%type<node_t> BEGIN_FOR;
 %type<node_t> BEGIN_WHILE;
 %type<node_t> BEGIN_IF;
-%type<node_t> BEGIN_SWITCH;
-%type<node_t> DEFAULT_SWITCH;
 %type<node_t> CONTINUE;
 %type<node_t> BREAK;
 %type<node_t> RETURN;
@@ -145,12 +138,10 @@
 %type<stack> list_expr;
 
 %type<node_t> statement;
-%type<node_t> switch_case;
 %type<node_t> more_else;
 
 %type<node_t> in_var;
 %type<node_t> ext_var;
-%type<node_t> var_assign;
 
 %type<integer_t> data_type;
 %type<integer_t> arr_data_type;
@@ -185,12 +176,7 @@
 expr 			: expr_num		{ $$ = $1; }
 				| expr_char		{ $$ = $1; }
 				| expr_string	{ $$ = $1; }
-				| IDENTIFIER	{
-									symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
-									if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
-									assertf(var != NULL, "variable %s has not been declared at line ", $1);
-									$$ = var;
-								}
+
 				;
 
 int_expr 		: int_expr '+' int_expr 		{
@@ -268,6 +254,15 @@ int_expr 		: int_expr '+' int_expr 		{
 				| INTEGER 						{
 													symt_node *result = symt_new();
 													result = symt_insert_tab_cons(result, CONS_INTEGER, &$1);
+													$$ = result;
+												}
+				| IDENTIFIER					{
+													symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
+													if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
+													assertf(var != NULL, "variable %s has not been declared at line ", $1);
+
+													symt_node *result = symt_new();
+													result = symt_insert_tab_cons(result, symt_get_type_data(var->var->type), var->var->value);
 													$$ = result;
 												}
 				;
@@ -638,27 +633,6 @@ param_declr 	: IDENTIFIER ':' data_type
 				| IDENTIFIER ':' BOOL_TYPE '[' int_expr ']'
 				;
 
-// __________ Assignation for variables __________
-
-var_assign 		: IDENTIFIER '=' expr						{
-																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
-																assertf(var != NULL, "variable %s has not been declared", $1);
-																symt_node *value = (symt_node *)$3;
-																symt_assign_var(var->var, value->cons);
-																$$ = var; symt_print(tab);
-															}
-				| IDENTIFIER '[' expr ']' '=' expr			{
-																symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
-																assertf(var != NULL, "variable %s has not been declared", $1);
-																symt_node *index_node = (symt_node *)$3;
-
-																int index = *((int*)index_node->cons->value);
-																symt_node *result = (symt_node *)$6;
-																symt_assign_var_at(var->var, result->cons, index);
-																$$ = var; symt_print(tab);
-															}
-				;
-
 // __________ Declaration and Assignation for variables __________
 
 list_expr 		: expr					{
@@ -844,8 +818,8 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						$$ = node; token_id = SYMT_ROOT_ID; symt_print(tab);
 																					}
 				| IDENTIFIER '=' expr												{
-																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
-																						symt_node *var = symt_search_by_name(tab, $1, token_id);
+																						symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
+																						if (var == NULL) var = symt_search_by_name(tab, $1, GLOBAL_VAR);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						symt_node *value = (symt_node *)$3;
@@ -987,33 +961,6 @@ call_func 		: CALL IDENTIFIER
 add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries
 				| ADD_LIBRARY PATH_ADD_LIBRARY EOL;
 
-// __________ Switch case __________
-
-switch_case 	: EOL switch_case											{ $$ = $2; }
-				| expr ':' EOL statement BREAK EOL switch_case				{
-																				symt_node* case_node = symt_new();
-
-																				symt_node *cond = (symt_node*)$1;
-																				symt_node *statement = NULL;
-																				if($4 != NULL) statement = (symt_node *)$4;
-																				symt_node* other = (symt_node*)$7;
-
-																				case_node = symt_insert_tab_if(case_node, cond, statement, other);
-																				$$ = case_node;
-																			}
-				| DEFAULT_SWITCH ':' EOL statement BREAK EOL more_EOL		{
-																				symt_node* case_node = symt_new();
-																				symt_node *statement = NULL;
-																				if($4 != NULL) statement = (symt_node *)$4;
-																				else statement = NULL;
-
-																				case_node = symt_insert_tab_if(case_node, NULL, statement, NULL);
-																				$$ = case_node;
-																			}
-				;
-
-more_EOL 		: | EOL more_EOL;
-
 // __________ Statement __________
 
 statement 		: { $$ = NULL; } | in_var EOL statement
@@ -1037,26 +984,6 @@ statement 		: { $$ = NULL; } | in_var EOL statement
 																											tab = symt_insert_tab_while(tab, cond, statement);
 																											symt_print(tab);
 																										} END_WHILE { symt_end_block(tab, WHILE); } EOL statement
-				| BEGIN_FOR  '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule			{
-																											symt_node *cond = (symt_node *)$5;
-																											symt_node *iter_var = (symt_node *)$3;
-																											symt_node *iter_op = (symt_node *)$7;
-																											symt_node * statement = NULL;
-																											if ($10 != NULL) statement = (symt_node *)$10;
-
-																											tab = symt_insert_tab_for(tab, cond, statement, iter_var, iter_op);
-																											symt_print(tab);
-																										} END_FOR { symt_end_block(tab, FOR); } EOL statement
-				| BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case										{
-																											symt_node *var = symt_search_by_name(tab, $3, GLOBAL_VAR);
-																											if (var == NULL) var = symt_search_by_name(tab, $3, LOCAL_VAR);
-																											assertf(var != NULL, "variable %s has not been declared", $3);
-																											symt_node *cases_node = NULL;
-																											if ($6 != NULL) cases_node = (symt_node *)$6;
-
-																											tab = symt_insert_tab_switch(tab, var->var, cases_node);
-																											symt_print(tab);
-																										} END_SWITCH { symt_end_block(tab, SWITCH); } EOL statement
 				| call_func EOL statement
 				| RETURN expr EOL statement
 				| CONTINUE EOL statement

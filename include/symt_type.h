@@ -25,8 +25,6 @@ typedef enum symt_id_t
     CONSTANT,       // constants for primitive data
     IF,             // if and if-else statements
     WHILE,          // while loops
-    FOR,            // for loops
-    SWITCH,         // switch statement
     FUNCTION,       // routines with a return
     PROCEDURE,      // routines with any return
     CALL_FUNC,      // call statement for functions
@@ -109,23 +107,6 @@ typedef struct symt_while
     struct symt_node *statements;
 } symt_while;
 
-/* Type for "for" loops */
-typedef struct symt_for
-{
-    struct symt_node *incr;
-    struct symt_node *cond;
-    struct symt_node *iter_op;
-    struct symt_node *statements;
-} symt_for;
-
-/* Type for switch statements */
-typedef struct symt_switch
-{
-    symt_id_t type_key;
-    symt_var *key_var;
-    struct symt_node *cases;
-} symt_switch;
-
 /* Type for calling routines */
 typedef struct symt_call
 {
@@ -144,8 +125,6 @@ typedef struct symt_node
     symt_call* call;
     symt_if_else* if_val;
     symt_while* while_val;
-    symt_for* for_val;
-    symt_switch* switch_val;
     struct symt_node *next_node;
 } symt_node;
 

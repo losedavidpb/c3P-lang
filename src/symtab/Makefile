@@ -18,7 +18,7 @@
 # AUTHOR
 #	losedavidpb (https://github.com/losedavidpb)
 
-test_path=../../test/bison
+test_path=../../test/symtab
 include_path=../../include
 ifndef src
 	src=$(test_path)/*.c3p

@@ -1,5 +1,7 @@
-d : c = 'a'
-?e : c = ''
-f : c = ' '
-a : b = F
-x : c[10] = {'a', 'b'}
+x : i32 = 10
+
+proc main()
+	while (x > 0)
+		x = x - 1
+	endwhile
+endproc

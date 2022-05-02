@@ -1,0 +1,10 @@
+x : i32
+y : i64
+z : f32
+l : i32[10]
+m : b
+n : c
+o : str
+ 
+hide hx : i32
+hide hl : i32[10]

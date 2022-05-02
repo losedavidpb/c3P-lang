@@ -1,0 +1,7 @@
+proc hello_world()
+
+endproc
+
+proc say_your_name(name : str)
+  
+endproc

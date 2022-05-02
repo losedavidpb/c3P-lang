@@ -6,10 +6,8 @@
 #include "../../../include/symt_type.h"
 #include "../../../include/symt_node.h"
 #include "../../../include/symt_cons.h"
-#include "../../../include/symt_for.h"
 #include "../../../include/symt_if.h"
 #include "../../../include/symt_while.h"
-#include "../../../include/symt_switch.h"
 #include "../../../include/symt_rout.h"
 #include "../../../include/symt_var.h"
 #include "../../../include/symt_call.h"
@@ -167,8 +165,6 @@ void symt_delete_node(symt_node *node)
 		symt_delete_cons(iter->cons); iter->cons = NULL;
 		symt_delete_if(iter->if_val); iter->if_val = NULL;
 		symt_delete_while(iter->while_val); iter->while_val = NULL;
-		symt_delete_switch(iter->switch_val); iter->switch_val = NULL;
-		symt_delete_for(iter->for_val); iter->for_val = NULL;
 		symt_delete_rout(iter->rout); iter->rout = NULL;
 		symt_delete_call(iter->call); iter->call = NULL;
 
@@ -190,10 +186,8 @@ symt_node *symt_copy_node(symt_node *node)
 		copy_node->id = node->id;
 		copy_node->call = symt_copy_call(node->call);
 		copy_node->cons = symt_copy_cons(node->cons);
-		copy_node->for_val = symt_copy_for(node->for_val);
 		copy_node->while_val = symt_copy_while(node->while_val);
 		copy_node->if_val = symt_copy_if(node->if_val);
-		copy_node->switch_val = symt_copy_switch(node->switch_val);
 		copy_node->var = symt_copy_var(node->var);
 		copy_node->rout = symt_copy_rout(node->rout);
 		copy_node->next_node = symt_copy_node(node->next_node);

@@ -30,7 +30,7 @@ symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value)
 void symt_assign_cons(symt_cons *var, symt_value_t value)
 {
 	assertp(var != NULL, "passed constant has not been defined");
-	var->value = value;
+	var->value = symt_copy_value(value, var->type, 0);
 }
 
 symt_cons *symt_cons_add(symt_cons_t type, symt_cons* num1, symt_cons* num2)

@@ -10,12 +10,10 @@
 	(id == GLOBAL_VAR? "GLOBAL_VAR" :				\
 	(id == IF? "IF" :								\
 	(id == WHILE? "WHILE" :							\
-	(id == FOR? "FOR" :								\
-	(id == SWITCH? "SWITCH" :						\
 	(id == FUNCTION? "FUNCTION" :					\
 	(id == PROCEDURE? "PROCEDURE" :					\
 	(id == CONSTANT? "CONSTANT" : 					\
-	(id == CALL_FUNC? "CALL" : "undefined"))))))))))
+	(id == CALL_FUNC? "CALL" : "undefined"))))))))
 
 /* Create dynamically a new symbol node */
 symt_node* symt_new_node();

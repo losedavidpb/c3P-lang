@@ -7,10 +7,8 @@
 #include "../../include/symt_type.h"
 #include "../../include/symt_call.h"
 #include "../../include/symt_cons.h"
-#include "../../include/symt_for.h"
 #include "../../include/symt_if.h"
 #include "../../include/symt_rout.h"
-#include "../../include/symt_switch.h"
 #include "../../include/symt_var.h"
 #include "../../include/symt_while.h"
 #include "../../include/symt_node.h"
@@ -84,34 +82,6 @@ symt_node *__symt_search(symt_tab *tab, symt_id_t id, symt_name_t name, bool sea
 					if (iter->while_val->statements != NULL)
 					{
 						result = __symt_search(iter->while_val->statements, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-				break;
-
-				case FOR:;
-					if (iter->for_val->cond != NULL)
-					{
-						result = __symt_search(iter->for_val->cond, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-
-					if (iter->for_val->iter_op != NULL)
-					{
-						result = __symt_search(iter->for_val->iter_op, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-
-					if (iter->for_val->statements != NULL)
-					{
-						result = __symt_search(iter->for_val->statements, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-				break;
-
-				case SWITCH:;
-					if (iter->switch_val->cases != NULL)
-					{
-						result = __symt_search(iter->switch_val->cases, id, name, search_name, search_prev);
 						if (result != NULL) return result;
 					}
 				break;
@@ -206,18 +176,6 @@ symt_tab *symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statemen
 symt_tab *symt_insert_tab_while(symt_tab *tab, symt_node *cond, symt_node *statements)
 {
 	symt_node *new_node = symt_insert_while(cond, statements);
-	return symt_push(tab, new_node);
-}
-
-symt_tab *symt_insert_tab_for(symt_tab *tab, symt_node *cond, symt_node *statements, symt_node *iter_var, symt_node *iter_op)
-{
-	symt_node *new_node = symt_insert_for(cond, statements, iter_var, iter_op);
-	return symt_push(tab, new_node);
-}
-
-symt_tab *symt_insert_tab_switch(symt_tab *tab, symt_var *iter_var, symt_node *cases)
-{
-	symt_node *new_node = symt_insert_switch(iter_var, cases);
 	return symt_push(tab, new_node);
 }
 
@@ -354,38 +312,6 @@ void symt_print(symt_tab *tab)
 				if (iter->while_val->statements != NULL)
 				{
 					result = __symt_search(iter->while_val->statements, id, name, search_name, search_prev);
-					if (result != NULL) return result;
-				}*/
-			break;
-
-			case FOR:;
-				message = " incr = %d | cond = %d | iter_op = %d | statements = %d ";
-				printf(message, node->for_val->incr, node->for_val->cond, node->for_val->iter_op, node->for_val->statements);
-				/*if (iter->for_val->cond != NULL)
-				{
-					result = __symt_search(iter->for_val->cond, id, name, search_name, search_prev);
-					if (result != NULL) return result;
-				}
-
-				if (iter->for_val->iter_op != NULL)
-				{
-					result = __symt_search(iter->for_val->iter_op, id, name, search_name, search_prev);
-					if (result != NULL) return result;
-				}
-
-				if (iter->for_val->statements != NULL)
-				{
-					result = __symt_search(iter->for_val->statements, id, name, search_name, search_prev);
-					if (result != NULL) return result;
-				}*/
-			break;
-
-			case SWITCH:;
-				message = " key_id = %s | key_var = %d | cases = %d ";
-				printf(message, node->switch_val->type_key, node->switch_val->key_var, node->switch_val->cases);
-				/*if (iter->switch_val->cases != NULL)
-				{
-					result = __symt_search(iter->switch_val->cases, id, name, search_name, search_prev);
 					if (result != NULL) return result;
 				}*/
 			break;
