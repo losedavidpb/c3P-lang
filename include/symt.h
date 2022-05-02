@@ -55,6 +55,9 @@ symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statemen
 /* Insert while symbol to the symbol table */
 symt_tab* symt_insert_tab_while(symt_tab *tab, symt_node *cond, symt_node *statements);
 
+/* Insert return symbol to the symbol table */
+symt_tab *symt_insert_tab_return(symt_tab *tab, symt_node *return_stmt);
+
 /* Finish a block statement */
 void symt_end_block(symt_tab *tab, symt_id_t id_block);
 

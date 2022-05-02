@@ -11,6 +11,7 @@
 #include "../../../include/symt_rout.h"
 #include "../../../include/symt_var.h"
 #include "../../../include/symt_call.h"
+#include "../../../include/symt_return.h"
 #include <string.h>
 
 symt_node* symt_new_node()
@@ -190,6 +191,7 @@ symt_node *symt_copy_node(symt_node *node)
 		copy_node->if_val = symt_copy_if(node->if_val);
 		copy_node->var = symt_copy_var(node->var);
 		copy_node->rout = symt_copy_rout(node->rout);
+		copy_node->return_val = symt_copy_return(node->return_val);
 		copy_node->next_node = symt_copy_node(node->next_node);
 	}
 

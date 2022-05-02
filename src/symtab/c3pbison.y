@@ -23,6 +23,7 @@
   	#include "../../include/symt_while.h"
   	#include "../../include/symt_call.h"
   	#include "../../include/symt_rout.h"
+	#include "../../include/symt_return.h"
   	#include "../../include/symt_node.h"
 
 	#include "../../include/assertb.h"
@@ -39,10 +40,10 @@
 
 	symt_tab *tab; // Table of symbol
 
-	int array_length = 0;  // Array length for current token
-	void *value_list_expr; // Array value for current token
-	int token_id = SYMT_ROOT_ID;
-	symt_cons_t value_list_expr_t;
+	int array_length = 0;  			// Array length for current token
+	void *value_list_expr; 			// Array value for current token
+	int token_id = SYMT_ROOT_ID;	// Token for global and local variables
+	symt_cons_t value_list_expr_t;	// Constant for a part of a list expression
 
 	// Structure of a stack of void values
 	typedef struct Stack
@@ -52,7 +53,7 @@
 	} Stack;
 
 	// Stack for list expression
-	struct Stack *cola;
+	struct Stack *queque;
 
 	// Print content of passed stack
 	void print_stack(struct Stack *p);
@@ -135,6 +136,7 @@
 %type<node_t> expr_string;
 %type<node_t> int_expr;
 %type<node_t> expr;
+%type<node_t> break_rule;
 %type<stack> list_expr;
 
 %type<node_t> statement;
@@ -176,7 +178,6 @@
 expr 			: expr_num		{ $$ = $1; }
 				| expr_char		{ $$ = $1; }
 				| expr_string	{ $$ = $1; }
-
 				;
 
 int_expr 		: int_expr '+' int_expr 		{
@@ -596,12 +597,6 @@ arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
 													array_length = *((int*)node->cons->value);
 													$$ = C;
 												}
-				| STR_TYPE '[' int_expr ']'		{
-													value_list_expr_t = CONS_CHAR;
-													symt_node *node = (symt_node*)$3;
-													array_length = *((int*)node->cons->value);
-													$$ = STR;
-												}
 				| BOOL_TYPE '[' int_expr ']'	{
 													value_list_expr_t = CONS_INTEGER;
 													symt_node *node = (symt_node*)$3;
@@ -620,7 +615,6 @@ param_declr 	: IDENTIFIER ':' data_type
 				| IDENTIFIER ':' F32_TYPE '[' ']'
 				| IDENTIFIER ':' F64_TYPE '[' ']'
 				| IDENTIFIER ':' CHAR_TYPE '[' ']'
-				| IDENTIFIER ':' STR_TYPE '[' ']'
 				| IDENTIFIER ':' BOOL_TYPE '[' ']'
 				| IDENTIFIER ':' I8_TYPE  '[' int_expr ']'
 				| IDENTIFIER ':' I16_TYPE '[' int_expr ']'
@@ -629,7 +623,6 @@ param_declr 	: IDENTIFIER ':' data_type
 				| IDENTIFIER ':' F32_TYPE '[' int_expr ']'
 				| IDENTIFIER ':' F64_TYPE '[' int_expr ']'
 				| IDENTIFIER ':' CHAR_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' STR_TYPE '[' int_expr ']'
 				| IDENTIFIER ':' BOOL_TYPE '[' int_expr ']'
 				;
 
@@ -637,7 +630,6 @@ param_declr 	: IDENTIFIER ':' data_type
 
 list_expr 		: expr					{
 											struct Stack pila;
-											//cola = (Stack *)(ml_malloc(sizeof(Stack)));
 											symt_node* node = (symt_node*)$1;
 											pila.value = symt_get_value_from_node(node);
 											pila.next_value = NULL;
@@ -645,18 +637,11 @@ list_expr 		: expr					{
 										}
 				| expr ',' list_expr	{
 											struct Stack *pila = (Stack *)$3;
-
-											if(pila == NULL){
-												printf("\n mierda\n");
-											}
-
 											struct Stack* new_pila = (Stack *)(ml_malloc(sizeof(Stack)));
-
 											symt_node* node = (symt_node*)$1;
 											new_pila->value = symt_get_value_from_node(node);
 											new_pila->next_value = pila;
 
-											//cola = new_pila;
 											$$ = new_pila;
 										}
 				;
@@ -969,6 +954,7 @@ statement 		: { $$ = NULL; } | in_var EOL statement
 
 																											symt_node *statement_if = NULL;
 																											if ($6 != NULL) statement_if = (symt_node *)$6;
+																											if ($8 != NULL) statement_if = symt_push(statement_if, $7);
 
 																											symt_node *statement_else = NULL;
 																											if ($8 != NULL) statement_else = (symt_node *)$8;
@@ -980,33 +966,41 @@ statement 		: { $$ = NULL; } | in_var EOL statement
 																											symt_node *cond = (symt_node *)$3;
 																											symt_node *statement = NULL;
 																											if ($6 != NULL) statement = (symt_node *)$6;
+																											if ($8 != NULL) statement = symt_push(statement, $7);
+																											else statement = $7;
 
 																											tab = symt_insert_tab_while(tab, cond, statement);
+
+																											symt_node *result = symt_new();
+																											result->id = BREAK;
+																											tab = symt_push(tab, result);
+
 																											symt_print(tab);
 																										} END_WHILE { symt_end_block(tab, WHILE); } EOL statement
-				| call_func EOL statement
-				| RETURN expr EOL statement
-				| CONTINUE EOL statement
-				| EOL statement
-				| error EOL { printf(" at expression\n"); } statement
+				| call_func EOL statement																{ $$ = $1; }
+				| RETURN expr EOL statement																{ symt_node *result = symt_new(); result->id = RETURN; result->next_node = $3; }
+				| CONTINUE EOL statement																{ symt_node *result = symt_new(); result->id = CONTINUE; tab = symt_push(tab, result); }
+				| EOL statement																			{ $$ = $1; }
+				| error EOL { printf(" at expression\n"); } statement									{ $$ = $1; }
 				;
 
-more_else 		: {} | ELSE_IF EOL statement break_rule 												{
+more_else 		: {} | ELSE_IF EOL statement 															{
 																											symt_node *statement = symt_new();
 																											statement = (symt_node *)$3;
 																											$$ = statement;
-																										}
+																										} break_rule { $$ = $1; }
 				| ELSE_IF BEGIN_IF '(' expr ')' EOL statement break_rule more_else 						{
 																											symt_node* else_node = symt_new();
 																											symt_node *cond = symt_new(); cond = (symt_node *)$4;
 																											symt_node *statement_if = symt_new(); statement_if = (symt_node *)$7;
+																											if ($8 != NULL) statement_if = symt_push(statement_if, $8);
 																											symt_node *statement_else = (symt_node *)$9;
 																											else_node = symt_insert_tab_if(else_node, cond, statement_if, statement_else);
 																											$$ = else_node;
 																										}
 				;
 
-break_rule 		: | BREAK EOL statement
+break_rule 		: { $$ = NULL; } | BREAK EOL statement { symt_node* res = symt_new(); res->id = BREAK; $$ = res; }
 				;
 
 // __________ Main program __________

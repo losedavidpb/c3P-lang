@@ -28,6 +28,9 @@ typedef enum symt_id_t
     FUNCTION,       // routines with a return
     PROCEDURE,      // routines with any return
     CALL_FUNC,      // call statement for functions
+	CONTINUE,		// continue statement
+	BREAK,			// break statement
+	RETURN,			// return statement
 } symt_id_t;
 
 /* Type for values stored at local and global
@@ -115,6 +118,12 @@ typedef struct symt_call
     struct symt_node *params;
 } symt_call;
 
+/* Type for return statement */
+typedef struct symt_return
+{
+	struct symt_node *return_stmt;
+} symt_return;
+
 /* Type for a node which is are at a symbol table */
 typedef struct symt_node
 {
@@ -125,6 +134,7 @@ typedef struct symt_node
     symt_call* call;
     symt_if_else* if_val;
     symt_while* while_val;
+	symt_return* return_val;
     struct symt_node *next_node;
 } symt_node;
 

@@ -11,6 +11,7 @@
 #include "../../include/symt_rout.h"
 #include "../../include/symt_var.h"
 #include "../../include/symt_while.h"
+#include "../../include/symt_return.h"
 #include "../../include/symt_node.h"
 #include <stdio.h>
 
@@ -176,6 +177,12 @@ symt_tab *symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statemen
 symt_tab *symt_insert_tab_while(symt_tab *tab, symt_node *cond, symt_node *statements)
 {
 	symt_node *new_node = symt_insert_while(cond, statements);
+	return symt_push(tab, new_node);
+}
+
+symt_tab *symt_insert_tab_return(symt_tab *tab, symt_node *return_stmt)
+{
+	symt_node *new_node = symt_insert_return(return_stmt);
 	return symt_push(tab, new_node);
 }
 
