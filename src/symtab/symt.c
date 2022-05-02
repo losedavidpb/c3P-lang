@@ -285,6 +285,132 @@ void symt_delete(symt_tab *tab)
 	tab = NULL;
 }
 
+void symt_print(symt_tab *tab)
+{
+	assertp(tab != NULL, "table has not been constructed");
+	printf("\n ## Table");
+
+	symt_node *node = (symt_node*)tab;
+	char *str_type, *message;
+
+	while(node != NULL)
+	{
+		printf("\n id = %s |", symt_strget_id(node->id));
+
+		switch (node->id)
+		{
+			case LOCAL_VAR: case GLOBAL_VAR:
+				str_type = symt_strget_vartype(node->var->type);
+				message = " name = %s | type = %s | is_hide = %d | is_array = %d | array_length = %d";
+				printf(message, node->var->name, str_type, node->var->is_hide, node->var->is_array, node->var->array_length);
+				symt_printf_value(node);
+			break;
+
+			case FUNCTION:; case PROCEDURE:;
+				str_type = symt_strget_vartype(node->rout->type);
+				message = " name = %s | type = %s | is_hide = %d | params = %d | statements = %d";
+				printf(message, node->rout->name, str_type, node->rout->params, node->rout->statements);
+				/*if (iter->rout->params != NULL)
+				{
+					result = __symt_search(iter->rout->params, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}
+
+				if (iter->rout->statements != NULL)
+				{
+					result = __symt_search(iter->rout->statements, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}*/
+			break;
+
+			case IF:;
+				message = " cond = %d | if_statements = %d | else_statements = %d";
+				printf(message, node->if_val->cond, node->if_val->if_statements, node->if_val->else_statements);
+				/*if (iter->if_val->cond != NULL)
+				{
+					result = __symt_search(iter->if_val->cond, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}
+
+				if (iter->if_val->if_statements != NULL)
+				{
+					result = __symt_search(iter->if_val->if_statements, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}
+
+				if (iter->if_val->else_statements != NULL)
+				{
+					result = __symt_search(iter->if_val->else_statements, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}*/
+			break;
+
+			case WHILE:;
+				message = " cond = %d | statements = %d ";
+				printf(message, node->while_val->cond, node->while_val->statements);
+				/*if (iter->while_val->cond != NULL)
+				{
+					result = __symt_search(iter->while_val->cond, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}
+
+				if (iter->while_val->statements != NULL)
+				{
+					result = __symt_search(iter->while_val->statements, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}*/
+			break;
+
+			case FOR:;
+				message = " incr = %d | cond = %d | iter_op = %d | statements = %d ";
+				printf(message, node->for_val->incr, node->for_val->cond, node->for_val->iter_op, node->for_val->statements);
+				/*if (iter->for_val->cond != NULL)
+				{
+					result = __symt_search(iter->for_val->cond, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}
+
+				if (iter->for_val->iter_op != NULL)
+				{
+					result = __symt_search(iter->for_val->iter_op, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}
+
+				if (iter->for_val->statements != NULL)
+				{
+					result = __symt_search(iter->for_val->statements, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}*/
+			break;
+
+			case SWITCH:;
+				message = " key_id = %s | key_var = %d | cases = %d ";
+				printf(message, node->switch_val->type_key, node->switch_val->key_var, node->switch_val->cases);
+				/*if (iter->switch_val->cases != NULL)
+				{
+					result = __symt_search(iter->switch_val->cases, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}*/
+			break;
+
+			case CALL_FUNC:;
+				str_type = symt_strget_vartype(node->call->type);
+				message = " name = %s | type = %d | params = %d ";
+				printf(message, node->call->name, str_type, node->call->params);
+				/*if (iter->call->params != NULL)
+				{
+					result = __symt_search(iter->call->params, id, name, search_name, search_prev);
+					if (result != NULL) return result;
+				}*/
+			break;
+
+			default: break; // Just to avoid warning
+		}
+
+		node = node->next_node;
+	}
+}
+
 #ifdef _SYMT_JUST_COMPILE
 void main() { }
 #endif

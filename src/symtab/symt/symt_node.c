@@ -67,43 +67,43 @@ symt_cons_t symt_get_type_value_from_node(symt_node *node)
 
 void symt_printf_value(symt_node* node)
 {
+	assertp(node != NULL, "node have not been defined");
+
 	symt_value_t value = symt_get_value_from_node(node);
 	symt_cons_t type = symt_get_type_value_from_node(node);
 
-	if ((node->id == LOCAL_VAR || node->id == GLOBAL_VAR) && node->var->is_array)
+	if (value != NULL)
 	{
-		if (type == CONS_INTEGER || type == CONS_DOUBLE)
+		if ((node->id == LOCAL_VAR || node->id == GLOBAL_VAR) && node->var->is_array)
 		{
-			if (type == CONS_INTEGER)
+			if (type == CONS_INTEGER || type == CONS_DOUBLE)
 			{
-				int *int_value = (int*)value;
-				printf(" | value = { ");
-				for (int i = 0; i < node->var->array_length; i++) printf("%d ", *(int_value + i));
-				printf("}");
-			}
-			else
-			{
-				double *double_value = (double*)value;
-				printf(" | value = { ");
-				for (int i = 0; i < node->var->array_length; i++) printf("%lf ", *(double_value + i));
-				printf("}");
+				if (type == CONS_INTEGER)
+				{
+					int *int_value = (int*)value;
+					printf(" | value = { ");
+					for (int i = 0; i < node->var->array_length; i++) printf("%d ", *(int_value + i));
+					printf("}");
+				}
+				else
+				{
+					double *double_value = (double*)value;
+					printf(" | value = { ");
+					for (int i = 0; i < node->var->array_length; i++) printf("%lf ", *(double_value + i));
+					printf("}");
+				}
 			}
 		}
 		else
 		{
-			char *str_value = (char*)value;
-			printf(" | type = %s", str_value);
+			switch(type)
+			{
+				case CONS_INTEGER: printf(" | value = %d", *(int*)value); break;
+				case CONS_DOUBLE: printf(" | value = %lf", *(double*)value); break;
+				case CONS_CHAR: printf(" | value = %c", *(char*)value); break;
+			}
 		}
-	}
-	else
-	{
-		switch(type)
-		{
-			case CONS_INTEGER: printf(" | type = %d", *(int*)value); break;
-			case CONS_DOUBLE: printf(" | type = %lf", *(double*)value); break;
-			case CONS_CHAR: printf(" | type = %c", *(char*)value); break;
-		}
-	}
+	} else printf(" | value = NULL");
 }
 
 void *symt_copy_value(symt_value_t *value, symt_cons_t type, int num_elems)

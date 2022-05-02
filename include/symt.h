@@ -71,4 +71,7 @@ symt_tab* symt_merge(symt_tab *src, symt_tab *dest);
    if has been created before */
 void symt_delete(symt_tab *tab);
 
+/* Print content of passed symbol table */
+void symt_print(symt_tab *tab);
+
 #endif  // SYMT_H

@@ -85,7 +85,7 @@ void symt_assign_var(symt_var *var, symt_cons *value)
 	assertp(value != NULL, "constant has not been defined");
 	symt_can_assign(var->type, value);
 
-	var->value = value->value;
+	var->value = symt_copy_value(value->value, value->type, 0);
 }
 
 void symt_assign_var_at(symt_var *var, symt_cons *value, int index)
