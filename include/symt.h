@@ -50,16 +50,16 @@ symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t val
 symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements);
 
 /* Insert if symbol to the symbol table */
-symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *cond, symt_node *statements_if, symt_node *statements_else);
+//symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *statements_if, symt_node *statements_else);
 
 /* Insert while symbol to the symbol table */
-symt_tab* symt_insert_tab_while(symt_tab *tab, symt_node *cond, symt_node *statements);
+//symt_tab* symt_insert_tab_while(symt_tab *tab, symt_node *statements);
 
 /* Insert return symbol to the symbol table */
-symt_tab *symt_insert_tab_return(symt_tab *tab, symt_node *return_stmt);
+//symt_tab *symt_insert_tab_return(symt_tab *tab, symt_node *return_stmt);
 
 /* Finish a block statement */
-void symt_end_block(symt_tab *tab, symt_id_t id_block);
+void symt_end_block(symt_tab *tab/*, symt_id_t id_block*/);
 
 /* Include all the elements of source at dest,
    deleting private instances at stack */

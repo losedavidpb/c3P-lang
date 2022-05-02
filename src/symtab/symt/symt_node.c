@@ -6,12 +6,12 @@
 #include "../../../include/symt_type.h"
 #include "../../../include/symt_node.h"
 #include "../../../include/symt_cons.h"
-#include "../../../include/symt_if.h"
-#include "../../../include/symt_while.h"
+//#include "../../../include/symt_if.h"
+//#include "../../../include/symt_while.h"
 #include "../../../include/symt_rout.h"
 #include "../../../include/symt_var.h"
 #include "../../../include/symt_call.h"
-#include "../../../include/symt_return.h"
+//#include "../../../include/symt_return.h"
 #include <string.h>
 
 symt_node* symt_new_node()
@@ -32,9 +32,11 @@ bool symt_is_valid_id(symt_id_t id)
 symt_value_t symt_get_value_from_node(symt_node *node)
 {
 	assertp(node != NULL, "passed node is null");
-	assertp(node->id == LOCAL_VAR || node->id == GLOBAL_VAR || node->id == CONSTANT || node->id == CALL_FUNC, "node has not got a value");
+	//assertp(node->id == LOCAL_VAR || node->id == GLOBAL_VAR || node->id == CONSTANT || node->id == CALL_FUNC, "node has not got a value");
+	assertp(node->id == VAR || node->id == CONSTANT || node->id == CALL_FUNC, "node has not got a value");
 
-	if (node->id == LOCAL_VAR || node->id == GLOBAL_VAR)
+	//if (node->id == LOCAL_VAR || node->id == GLOBAL_VAR)
+	if (node->id == VAR)
 	{
 		assertp(node->var != NULL, "variable has not be defined");
 		return node->var->value;
@@ -55,9 +57,11 @@ symt_value_t symt_get_value_from_node(symt_node *node)
 symt_cons_t symt_get_type_value_from_node(symt_node *node)
 {
 	assertp(node != NULL, "table has not been constructed");
-	assertp(node->id == LOCAL_VAR || node->id == GLOBAL_VAR || node->id == CONSTANT, "passed node has not a valid type");
+	//assertp(node->id == LOCAL_VAR || node->id == GLOBAL_VAR || node->id == CONSTANT, "passed node has not a valid type");
+	assertp(node->id == VAR || node->id == CONSTANT, "passed node has not a valid type");
 
-	if (node->id == LOCAL_VAR || node->id == GLOBAL_VAR)
+	if (node->id == VAR)
+	//if (node->id == LOCAL_VAR || node->id == GLOBAL_VAR)
 		return symt_get_type_data(node->var->type);
 	else
 		return node->cons->type;
@@ -71,7 +75,8 @@ void symt_printf_value(symt_node* node)
 
 	if (value != NULL)
 	{
-		if ((node->id == LOCAL_VAR || node->id == GLOBAL_VAR) && node->var->is_array)
+		//if ((node->id == LOCAL_VAR || node->id == GLOBAL_VAR) && node->var->is_array)
+		if (node->id == VAR && node->var->is_array)
 		{
 			if (type == CONS_INTEGER)
 			{
@@ -164,8 +169,8 @@ void symt_delete_node(symt_node *node)
 		iter->id = SYMT_ROOT_ID;
 		symt_delete_var(iter->var); iter->var = NULL;
 		symt_delete_cons(iter->cons); iter->cons = NULL;
-		symt_delete_if(iter->if_val); iter->if_val = NULL;
-		symt_delete_while(iter->while_val); iter->while_val = NULL;
+		//symt_delete_if(iter->if_val); iter->if_val = NULL;
+		//symt_delete_while(iter->while_val); iter->while_val = NULL;
 		symt_delete_rout(iter->rout); iter->rout = NULL;
 		symt_delete_call(iter->call); iter->call = NULL;
 
@@ -187,11 +192,11 @@ symt_node *symt_copy_node(symt_node *node)
 		copy_node->id = node->id;
 		copy_node->call = symt_copy_call(node->call);
 		copy_node->cons = symt_copy_cons(node->cons);
-		copy_node->while_val = symt_copy_while(node->while_val);
-		copy_node->if_val = symt_copy_if(node->if_val);
+		//copy_node->while_val = symt_copy_while(node->while_val);
+		//copy_node->if_val = symt_copy_if(node->if_val);
 		copy_node->var = symt_copy_var(node->var);
 		copy_node->rout = symt_copy_rout(node->rout);
-		copy_node->return_val = symt_copy_return(node->return_val);
+		//copy_node->return_val = symt_copy_return(node->return_val);
 		copy_node->next_node = symt_copy_node(node->next_node);
 	}
 

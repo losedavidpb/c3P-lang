@@ -38,12 +38,15 @@
 	int yydebug = 1; // Enable this to active debug mode
 	int s_error = 0; // Specify if syntax errors were detected
 
+	int level;
+
 	symt_tab *tab; // Table of symbol
 
 	int array_length = 0;  			// Array length for current token
 	void *value_list_expr; 			// Array value for current token
 	int token_id = SYMT_ROOT_ID;	// Token for global and local variables
 	symt_cons_t value_list_expr_t;	// Constant for a part of a list expression
+	symt_node *if_val;				// If statement
 
 	// Structure of a stack of void values
 	typedef struct Stack
@@ -103,12 +106,15 @@
 %token<type_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
-%token BEGIN_WHILE END_WHILE
+%token BEGIN_SWITCH END_SWITCH DEFAULT_SWITCH
+
+%token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE
 %token CONTINUE BREAK
 
 %token BEGIN_PROCEDURE END_PROCEDURE
 %token BEGIN_FUNCTION END_FUNCTION
 %token RETURN CALL
+
 
 %token ADD_LIBRARY PATH_ADD_LIBRARY
 
@@ -626,6 +632,12 @@ param_declr 	: IDENTIFIER ':' data_type
 				| IDENTIFIER ':' BOOL_TYPE '[' int_expr ']'
 				;
 
+// __________ Assignation for variables __________
+
+var_assign      : IDENTIFIER '=' expr
+                | IDENTIFIER '[' int_expr ']' '=' expr
+                ;
+
 // __________ Declaration and Assignation for variables __________
 
 list_expr 		: expr					{
@@ -946,61 +958,34 @@ call_func 		: CALL IDENTIFIER
 add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries
 				| ADD_LIBRARY PATH_ADD_LIBRARY EOL;
 
+// __________ Switch case __________
+
+switch_case     : EOL switch_case | expr ':' EOL statement BREAK EOL switch_case
+                | DEFAULT_SWITCH ':' EOL statement BREAK EOL more_EOL
+                ;
+
+more_EOL        : | EOL more_EOL
+                ;
+
 // __________ Statement __________
 
-statement 		: { $$ = NULL; } | in_var EOL statement
-				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else								{
-																											symt_node *cond = (symt_node *)$3;
-
-																											symt_node *statement_if = NULL;
-																											if ($6 != NULL) statement_if = (symt_node *)$6;
-																											if ($8 != NULL) statement_if = symt_push(statement_if, $7);
-
-																											symt_node *statement_else = NULL;
-																											if ($8 != NULL) statement_else = (symt_node *)$8;
-
-																											tab = symt_insert_tab_if(tab, cond, statement_if, statement_else);
-																											symt_print(tab);
-																										} END_IF { symt_end_block(tab, IF); } EOL statement
-				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 									{
-																											symt_node *cond = (symt_node *)$3;
-																											symt_node *statement = NULL;
-																											if ($6 != NULL) statement = (symt_node *)$6;
-																											if ($8 != NULL) statement = symt_push(statement, $7);
-																											else statement = $7;
-
-																											tab = symt_insert_tab_while(tab, cond, statement);
-
-																											symt_node *result = symt_new();
-																											result->id = BREAK;
-																											tab = symt_push(tab, result);
-
-																											symt_print(tab);
-																										} END_WHILE { symt_end_block(tab, WHILE); } EOL statement
-				| call_func EOL statement																{ $$ = $1; }
-				| RETURN expr EOL statement																{ symt_node *result = symt_new(); result->id = RETURN; result->next_node = $3; }
-				| CONTINUE EOL statement																{ symt_node *result = symt_new(); result->id = CONTINUE; tab = symt_push(tab, result); }
-				| EOL statement																			{ $$ = $1; }
-				| error EOL { printf(" at expression\n"); } statement									{ $$ = $1; }
+statement 		: | in_var EOL statement
+				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else											{ level++; } END_IF { symt_end_block(tab); level--; } EOL statement
+				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 												{ level++; } END_WHILE { symt_end_block(tab); level--; } EOL statement
+				| BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule EOL statement			{ level++; } END_FOR { symt_end_block(tab); level--; } EOL statement
+                | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH EOL statement							{ level++; } END_SWITCH { symt_end_block(tab); level--; } EOL statement
+				| call_func EOL { level++; } statement																{ level--; }
+				| RETURN expr EOL statement
+				| CONTINUE EOL statement
+				| EOL statement
+				| error EOL { printf(" at expression\n"); } statement
 				;
 
-more_else 		: {} | ELSE_IF EOL statement 															{
-																											symt_node *statement = symt_new();
-																											statement = (symt_node *)$3;
-																											$$ = statement;
-																										} break_rule { $$ = $1; }
-				| ELSE_IF BEGIN_IF '(' expr ')' EOL statement break_rule more_else 						{
-																											symt_node* else_node = symt_new();
-																											symt_node *cond = symt_new(); cond = (symt_node *)$4;
-																											symt_node *statement_if = symt_new(); statement_if = (symt_node *)$7;
-																											if ($8 != NULL) statement_if = symt_push(statement_if, $8);
-																											symt_node *statement_else = (symt_node *)$9;
-																											else_node = symt_insert_tab_if(else_node, cond, statement_if, statement_else);
-																											$$ = else_node;
-																										}
+more_else 		: | ELSE_IF EOL statement break_rule
+				| ELSE_IF BEGIN_IF '(' expr ')' EOL statement break_rule more_else
 				;
 
-break_rule 		: { $$ = NULL; } | BREAK EOL statement { symt_node* res = symt_new(); res->id = BREAK; $$ = res; }
+break_rule 		: | BREAK EOL statement
 				;
 
 // __________ Main program __________

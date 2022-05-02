@@ -20,17 +20,18 @@ typedef char * symt_name_t;
    which will be used as identifiers */
 typedef enum symt_id_t
 {
-    LOCAL_VAR,      // local variables inside routines
-    GLOBAL_VAR,     // global variables outside routines
+	VAR,
+    //LOCAL_VAR,      // local variables inside routines
+    //GLOBAL_VAR,     // global variables outside routines
     CONSTANT,       // constants for primitive data
-    IF,             // if and if-else statements
-    WHILE,          // while loops
+    //IF,             // if and if-else statements
+    //WHILE,          // while loops
     FUNCTION,       // routines with a return
     PROCEDURE,      // routines with any return
     CALL_FUNC,      // call statement for functions
-	CONTINUE,		// continue statement
-	BREAK,			// break statement
-	RETURN,			// return statement
+	//CONTINUE,		// continue statement
+	//BREAK,			// break statement
+	//RETURN,			// return statement
 } symt_id_t;
 
 /* Type for values stored at local and global
@@ -54,9 +55,9 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 #define I64_MAX 9223372036854775807
 
 /* Range of values for floats */
-#define F32_MIN 1.5e-45
+#define F32_MIN -1.5e-45
 #define F32_MAX 3.4e38
-#define F64_MIN 5.0e-324
+#define F64_MIN -5.0e-324
 #define F64_MAX 1.7e308
 
 /* Range of values for characters */
@@ -92,23 +93,21 @@ typedef struct symt_rout
     symt_var_t type;
     bool is_hide;
     struct symt_node *params;
-    struct symt_node *statements;
+    //struct symt_node *statements;
 } symt_rout;
 
 /* Type for if and if-else statements */
-typedef struct symt_if_else
+/*typedef struct symt_if_else
 {
-    struct symt_node *cond;
     struct symt_node *if_statements;
     struct symt_node *else_statements;
-} symt_if_else;
+} symt_if_else;*/
 
 /* Type for while loops */
-typedef struct symt_while
+/*typedef struct symt_while
 {
-    struct symt_node *cond;
     struct symt_node *statements;
-} symt_while;
+} symt_while;*/
 
 /* Type for calling routines */
 typedef struct symt_call
@@ -119,22 +118,23 @@ typedef struct symt_call
 } symt_call;
 
 /* Type for return statement */
-typedef struct symt_return
+/*typedef struct symt_return
 {
 	struct symt_node *return_stmt;
-} symt_return;
+} symt_return;*/
 
 /* Type for a node which is are at a symbol table */
 typedef struct symt_node
 {
+	int level;
     symt_id_t id;
     symt_rout* rout;
     symt_var* var;
     symt_cons* cons;
     symt_call* call;
-    symt_if_else* if_val;
-    symt_while* while_val;
-	symt_return* return_val;
+    //symt_if_else* if_val;
+    //symt_while* while_val;
+	//symt_return* return_val;
     struct symt_node *next_node;
 } symt_node;
 

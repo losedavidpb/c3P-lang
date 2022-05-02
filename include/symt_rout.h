@@ -5,10 +5,10 @@
 #include "symt_type.h"
 
 /* Create a routine symbol */
-symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements);
+symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide/*, symt_node *statements*/);
 
 /* Insert routine symbol to a symbol node */
-symt_node* symt_insert_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements);
+symt_node* symt_insert_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide/*,symt_node *statements*/);
 
 /* Delete passed routine symbol */
 void symt_delete_rout(symt_rout *rout);
