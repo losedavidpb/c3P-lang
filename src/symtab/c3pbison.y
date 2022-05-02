@@ -530,7 +530,6 @@ expr_string 	: expr_string '+' expr_string	{
 													symt_node *str1 = (symt_node*)$1;
 													symt_node *str2 = (symt_node*)$3;
 
-<<<<<<< HEAD:src/symtab/c3pbison.y
 													int len_result = strlen((char*)str1->cons->value); strlen((char*)str2->cons->value);
 													char *res = (char *)(ml_malloc(sizeof(char) * len_result));
 													strcpy(res, (char*)str1->cons->value); strcat(res, (char*)str2->cons->value);
