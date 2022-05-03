@@ -26,7 +26,7 @@ symt_tab* symt_new();
 
 /* Search at passed symbol table an element that has
    the same identifier, or NULL in other case */
-symt_node *symt_search(symt_tab *tab, symt_id_t id);
+//symt_node *symt_search(symt_tab *tab, symt_id_t id);
 
 /* Search at passed symbol table an element that has
    the same identifier and name, or NULL in other case */
@@ -47,7 +47,7 @@ symt_tab* symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, sym
 symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value);
 
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements);
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide);
 
 /* Insert if symbol to the symbol table */
 //symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *statements_if, symt_node *statements_else);
