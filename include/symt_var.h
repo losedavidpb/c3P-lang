@@ -20,10 +20,10 @@
 	(type == B? "b" : "undefined")))))))))
 
 /* Create a new variable symbol */
-symt_var* symt_new_var(symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, bool is_hide);
+symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name,  symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, bool is_hide);
 
 /* Insert var symbol to a node */
-symt_node* symt_insert_var(symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level);
+symt_node* symt_insert_var(symt_name_t name, symt_name_t rout_name,  symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level);
 
 /* Check if passed constant could be assigned to the variable */
 void symt_can_assign(symt_var_t type, symt_cons *cons);
