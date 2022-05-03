@@ -731,21 +731,21 @@ ext_var 		: in_var
 																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(NULL, $2, $4, 0, 0, NULL, 1, false, level);
+																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, level);
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
 																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(NULL, $2, $4, 1, array_length, NULL, 1, false, level);
+																						var = symt_insert_var($2, NULL, $4, 1, array_length, NULL, 1, false, level);
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
 																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(NULL, $2, $4, 0, 0, NULL, 1, false, level);
+																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, level);
 
 																						symt_node *value = (symt_node *)$6;
 																						symt_assign_var(var->var, value->cons);
@@ -756,7 +756,7 @@ ext_var 		: in_var
 																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(NULL, $2, $4, 0, 0, NULL, 1, false, level);
+																						var = symt_insert_var($2,NULL, $4, 0, 0, NULL, 1, false, level);
 																						tab = symt_push(tab, var);
 
 																						var = symt_search_by_name(tab, $2, VAR, level);
@@ -866,7 +866,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, rout_name, $1, $3, 0, 0, NULL, 0, false, level);
+																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, false, level);
 																						tab = symt_push(tab, node); $$ = node; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type										{
@@ -874,7 +874,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, rout_name, $1, $3, 1, array_length, NULL, 0, false, level);
+																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 1, array_length, NULL, 0, false, level);
 																						tab = symt_push(tab, node);
 																						$$ = node; symt_print(tab);
 																					}
@@ -900,18 +900,18 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
 																						symt_node *result_node = symt_new();
-																						result_node = symt_insert_tab_var(result_node, rout_name, $1, $3, 0, 0, NULL, 0, false, level);
+																						result_node = symt_insert_tab_var(result_node, $1, rout_name, $3, 0, 0, NULL, 0, false, level);
 
 																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(result_node->var, value->cons);
 																						tab = symt_push(tab, result_node);
-																						$$ = result_node;; symt_print(tab);
+																						$$ = result_node; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
 																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						tab = symt_insert_tab_var(tab, VAR, $1, $3, 1, array_length, NULL, 0, false, level);
+																						tab = symt_insert_tab_var(tab,  $1, rout_name, $3, 1, array_length, NULL, 0, false, level);
 																						var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
@@ -993,24 +993,40 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																															symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
 																															assertf(result == NULL, "function %s has already been defined", $2);
 																															tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, false, level++);
-																														} EOL statement END_FUNCTION { symt_end_block(tab); level--; }
+																														}
+																			EOL statement END_FUNCTION 					{
+																															//assertf($11 != false, "empty functions are not valid");
+																															symt_end_block(tab); level--;
+																														}
 				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')' 				{
 																															symt_node *result = symt_search_by_name(tab, $3, FUNCTION, level);
 																															assertf(result == NULL, "function %s has already been defined", $3);
 																															tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $6, true, level++);
-																														} EOL statement END_FUNCTION { symt_end_block(tab); level--; }
+																														}
+																			EOL statement END_FUNCTION 					{
+																															//assertf($12 != false, "empty functions are not valid");
+																															symt_end_block(tab); level--;
+																														}
 				;
 
 proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params ')' 									{
 																															symt_node *result = symt_search_by_name(tab, $2, PROCEDURE, level);
-																															assertf(result == NULL, "function %s has already been defined", $2);
+																															assertf(result == NULL, "procedure %s has already been defined", $2);
 																															tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, false, level++);
-																														} EOL statement END_PROCEDURE { symt_end_block(tab); level--; }
+																														}
+																			EOL statement END_PROCEDURE 				{
+																															//assertf($9 != false, "empty procedures are not valid");
+																															symt_end_block(tab); level--;
+																														}
 				| HIDE BEGIN_PROCEDURE IDENTIFIER { rout_name = $3; } '(' declr_params ')' 								{
 																															symt_node *result = symt_search_by_name(tab, $3, PROCEDURE, level);
-																															assertf(result == NULL, "function %s has already been defined", $3);
+																															assertf(result == NULL, "procedure %s has already been defined", $3);
 																															tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, true, level++);
-																														} EOL statement END_PROCEDURE { symt_end_block(tab); level--; }
+																														}
+																			EOL statement END_PROCEDURE 				{
+																															//assertf($10 != false, "empty procedures are not valid");
+																															symt_end_block(tab); level--;
+																														}
 				;
 
 // __________ Parameters __________
@@ -1120,7 +1136,7 @@ more_EOL        : | EOL more_EOL
 
 statement 		: | in_var EOL statement
 				| { level++; } BEGIN_IF '(' expr ')' EOL statement break_rule more_else											END_IF { symt_end_block(tab); level--; } EOL statement
-				| { level++; } BEGIN_WHILE '(' expr ')' EOL statement break_rule 												END_WHILE { symt_end_block(tab); level--; } EOL statement
+				| { level++; } BEGIN_WHILE '(' expr ')' EOL statement break_rule 												END_WHILE { symt_end_block(tab); level--;} EOL statement
 				| { level++; } BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule						END_FOR { symt_end_block(tab); level--; } EOL statement
                 | { level++; } BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH 										END_SWITCH { symt_end_block(tab); level--; } EOL statement
 				| { level++; } call_func EOL statement																			{ level--; }
