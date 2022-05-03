@@ -24,6 +24,9 @@
 /* Create dynamically a new symbol table */
 symt_tab* symt_new();
 
+
+symt_node *symt_search_param(symt_tab *tab, symt_name_t name);
+
 /* Search at passed symbol table an element that has
    the same identifier, name and level, or NULL in other case */
 symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, symt_level_t level);
@@ -33,11 +36,8 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, sy
    it has no control about the state of passed node. */
 symt_tab* symt_push(symt_tab *tab, symt_node *node);
 
-/* Insert call symbol to the symbol table */
-symt_tab* symt_insert_tab_call(symt_tab *tab, symt_name_t name, symt_var_t type, symt_node *params, symt_level_t level);
-
 /* Insert var symbol to the symbol table */
-symt_tab* symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, symt_level_t level);
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level);
 
 /* Insert const symbol to the symbol table */
 symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value);

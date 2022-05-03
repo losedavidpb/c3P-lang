@@ -8,8 +8,7 @@
 	(id == VAR? "VAR" :								\
 	(id == FUNCTION? "FUNCTION" :					\
 	(id == PROCEDURE? "PROCEDURE" :					\
-	(id == CONSTANT? "CONSTANT" : 					\
-	(id == CALL_FUNC? "CALL" : "undefined")))))
+	(id == CONSTANT? "CONSTANT" : "undefined"))))
 
 /* Create dynamically a new symbol node */
 symt_node* symt_new_node();

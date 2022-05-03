@@ -23,7 +23,7 @@ typedef char * symt_name_t;
    Global variables must be at level -1, while the rest
    of nodes, except constants, would start from 0 to a
    specific natural number. */
-typedef unsigned long symt_level_t;
+typedef int symt_level_t;
 
 /* Available symbols for symbol tables which
    which will be used as identifiers */
@@ -33,7 +33,6 @@ typedef enum symt_id_t
     CONSTANT,       // constants for primitive data
     FUNCTION,       // routines with a return
     PROCEDURE,      // routines with any return
-    CALL_FUNC,      // call statement for functions
 } symt_id_t;
 
 /* Type for values stored at local and global
@@ -74,10 +73,11 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 typedef struct symt_var
 {
     symt_name_t name;
+	symt_name_t rout_name;
     symt_var_t type;
     symt_value_t value;
-    bool is_hide;
-	bool is_array;
+    bool is_hide, is_array;
+	bool is_param;
     size_t array_length;
 } symt_var;
 
@@ -94,17 +94,7 @@ typedef struct symt_rout
     symt_name_t name;
     symt_var_t type;
     bool is_hide;
-	symt_var_t *params_t;
-	int num_params;
 } symt_rout;
-
-/* Type for calling routines */
-typedef struct symt_call
-{
-    symt_name_t name;
-    symt_var_t type;
-    struct symt_node *params;
-} symt_call;
 
 /* Type for a node which is are at a symbol table */
 typedef struct symt_node
@@ -114,7 +104,6 @@ typedef struct symt_node
     symt_rout* rout;
     symt_var* var;
     symt_cons* cons;
-    symt_call* call;
     struct symt_node* next_node;
 } symt_node;
 

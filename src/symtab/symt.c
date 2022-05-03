@@ -4,7 +4,6 @@
 #include "../../include/arrcopy.h"
 #include "../../include/memlib.h"
 #include "../../include/symt_type.h"
-#include "../../include/symt_call.h"
 #include "../../include/symt_cons.h"
 #include "../../include/symt_rout.h"
 #include "../../include/symt_var.h"
@@ -19,10 +18,30 @@ symt_tab *symt_new()
 	return tab;
 }
 
+symt_node *symt_search_param(symt_tab *tab, symt_name_t name)
+{
+	assertp(tab != NULL, "table has not been defined");
+	assertp(name != NULL, "function has not been defined");
+	symt_node *iter = tab;
+
+	while (iter != NULL)
+	{
+		if (iter->id == VAR)
+		{
+			int cond = strcmp(name, iter->var->name);
+			if (iter->var->is_param && cond == 0) break;
+		}
+
+		iter = iter->next_node;
+	}
+
+	return iter;
+}
+
 symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, symt_level_t level)
 {
 	assertp(tab != NULL, "table has not been defined");
-	symt_node *iter = tab, *prev = NULL;
+	symt_node *iter = tab;
 
 	while (iter != NULL)
 	{
@@ -49,7 +68,7 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 {
 	assertp(tab != NULL, "table has not been constructed");
 	assertp(node != NULL, "node has not been defined");
-	assertp(symt_is_valid_id(node->id) == false, "passed node has not a valid id");
+	if (symt_is_valid_id(node->id) == false) return NULL;
 	symt_node *iter = tab;
 
 	if (iter->id == SYMT_ROOT_ID)
@@ -67,15 +86,10 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 	return tab;
 }
 
-symt_tab *symt_insert_tab_call(symt_tab *tab, symt_name_t name, symt_var_t type, symt_node *params, symt_level_t level)
-{
-	symt_node *new_node = symt_insert_call(name, type, params, level);
-	return symt_push(tab, new_node);
-}
 
-symt_tab *symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, symt_level_t level)
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level)
 {
-	symt_node *new_node = symt_insert_var(id, name, type, is_array, array_length, value, is_hide, level);
+	symt_node *new_node = symt_insert_var(rout_name, name, type, is_array, array_length, value, is_hide, is_param, level);
 	return symt_push(tab, new_node);
 }
 
@@ -85,9 +99,9 @@ symt_tab *symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t val
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_level_t level)
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_hide, symt_level_t level)
 {
-	symt_node *new_node = symt_insert_rout(id, name, type, params, is_hide, level);
+	symt_node *new_node = symt_insert_rout(id, name, type, is_hide, level);
 	return symt_push(tab, new_node);
 }
 
@@ -123,9 +137,10 @@ symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
 			if (iter->var->is_hide == false)
 			{
 				dest = symt_insert_tab_var(dest,
-					iter->id, iter->var->name, iter->var->type,
+					iter->var->rout_name, iter->var->name, iter->var->type,
 					iter->var->is_array, iter->var->array_length,
-					iter->var->value, iter->var->is_hide, iter->level
+					iter->var->value, iter->var->is_hide,
+					iter->var->is_param, iter->level
 				);
 			}
 		}
@@ -135,7 +150,7 @@ symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
 			{
 				dest = symt_insert_tab_rout(dest,
 					iter->id, iter->rout->name, iter->rout->type,
-					iter->rout->params, iter->rout->is_hide, iter->level
+					iter->rout->is_hide, iter->level
 				);
 			}
 		} else dest = symt_push(dest, iter);
@@ -177,14 +192,6 @@ void symt_print(symt_tab *tab)
 				str_type = symt_strget_vartype(node->rout->type);
 				message = " name = %s | type = %s | is_hide = %d | level = %d";
 				printf(message, node->rout->name, node->level, str_type);
-			break;
-
-			case CALL_FUNC:
-				str_type = symt_strget_vartype(node->call->type);
-				message = " name = %s | type = %d | level = %d | params = {";
-				printf(message, node->call->name, node->level, str_type);
-				symt_print(node->call->params);
-				printf("\n}");
 			break;
 
 			default: break; // Just to avoid warning

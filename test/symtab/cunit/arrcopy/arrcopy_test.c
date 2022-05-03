@@ -1,28 +1,8 @@
-#include "../../include/arrcopy.h"
-#include "../../include/memlib.h"
-#include "../../include/assertb.h"
-
-#include <stdio.h>
+#include "../../../../include/arrcopy.h"
+#include "../../../../include/memlib.h"
+#include "../../../../include/cunit.h"
 #include <string.h>
 #include <stdbool.h>
-
-// Show main title for the list of unit tests
-// that are going to be executed
-#define test_welcome() \
-    printf("\e[0;32mTEST \e[0m\e[0;34m::\e[0m \e[0;36mcopy\e[0m\n\e[0;35m==============================\e[0m\n")
-
-// Show test's name at current terminal
-#define test_name(message) \
-    printf(" \e[0;33m*\e[0m \e[0;34mTest\e[0m \e[0;36m%s\e[0m\n", message)
-
-// Show assert's message at current terminal
-#define test_assert(message) \
-    printf("    \e[0;33m>>\e[0m %s ............", message)
-
-// Show a message that informs that current test
-// has not errors at current assert
-#define show_ok() \
-    printf(" \e[0;32mOK\e[0m\n")
 
 void test_copy()
 {
@@ -111,7 +91,7 @@ void test_copy()
 
 int main(int nargc, char *argv[])
 {
-    test_welcome();
+    test_welcome("arrcopy");
     test_copy();
     return 0;
 }

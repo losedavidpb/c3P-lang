@@ -18,7 +18,6 @@
   #include "../../include/symt.h"
   #include "../../include/symt_cons.h"
   #include "../../include/symt_var.h"
-  #include "../../include/symt_call.h"
   #include "../../include/symt_rout.h"
   #include "../../include/symt_node.h"
 

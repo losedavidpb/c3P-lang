@@ -5,7 +5,7 @@
 #include "symt_type.h"
 
 /* Create a routine symbol */
-symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, int num_params, symt_var_t *params_t, bool is_hide);
+symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, bool is_hide);
 
 /* Insert routine symbol to a symbol node */
 symt_node* symt_insert_rout(symt_id_t id, symt_name_t name, symt_var_t type, bool is_hide, symt_level_t level);

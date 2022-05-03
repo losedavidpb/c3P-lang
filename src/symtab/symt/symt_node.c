@@ -8,7 +8,6 @@
 #include "../../../include/symt_cons.h"
 #include "../../../include/symt_rout.h"
 #include "../../../include/symt_var.h"
-#include "../../../include/symt_call.h"
 
 symt_node* symt_new_node()
 {
@@ -42,7 +41,7 @@ symt_name_t symt_get_name_from_node(symt_node *node)
 symt_value_t symt_get_value_from_node(symt_node *node)
 {
 	assertp(node != NULL, "passed node is null");
-	assertp(node->id == VAR || node->id == CONSTANT || node->id == CALL_FUNC, "node has not got a value");
+	assertp(node->id == VAR || node->id == CONSTANT, "node has not got a value");
 
 	if (node->id == VAR)
 	{
@@ -56,8 +55,7 @@ symt_value_t symt_get_value_from_node(symt_node *node)
 		return node->cons->value;
 	}
 
-	assertp(node->call != NULL, "call has not be defined");
-	return node->call;
+	return NULL;
 }
 
 symt_cons_t symt_get_type_value_from_node(symt_node *node)
@@ -107,6 +105,7 @@ void symt_printf_value(symt_node* node)
 				case CONS_DOUBLE: printf(" | value = %lf", *(double*)value); 	break;
 				case CONS_CHAR: printf(" | value = %c", *(char*)value); 		break;
 				case CONS_STR: printf(" | value = %s", (char*)value); 			break;
+				default: break;
 			}
 		}
 	} else printf(" | value = NULL");
@@ -128,6 +127,7 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 			case CONS_DOUBLE: copy_value = doublecopy((double *)value, num_elems + 1); 	break;
 			case CONS_CHAR: copy_value = strcopy((char *)value);						break;
 			case CONS_STR: copy_value = strcopy((char *)value);							break;
+			default: break;
 		}
 
 		// Special restrictions for characters
@@ -154,6 +154,8 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 				for (int i = 0; i < num_elems; i++) *(char_val + i) = ' ';
 				copy_value = char_val;
 			break;
+
+			default: break;
 		}
 	}
 
@@ -171,7 +173,6 @@ void symt_delete_node(symt_node *node)
 		symt_delete_var(iter->var); iter->var = NULL;
 		symt_delete_cons(iter->cons); iter->cons = NULL;
 		symt_delete_rout(iter->rout); iter->rout = NULL;
-		symt_delete_call(iter->call); iter->call = NULL;
 
 		prev = iter; iter = iter->next_node;
 		prev->next_node = NULL;
@@ -189,7 +190,6 @@ symt_node *symt_copy_node(symt_node *node)
 	{
 		copy_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 		copy_node->id = node->id;
-		copy_node->call = symt_copy_call(node->call);
 		copy_node->cons = symt_copy_cons(node->cons);
 		copy_node->var = symt_copy_var(node->var);
 		copy_node->rout = symt_copy_rout(node->rout);

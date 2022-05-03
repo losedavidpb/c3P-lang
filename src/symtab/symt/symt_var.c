@@ -20,10 +20,11 @@ symt_cons_t symt_get_type_data(symt_var_t type)
 	}
 }
 
-symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide)
+symt_var* symt_new_var(symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param)
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
 	n_var->name = strcopy(name);
+	n_var->rout_name = strcopy(name);
 	n_var->type = type;
 
 	if (type != B)
@@ -38,15 +39,16 @@ symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_
 	n_var->is_array = is_array;
 	n_var->array_length = array_length;
 	n_var->is_hide = is_hide;
+	n_var->is_param = is_param;
 	return n_var;
 }
 
-symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, symt_level_t level)
+symt_node* symt_insert_var(symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level)
 {
-	symt_var *n_var = symt_new_var(id, name, type, is_array, array_length, value, is_hide);
+	symt_var *n_var = symt_new_var(rout_name, name, type, is_array, array_length, value, is_hide, is_param);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
-	new_node->id = id;
+	new_node->id = VAR;
 	new_node->var = n_var;
 	new_node->level = level;
 	new_node->next_node = NULL;
@@ -136,6 +138,7 @@ void symt_delete_var(symt_var *var)
 	if (var != NULL)
 	{
 		ml_free(var->name); var->name = NULL;
+		ml_free(var->rout_name); var->rout_name = NULL;
 		symt_cons_t var_type = symt_get_type_data(var->type);
 		symt_delete_value_cons(var_type, var->value);
 		var->type = (symt_var_t)SYMT_ROOT_ID;
@@ -149,11 +152,13 @@ symt_var *symt_copy_var(symt_var *var)
 	{
 		symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
 		n_var->name = strcopy(var->name);
+		n_var->rout_name = strcopy(var->rout_name);
 		n_var->type = var->type;
 		n_var->value = symt_copy_value(var->value, symt_get_type_data(n_var->type), var->array_length);
 		n_var->is_array = var->is_array;
 		n_var->array_length = var->array_length;
 		n_var->is_hide = var->is_hide;
+		n_var->is_param = var->is_param;
 		return n_var;
 	}
 

@@ -1,7 +1,10 @@
-x : i32 = 10
+#add <c3p.base>
+#add <c3p.math>
 
-proc main()
-	while (x > 0)
-		x = x - 1
-	endwhile
-endproc
+x : i32
+y : i64
+z : f32
+?l : i32[10]
+
+?hide hx : i32
+?hide hl : i32[10]
