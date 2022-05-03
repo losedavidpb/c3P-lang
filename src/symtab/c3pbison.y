@@ -19,11 +19,11 @@
 	#include "../../include/symt.h"
 	#include "../../include/symt_cons.h"
 	#include "../../include/symt_var.h"
-  	#include "../../include/symt_if.h"
-  	#include "../../include/symt_while.h"
+  	//#include "../../include/symt_if.h"
+  	//#include "../../include/symt_while.h"
   	#include "../../include/symt_call.h"
   	#include "../../include/symt_rout.h"
-	#include "../../include/symt_return.h"
+	//#include "../../include/symt_return.h"
   	#include "../../include/symt_node.h"
 
 	#include "../../include/assertb.h"
@@ -44,7 +44,6 @@
 
 	int array_length = 0;  			// Array length for current token
 	void *value_list_expr; 			// Array value for current token
-	int token_id = SYMT_ROOT_ID;	// Token for global and local variables
 	symt_cons_t value_list_expr_t;	// Constant for a part of a list expression
 	symt_node *if_val;				// If statement
 
@@ -127,26 +126,16 @@
 
 %token EOL
 
-%type<node_t> BEGIN_WHILE;
-%type<node_t> BEGIN_IF;
-%type<node_t> CONTINUE;
-%type<node_t> BREAK;
-%type<node_t> RETURN;
-%type<node_t> EOL;
 %type<node_t> call_func;
 %type<node_t> CALL;
-%type<node_t> error;
 
 %type<node_t> expr_num;
 %type<node_t> expr_char;
 %type<node_t> expr_string;
 %type<node_t> int_expr;
 %type<node_t> expr;
-%type<node_t> break_rule;
 %type<stack> list_expr;
 
-%type<node_t> statement;
-%type<node_t> more_else;
 
 %type<node_t> in_var;
 %type<node_t> ext_var;
@@ -264,8 +253,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| IDENTIFIER					{
-													symt_node *var = symt_search_by_name(tab, $1, GLOBAL_VAR);
-													if (var == NULL) var = symt_search_by_name(tab, $1, LOCAL_VAR);
+													symt_node *var = symt_search_by_name(tab, $1, VAR);
 													assertf(var != NULL, "variable %s has not been declared at line ", $1);
 
 													symt_node *result = symt_new();
@@ -658,26 +646,26 @@ list_expr 		: expr					{
 										}
 				;
 
-ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
+ext_var 		: in_var
 				| HIDE IDENTIFIER ':' data_type										{
-																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1);
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
-																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 1, array_length, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 1, array_length, NULL, 1);
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
-																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1);
 
 																						symt_node *value = (symt_node *)$6;
 																						symt_assign_var(var->var, value->cons);
@@ -685,13 +673,13 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 																						$$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
-																						symt_node *var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(GLOBAL_VAR, $2, $4, 0, 0, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1);
 																						tab = symt_push(tab, var);
 
-																						var = symt_search_by_name(tab, $2, GLOBAL_VAR);
+																						var = symt_search_by_name(tab, $2, VAR);
 																						assertf(var != NULL, "variable %s has not been declared", $2);
 
 																						char *str_type_1 = symt_strget_vartype(var->var->type);
@@ -794,67 +782,61 @@ ext_var 		: { token_id = GLOBAL_VAR; } in_var { token_id = LOCAL_VAR; }
 				;
 
 in_var 			: IDENTIFIER ':' data_type 											{
-																					    if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
-																						symt_node *var = symt_search_by_name(tab, $1, token_id);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, token_id, $1, $3, 0, 0, NULL, 0);
+																						node = symt_insert_tab_var(node, VAR, $1, $3, 0, 0, NULL, 0);
 
 																						tab = symt_push(tab, node); $$ = node;
-																						token_id = SYMT_ROOT_ID; symt_print(tab);
+																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type										{
-																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
-																						symt_node *var = symt_search_by_name(tab, $1, token_id);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, token_id, $1, $3, 1, array_length, NULL, 0);
+																						node = symt_insert_tab_var(node, VAR, $1, $3, 1, array_length, NULL, 0);
 																						tab = symt_push(tab, node);
-																						$$ = node; token_id = SYMT_ROOT_ID; symt_print(tab);
+																						$$ = node; symt_print(tab);
 																					}
 				| IDENTIFIER '=' expr												{
-																						symt_node *var = symt_search_by_name(tab, $1, LOCAL_VAR);
-																						if (var == NULL) var = symt_search_by_name(tab, $1, GLOBAL_VAR);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						symt_node *value = (symt_node *)$3;
 																						symt_assign_var(var->var, value->cons);
-																						$$ = var; token_id = SYMT_ROOT_ID;
+																						$$ = var;
 																						symt_print(tab);
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
-																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
-																						symt_node *var = symt_search_by_name(tab, $1, token_id);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						symt_node *index = (symt_node*)$3;
 																						symt_node *value = (symt_node*)$6;
 
 																						symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
-																						$$ = var; token_id = SYMT_ROOT_ID; symt_print(tab);
+																						$$ = var; symt_print(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
-																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
-																						symt_node *var_without_value = symt_search_by_name(tab, $1, token_id);
+																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR);
 																						assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
 																						symt_node *result_node = symt_new();
-																						result_node = symt_insert_tab_var(result_node, token_id, $1, $3, 0, 0, NULL, 0);
+																						result_node = symt_insert_tab_var(result_node, VAR, $1, $3, 0, 0, NULL, 0);
 
 																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(result_node->var, value->cons);
 																						tab = symt_push(tab, result_node);
 
-																						$$ = result_node; token_id = SYMT_ROOT_ID; symt_print(tab);
+																						$$ = result_node;; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
-																						if (token_id == SYMT_ROOT_ID) token_id = LOCAL_VAR;
-																						symt_node *var = symt_search_by_name(tab, $1, token_id);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						tab = symt_insert_tab_var(tab, token_id, $1, $3, 1, array_length, NULL, 0);
-																						var = symt_search_by_name(tab, $1, token_id);
+																						tab = symt_insert_tab_var(tab, VAR, $1, $3, 1, array_length, NULL, 0);
+																						var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
 																						struct Stack *pila = $6;
@@ -926,19 +908,19 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																								var->var->value = (void*)valores_char;
 																								break;
 																						}
-																						$$ = var; token_id = SYMT_ROOT_ID;
+																						$$ = var;
 																						symt_print(tab);
 																					}
 				;
 
 // __________ Procedures and functions __________
 
-func_declr 		: BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement END_FUNCTION
-				| HIDE BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement END_FUNCTION
+func_declr 		: BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement { level++; } END_FUNCTION { symt_end_block(tab); level--; }
+				| HIDE BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement { level++; } END_FUNCTION { symt_end_block(tab); level--; }
 				;
 
-proc_declr 		: BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement END_PROCEDURE
-				| HIDE BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement END_PROCEDURE
+proc_declr 		: BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement { level++; } END_PROCEDURE { symt_end_block(tab); level--; }
+				| HIDE BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement { level++; } END_PROCEDURE { symt_end_block(tab); level--; }
 				;
 
 // __________ Parameters __________
@@ -972,8 +954,8 @@ more_EOL        : | EOL more_EOL
 statement 		: | in_var EOL statement
 				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else											{ level++; } END_IF { symt_end_block(tab); level--; } EOL statement
 				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 												{ level++; } END_WHILE { symt_end_block(tab); level--; } EOL statement
-				| BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule EOL statement			{ level++; } END_FOR { symt_end_block(tab); level--; } EOL statement
-                | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH EOL statement							{ level++; } END_SWITCH { symt_end_block(tab); level--; } EOL statement
+				| BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule							{ level++; } END_FOR { symt_end_block(tab); level--; } EOL statement
+                | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH 										{ level++; } END_SWITCH { symt_end_block(tab); level--; } EOL statement
 				| call_func EOL { level++; } statement																{ level--; }
 				| RETURN expr EOL statement
 				| CONTINUE EOL statement

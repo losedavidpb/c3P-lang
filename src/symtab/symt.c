@@ -15,112 +15,132 @@
 #include "../../include/symt_node.h"
 #include <stdio.h>
 
-symt_node *__symt_search(symt_tab *tab, symt_id_t id, symt_name_t name, bool search_name, bool search_prev)
-{
-	assertp(tab != NULL, "table has not been constructed");
-	symt_node *iter = tab, *result = NULL, *prev = NULL;
+//symt_node *__symt_search(symt_tab *tab, symt_id_t id, symt_name_t name, bool search_name, bool search_prev)
+//{
+//	assertp(tab != NULL, "table has not been constructed");
+//	symt_node *iter = tab, *result = NULL, *prev = NULL;
+//
+//	while (iter != NULL)
+//	{
+//		if (iter->id == id)
+//		{
+//			if (search_name == false) return search_prev == true ? prev : iter;
+//
+//			switch (iter->id)
+//			{
+//				case VAR:; if (strcmp(name, iter->var->name) == 0) return search_prev == true ? prev : iter; 	break;
+//				//case LOCAL_VAR:; case GLOBAL_VAR:; if (strcmp(name, iter->var->name) == 0) return search_prev == true ? prev : iter; 	break;
+//				case FUNCTION:; case PROCEDURE:; if (strcmp(name, iter->rout->name) == 0) return search_prev == true ? prev : iter; 	break;
+//				case CALL_FUNC:; if (strcmp(name, iter->call->name) == 0) return search_prev == true ? prev : iter; 					break;
+//				default: /* Just to avoid warning */ 																					break;
+//			}
+//		}
+//
+//		if (id != FUNCTION && id != PROCEDURE)
+//		{
+//			switch (iter->id)
+//			{
+//				case FUNCTION:; case PROCEDURE:;
+//					if (iter->rout->params != NULL)
+//					{
+//						result = __symt_search(iter->rout->params, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//
+//					/*if (iter->rout->statements != NULL)
+//					{
+//						result = __symt_search(iter->rout->statements, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}*/
+//				break;
+//
+//				/*
+//				case IF:;
+//					if (iter->if_val->cond != NULL)
+//					{
+//						result = __symt_search(iter->if_val->cond, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//
+//					if (iter->if_val->if_statements != NULL)
+//					{
+//						result = __symt_search(iter->if_val->if_statements, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//
+//					if (iter->if_val->else_statements != NULL)
+//					{
+//						result = __symt_search(iter->if_val->else_statements, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//				break;
+//
+//				case WHILE:;
+//					if (iter->while_val->cond != NULL)
+//					{
+//						result = __symt_search(iter->while_val->cond, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//
+//					if (iter->while_val->statements != NULL)
+//					{
+//						result = __symt_search(iter->while_val->statements, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//				break;
+//				*/
+//
+//				case CALL_FUNC:;
+//					if (iter->call->params != NULL)
+//					{
+//						result = __symt_search(iter->call->params, id, name, search_name, search_prev);
+//						if (result != NULL) return result;
+//					}
+//				break;
+//				default: break; // Just to avoid warning
+//			}
+//		}
+//
+//		prev = iter;
+//		iter = iter->next_node;
+//	}
+//
+//	return NULL;
+//}
 
-	while (iter != NULL)
-	{
-		if (iter->id == id)
-		{
-			if (search_name == false) return search_prev == true ? prev : iter;
-
-			switch (iter->id)
-			{
-				case VAR:; if (strcmp(name, iter->var->name) == 0) return search_prev == true ? prev : iter; 	break;
-				//case LOCAL_VAR:; case GLOBAL_VAR:; if (strcmp(name, iter->var->name) == 0) return search_prev == true ? prev : iter; 	break;
-				case FUNCTION:; case PROCEDURE:; if (strcmp(name, iter->rout->name) == 0) return search_prev == true ? prev : iter; 	break;
-				case CALL_FUNC:; if (strcmp(name, iter->call->name) == 0) return search_prev == true ? prev : iter; 					break;
-				default: /* Just to avoid warning */ 																					break;
-			}
-		}
-
-		if (id != FUNCTION && id != PROCEDURE)
-		{
-			switch (iter->id)
-			{
-				case FUNCTION:; case PROCEDURE:;
-					if (iter->rout->params != NULL)
-					{
-						result = __symt_search(iter->rout->params, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-
-					/*if (iter->rout->statements != NULL)
-					{
-						result = __symt_search(iter->rout->statements, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}*/
-				break;
-
-				/*
-				case IF:;
-					if (iter->if_val->cond != NULL)
-					{
-						result = __symt_search(iter->if_val->cond, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-
-					if (iter->if_val->if_statements != NULL)
-					{
-						result = __symt_search(iter->if_val->if_statements, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-
-					if (iter->if_val->else_statements != NULL)
-					{
-						result = __symt_search(iter->if_val->else_statements, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-				break;
-
-				case WHILE:;
-					if (iter->while_val->cond != NULL)
-					{
-						result = __symt_search(iter->while_val->cond, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-
-					if (iter->while_val->statements != NULL)
-					{
-						result = __symt_search(iter->while_val->statements, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-				break;
-				*/
-
-				case CALL_FUNC:;
-					if (iter->call->params != NULL)
-					{
-						result = __symt_search(iter->call->params, id, name, search_name, search_prev);
-						if (result != NULL) return result;
-					}
-				break;
-				default: break; // Just to avoid warning
-			}
-		}
-
-		prev = iter;
-		iter = iter->next_node;
-	}
-
-	return NULL;
-}
 
 symt_tab *symt_new()
 {
 	return symt_new_node();
 }
 
-symt_node *symt_search(symt_tab *tab, symt_id_t id)
+/*symt_node *symt_search(symt_tab *tab, symt_id_t id)
 {
 	return __symt_search(tab, id, NULL, false, false);
-}
+}*/
 
 symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id)
 {
-	return __symt_search(tab, id, name, true, false);
+	symt_node *iter = tab, *prev = NULL;
+	if (iter == NULL) return NULL;
+
+	while(iter != NULL){
+		if(iter->id == id){
+			switch(iter->id){
+				case VAR:
+					if(strcmp(iter->var->name, name) == 0) return iter;
+					break;
+				case FUNCTION:
+				case PROCEDURE:
+					if(strcmp(iter->var->name, name) == 0) return iter;
+					break;
+			}
+		}
+		iter= iter->next_node;
+	}
+
+	return NULL;
+	//return __symt_search(tab, id, name, true, false);
 }
 
 symt_tab *symt_push(symt_tab *tab, symt_node *node)
@@ -165,9 +185,9 @@ symt_tab *symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t val
 	return symt_push(tab, new_node);
 }
 
-symt_tab *symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide, symt_node *statements)
+symt_tab *symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide)
 {
-	symt_node *new_node = symt_insert_rout(id, name, type, params, is_hide/*, statements*/);
+	symt_node *new_node = symt_insert_rout(id, name, type, params, is_hide);
 	return symt_push(tab, new_node);
 }
 
@@ -198,14 +218,14 @@ void symt_end_block(symt_tab *tab/*, symt_id_t id_block)*/)
 	while (iter->next_node != NULL)
 		iter = iter->next_node;
 
-	while (iter->next_node != NULL)
+	while (last_iter != NULL)
 	{
 		if (last_iter->level == iter->level) break;
 		prev_iter = last_iter;
 		last_iter = last_iter->next_node;
 	}
 
-	prev_iter->next_node = NULL;
+	if(prev_iter != NULL )prev_iter->next_node = NULL;
 	symt_delete(last_iter);
 
 	/*symt_node *block_node = __symt_search(tab, id_block, NULL, false, true);
@@ -248,8 +268,7 @@ symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
 			{
 				dest = symt_insert_tab_rout(dest,
 					iter->id, iter->rout->name, iter->rout->type,
-					iter->rout->params, iter->rout->is_hide//,
-					//iter->rout->statements
+					iter->rout->params, iter->rout->is_hide
 				);
 			}
 		} else dest = symt_push(dest, iter);
@@ -290,8 +309,8 @@ void symt_print(symt_tab *tab)
 
 			case FUNCTION:; case PROCEDURE:;
 				str_type = symt_strget_vartype(node->rout->type);
-				message = " name = %s | type = %s | is_hide = %d | params = %d | statements = %d";
-				printf(message, node->rout->name, str_type, node->rout->params, node->rout->statements);
+				message = " name = %s | type = %s | is_hide = %d | params = %d ";
+				printf(message, node->rout->name, str_type, node->rout->params);
 				/*if (iter->rout->params != NULL)
 				{
 					result = __symt_search(iter->rout->params, id, name, search_name, search_prev);
