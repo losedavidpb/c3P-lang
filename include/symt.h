@@ -25,12 +25,8 @@
 symt_tab* symt_new();
 
 /* Search at passed symbol table an element that has
-   the same identifier, or NULL in other case */
-//symt_node *symt_search(symt_tab *tab, symt_id_t id);
-
-/* Search at passed symbol table an element that has
-   the same identifier and name, or NULL in other case */
-symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id);
+   the same identifier, name and level, or NULL in other case */
+symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, symt_level_t level);
 
 /* Push passed symbol to the symbol table.
    You should avoid the used of this method, since
@@ -38,28 +34,19 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id);
 symt_tab* symt_push(symt_tab *tab, symt_node *node);
 
 /* Insert call symbol to the symbol table */
-symt_tab* symt_insert_tab_call(symt_tab *tab, symt_name_t name, symt_var_t type, symt_node *params);
+symt_tab* symt_insert_tab_call(symt_tab *tab, symt_name_t name, symt_var_t type, symt_node *params, symt_level_t level);
 
 /* Insert var symbol to the symbol table */
-symt_tab* symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide);
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, symt_level_t level);
 
 /* Insert const symbol to the symbol table */
 symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value);
 
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_node *params, bool is_hide);
-
-/* Insert if symbol to the symbol table */
-//symt_tab* symt_insert_tab_if(symt_tab *tab, symt_node *statements_if, symt_node *statements_else);
-
-/* Insert while symbol to the symbol table */
-//symt_tab* symt_insert_tab_while(symt_tab *tab, symt_node *statements);
-
-/* Insert return symbol to the symbol table */
-//symt_tab *symt_insert_tab_return(symt_tab *tab, symt_node *return_stmt);
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_hide, symt_level_t level);
 
 /* Finish a block statement */
-void symt_end_block(symt_tab *tab/*, symt_id_t id_block*/);
+void symt_end_block(symt_tab *tab);
 
 /* Include all the elements of source at dest,
    deleting private instances at stack */

@@ -5,8 +5,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-// Cast an integer to a boolean value
-#define to_bool(num) num != 1? false : true
+/* Check if passed value is between passed limits */
+#define symt_check_range(value, min, max) value >= min && value <= max
+
+/* Cast an integer to a boolean value */
+#define symt_to_bool(num) num != 1? false : true
 
 // Identifier which only could be associated
 // to first element which is defined at stack
@@ -16,22 +19,21 @@
    distinguish instances with the same id */
 typedef char * symt_name_t;
 
+/* Level for each node that is stored at symbol table.
+   Global variables must be at level -1, while the rest
+   of nodes, except constants, would start from 0 to a
+   specific natural number. */
+typedef unsigned long symt_level_t;
+
 /* Available symbols for symbol tables which
    which will be used as identifiers */
 typedef enum symt_id_t
 {
-	VAR,
-    //LOCAL_VAR,      // local variables inside routines
-    //GLOBAL_VAR,     // global variables outside routines
+	VAR,			// local and global variables
     CONSTANT,       // constants for primitive data
-    //IF,             // if and if-else statements
-    //WHILE,          // while loops
     FUNCTION,       // routines with a return
     PROCEDURE,      // routines with any return
     CALL_FUNC,      // call statement for functions
-	//CONTINUE,		// continue statement
-	//BREAK,			// break statement
-	//RETURN,			// return statement
 } symt_id_t;
 
 /* Type for values stored at local and global
@@ -39,7 +41,7 @@ typedef enum symt_id_t
 typedef void * symt_value_t;
 
 /* Types for primitive data at constants */
-typedef enum symt_cons_t { CONS_INTEGER, CONS_DOUBLE, CONS_CHAR, CONS_STR } symt_cons_t;
+typedef enum symt_cons_t { CONS_INTEGER, CONS_DOUBLE, CONS_CHAR, CONS_STR, CONS_BOOL } symt_cons_t;
 
 /* Primitive types for variables and return functions */
 typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_var_t;
@@ -92,22 +94,9 @@ typedef struct symt_rout
     symt_name_t name;
     symt_var_t type;
     bool is_hide;
-    struct symt_node *params;
-    //struct symt_node *statements;
+	symt_var_t *params_t;
+	int num_params;
 } symt_rout;
-
-/* Type for if and if-else statements */
-/*typedef struct symt_if_else
-{
-    struct symt_node *if_statements;
-    struct symt_node *else_statements;
-} symt_if_else;*/
-
-/* Type for while loops */
-/*typedef struct symt_while
-{
-    struct symt_node *statements;
-} symt_while;*/
 
 /* Type for calling routines */
 typedef struct symt_call
@@ -117,25 +106,16 @@ typedef struct symt_call
     struct symt_node *params;
 } symt_call;
 
-/* Type for return statement */
-/*typedef struct symt_return
-{
-	struct symt_node *return_stmt;
-} symt_return;*/
-
 /* Type for a node which is are at a symbol table */
 typedef struct symt_node
 {
-	int level;
+	symt_level_t level;
     symt_id_t id;
     symt_rout* rout;
     symt_var* var;
     symt_cons* cons;
     symt_call* call;
-    //symt_if_else* if_val;
-    //symt_while* while_val;
-	//symt_return* return_val;
-    struct symt_node *next_node;
+    struct symt_node* next_node;
 } symt_node;
 
 /* Type for a symbol table */

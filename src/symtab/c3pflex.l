@@ -14,11 +14,10 @@
 
   #include "c3pbison.tab.h"
 
+#include "../../include/arrcopy.h"
   #include "../../include/symt.h"
   #include "../../include/symt_cons.h"
   #include "../../include/symt_var.h"
-  #include "../../include/symt_if.h"
-  #include "../../include/symt_while.h"
   #include "../../include/symt_call.h"
   #include "../../include/symt_rout.h"
   #include "../../include/symt_node.h"
@@ -98,7 +97,7 @@ call                                            { return CALL; }
 
 #add                                            { return ADD_LIBRARY; }
 
-\".*\"                                          { yylval.string_t = strdup(yytext); return STRING; }
+\".*\"                                          { yylval.string_t = strcopy(yytext); return STRING; }
 \'.?\'                                          { yylval.char_t = yytext[1]; return CHAR; }
 \-?{digit}+                                     { yylval.integer_t = get_int(strdup(yytext)); return INTEGER; }
 \-?{digit}*\.{digit}+                           { yylval.double_t =  get_double(strdup(yytext)); return DOUBLE; }

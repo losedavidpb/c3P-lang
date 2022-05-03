@@ -4,17 +4,6 @@
 
 #include "symt_type.h"
 
-/* Get string representation for identifiers */
-/*#define symt_strget_id(id)							\
-	(id == LOCAL_VAR? "LOCAL_VAR" :					\
-	(id == GLOBAL_VAR? "GLOBAL_VAR" :				\
-	(id == IF? "IF" :								\
-	(id == WHILE? "WHILE" :							\
-	(id == FUNCTION? "FUNCTION" :					\
-	(id == PROCEDURE? "PROCEDURE" :					\
-	(id == CONSTANT? "CONSTANT" : 					\
-	(id == CALL_FUNC? "CALL" : "undefined"))))))))*/
-
 #define symt_strget_id(id)							\
 	(id == VAR? "VAR" :								\
 	(id == FUNCTION? "FUNCTION" :					\
@@ -27,6 +16,9 @@ symt_node* symt_new_node();
 
 /* Check if passed identifier is valid */
 bool symt_is_valid_id(symt_id_t id);
+
+/* Get the name of passed node whether that field exists */
+symt_name_t symt_get_name_from_node(symt_node *node);
 
 /* Get the value of passed node whether that field exists */
 symt_value_t symt_get_value_from_node(symt_node *node);

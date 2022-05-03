@@ -3,11 +3,8 @@
 #define SYMT_CONS_H
 
 #include "symt_type.h"
-#include <math.h>
 #include <ctype.h>
-
-/* Check if passed value is between passed limits */
-#define symt_check_range(value, min, max) value >= min && value <= max
+#include <math.h>
 
 /* Get string representation for constant types */
 #define symt_strget_constype(type)					\

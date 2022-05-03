@@ -19,46 +19,39 @@
 	#include "../../include/symt.h"
 	#include "../../include/symt_cons.h"
 	#include "../../include/symt_var.h"
-  	//#include "../../include/symt_if.h"
-  	//#include "../../include/symt_while.h"
   	#include "../../include/symt_call.h"
   	#include "../../include/symt_rout.h"
-	//#include "../../include/symt_return.h"
   	#include "../../include/symt_node.h"
-
 	#include "../../include/assertb.h"
 	#include "../../include/arrcopy.h"
 	#include "../../include/memlib.h"
 
-	extern int l_error;	  // Specify if lexical errors were detected
-	extern int num_lines; // Number of lines processed
+	extern int l_error;	  			// Specify if lexical errors were detected
+	extern int num_lines; 			// Number of lines processed
 
-	extern FILE *yyin; // Bison file to be checked
+	extern FILE *yyin; 				// Bison file to be checked
 
-	int yydebug = 1; // Enable this to active debug mode
-	int s_error = 0; // Specify if syntax errors were detected
+	int yydebug = 1; 				// Enable this to active debug mode
+	int s_error = 0; 				// Specify if syntax errors were detected
 
-	int level;
+	symt_level_t level = -1;		// Current level of symbol table
+	symt_tab *tab; 					// Symbol table
 
-	symt_tab *tab; // Table of symbol
-
+	symt_cons_t type;				// Type of a value
 	int array_length = 0;  			// Array length for current token
 	void *value_list_expr; 			// Array value for current token
 	symt_cons_t value_list_expr_t;	// Constant for a part of a list expression
-	symt_node *if_val;				// If statement
+
+	symt_var_t *params_t;
+	int num_params, capacity;
 
 	// Structure of a stack of void values
-	typedef struct Stack
-	{
+	typedef struct Stack {
+		char *name;
 		void* value;
+		symt_var_t type;
 		struct Stack *next_value;
 	} Stack;
-
-	// Stack for list expression
-	struct Stack *queque;
-
-	// Print content of passed stack
-	void print_stack(struct Stack *p);
 
 	// This functions have to be declared in order to
 	// avoid warnings related to implicit declaration
@@ -91,32 +84,18 @@
 %token<double_t> DOUBLE
 %token<char_t> CHAR
 %token<string_t> STRING
-%token<integer_t> T
-%token<integer_t> F
+%token<integer_t> T F
 
-%token<type_t> I8_TYPE
-%token<type_t> I16_TYPE
-%token<type_t> I32_TYPE
-%token<type_t> I64_TYPE
-%token<type_t> F32_TYPE
-%token<type_t> F64_TYPE
-%token<type_t> CHAR_TYPE
-%token<type_t> STR_TYPE
+%token<type_t> I8_TYPE I16_TYPE I32_TYPE I64_TYPE
+%token<type_t> F32_TYPE F64_TYPE
+%token<type_t> CHAR_TYPE STR_TYPE
 %token<type_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
 %token BEGIN_SWITCH END_SWITCH DEFAULT_SWITCH
-
-%token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE
-%token CONTINUE BREAK
-
-%token BEGIN_PROCEDURE END_PROCEDURE
-%token BEGIN_FUNCTION END_FUNCTION
-%token RETURN CALL
-
-
+%token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE CONTINUE BREAK
+%token BEGIN_PROCEDURE END_PROCEDURE BEGIN_FUNCTION END_FUNCTION RETURN CALL
 %token ADD_LIBRARY PATH_ADD_LIBRARY
-
 %token AND OR NOT
 
 %token EQUAL "=="
@@ -126,22 +105,10 @@
 
 %token EOL
 
-%type<node_t> call_func;
-%type<node_t> CALL;
-
-%type<node_t> expr_num;
-%type<node_t> expr_char;
-%type<node_t> expr_string;
-%type<node_t> int_expr;
-%type<node_t> expr;
+%type<integer_t> data_type arr_data_type;
+%type<node_t> expr_num expr_char expr_string int_expr expr;
+%type<node_t> in_var ext_var var_assign param_declr;
 %type<stack> list_expr;
-
-
-%type<node_t> in_var;
-%type<node_t> ext_var;
-
-%type<integer_t> data_type;
-%type<integer_t> arr_data_type;
 
 // __________ Precedence __________
 
@@ -176,6 +143,7 @@ expr 			: expr_num		{ $$ = $1; }
 				;
 
 int_expr 		: int_expr '+' int_expr 		{
+													type = CONS_INTEGER;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons* res_cons = symt_cons_add(CONS_INTEGER, num1->cons, num2->cons);
@@ -187,6 +155,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| int_expr '-' int_expr 		{
+													type = CONS_INTEGER;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons* res_cons = symt_cons_sub(CONS_INTEGER, num1->cons, num2->cons);
@@ -198,6 +167,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| int_expr '*' int_expr 		{
+													type = CONS_INTEGER;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons* res_cons = symt_cons_mult(CONS_INTEGER, num1->cons, num2->cons);
@@ -209,6 +179,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| int_expr '/' int_expr 		{
+													type = CONS_INTEGER;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons* res_cons = symt_cons_div(CONS_INTEGER, num1->cons, num2->cons);
@@ -220,6 +191,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| int_expr '%' int_expr 		{
+													type = CONS_INTEGER;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons* res_cons = symt_cons_mod(CONS_INTEGER, num1->cons, num2->cons);
@@ -231,6 +203,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| int_expr '^' int_expr 		{
+													type = CONS_INTEGER;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons* res_cons = symt_cons_pow(CONS_INTEGER, num1->cons, num2->cons);
@@ -243,11 +216,13 @@ int_expr 		: int_expr '+' int_expr 		{
 												}
 				| '(' expr_num ')' 				{ $$ = $2; }
 				| DOUBLE 						{
+													type = CONS_DOUBLE;
 													symt_node *result = symt_new();
 													result = symt_insert_tab_cons(result, CONS_DOUBLE, &$1);
 													$$ = result;
 												}
 				| INTEGER 						{
+													type = CONS_INTEGER;
 													symt_node *result = symt_new();
 													result = symt_insert_tab_cons(result, CONS_INTEGER, &$1);
 													$$ = result;
@@ -263,6 +238,7 @@ int_expr 		: int_expr '+' int_expr 		{
 				;
 
 expr_num 		: expr_num '<' expr_num 		{
+													type = CONS_BOOL;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
@@ -274,6 +250,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result;
 												}
 				| expr_num '>' expr_num 		{
+													type = CONS_BOOL;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
@@ -285,6 +262,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result;
 												}
 				| expr_num EQUAL expr_num 		{
+													type = CONS_BOOL;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
@@ -296,6 +274,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result;
 												}
 				| expr_num NOTEQUAL expr_num 	{
+													type = CONS_BOOL;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
@@ -307,6 +286,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result;
 												}
 				| expr_num LESSEQUAL expr_num 	{
+													type = CONS_BOOL;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
@@ -318,6 +298,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result;
 												}
 				| expr_num MOREEQUAL expr_num 	{
+													type = CONS_BOOL;
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
@@ -329,6 +310,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result;
 												}
 				| expr_num AND expr_num 		{
+													type = CONS_BOOL;
 													symt_node* num1 = (symt_node*)$1;
 													symt_node* num2 = (symt_node*)$3;
 													int value1_int = *((int*)num1->cons->value);
@@ -341,6 +323,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result_n;
 				 								}
 				| expr_num OR expr_num 			{
+													type = CONS_BOOL;
 													symt_node* num1 = $1;
 													symt_node* num2 = $3;
 													int value1_int = *((int*)num1->cons->value);
@@ -353,6 +336,7 @@ expr_num 		: expr_num '<' expr_num 		{
 													$$ = result_n;
 												}
 				| NOT expr_num 					{
+													type = CONS_BOOL;
 													symt_node* num1 = (symt_node*)$2;
 													int value1 = *((int*)num1->cons->value);
 													int result = !value1;
@@ -364,12 +348,14 @@ expr_num 		: expr_num '<' expr_num 		{
 												}
 				| int_expr 						{ $$ = $1; }
 				| T 							{
+													type = CONS_BOOL;
 													int true_val = 1;
 													symt_node *res_cons = symt_new();
 													res_cons = symt_insert_tab_cons(res_cons, CONS_INTEGER, &true_val);
 													$$ = res_cons;
 												}
 				| F 							{
+													type = CONS_BOOL;
 													int false_val = 0;
 													symt_node *res_cons = symt_new();
 													res_cons = symt_insert_tab_cons(res_cons, CONS_INTEGER, &false_val);
@@ -378,6 +364,7 @@ expr_num 		: expr_num '<' expr_num 		{
 				;
 
 expr_char       : expr_char '+' expr_char       {
+													type = CONS_CHAR;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_add(CONS_CHAR , num1->cons, num2->cons);
@@ -389,6 +376,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '-' expr_char       {
+													type = CONS_CHAR;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_sub(CONS_CHAR , num1->cons, num2->cons);
@@ -400,6 +388,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '*' expr_char       {
+													type = CONS_CHAR;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_mult(CONS_CHAR , num1->cons, num2->cons);
@@ -411,6 +400,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '/' expr_char       {
+													type = CONS_CHAR;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_div(CONS_CHAR , num1->cons, num2->cons);
@@ -422,6 +412,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '%' expr_char       {
+													type = CONS_CHAR;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_mod(CONS_CHAR , num1->cons, num2->cons);
@@ -433,6 +424,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '^' expr_char       {
+													type = CONS_CHAR;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_pow(CONS_CHAR , num1->cons, num2->cons);
@@ -444,6 +436,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '<' expr_char       {
+													type = CONS_BOOL;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
@@ -455,6 +448,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char '>' expr_char       {
+													type = CONS_BOOL;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
@@ -466,6 +460,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char EQUAL expr_char     {
+													type = CONS_BOOL;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
@@ -477,6 +472,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char NOTEQUAL expr_char  {
+													type = CONS_BOOL;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
@@ -488,6 +484,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char LESSEQUAL expr_char {
+													type = CONS_BOOL;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
@@ -499,6 +496,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | expr_char MOREEQUAL expr_char {
+													type = CONS_BOOL;
                                                     symt_node* num1 = (symt_node*)$1;
                                                     symt_node* num2 = (symt_node*)$3;
                                                     symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
@@ -510,6 +508,7 @@ expr_char       : expr_char '+' expr_char       {
 													$$ = result;
                                                 }
                 | CHAR                          {
+													type = CONS_CHAR;
                                                     symt_node *result = symt_new();
 													result = symt_insert_tab_cons(result, CONS_CHAR, &$1);
 													$$ = result;
@@ -517,6 +516,7 @@ expr_char       : expr_char '+' expr_char       {
                 ;
 
 expr_string 	: expr_string '+' expr_string	{
+													type = CONS_STR;
 													symt_node *str1 = (symt_node*)$1;
 													symt_node *str2 = (symt_node*)$3;
 
@@ -530,6 +530,7 @@ expr_string 	: expr_string '+' expr_string	{
 													$$ = result;
 												}
 				| STRING		 				{
+													type = CONS_STR;
 													symt_node *result = symt_new_node();
 													result = symt_insert_tab_cons(result, CONS_STR, $1);
 													$$ = result;
@@ -601,71 +602,152 @@ arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
 
 // __________ Declaration for variables __________
 
-param_declr 	: IDENTIFIER ':' data_type
-				| IDENTIFIER ':' I8_TYPE '[' ']'
-				| IDENTIFIER ':' I16_TYPE '[' ']'
-				| IDENTIFIER ':' I32_TYPE '[' ']'
-				| IDENTIFIER ':' I64_TYPE '[' ']'
-				| IDENTIFIER ':' F32_TYPE '[' ']'
-				| IDENTIFIER ':' F64_TYPE '[' ']'
-				| IDENTIFIER ':' CHAR_TYPE '[' ']'
-				| IDENTIFIER ':' BOOL_TYPE '[' ']'
-				| IDENTIFIER ':' I8_TYPE  '[' int_expr ']'
-				| IDENTIFIER ':' I16_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' I32_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' I64_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' F32_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' F64_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' CHAR_TYPE '[' int_expr ']'
-				| IDENTIFIER ':' BOOL_TYPE '[' int_expr ']'
+param_declr 	: IDENTIFIER ':' data_type							{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 0, 0, NULL, 0, level);
+																		tab = symt_push(tab, node); $$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' I8_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' I16_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' I32_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' I64_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' F32_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' F64_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' CHAR_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
+				| IDENTIFIER ':' BOOL_TYPE '[' ']'					{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
+
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, VAR, $1, $3, 1, -1, NULL, 0, level);
+																		tab = symt_push(tab, node);
+																		$$ = node; symt_print(tab);
+																	}
 				;
 
 // __________ Assignation for variables __________
 
-var_assign      : IDENTIFIER '=' expr
-                | IDENTIFIER '[' int_expr ']' '=' expr
+var_assign      : IDENTIFIER '=' expr								{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var != NULL, "variable %s has not been declared", $1);
+
+																		symt_node *value = (symt_node *)$3;
+																		symt_assign_var(var->var, value->cons);
+																		$$ = var; symt_print(tab);
+																	}
+                | IDENTIFIER '[' int_expr ']' '=' expr				{
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		assertf(var != NULL, "variable %s has not been declared", $1);
+																		symt_node *index = (symt_node*)$3;
+																		symt_node *value = (symt_node*)$6;
+
+																		symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
+																		$$ = var; symt_print(tab);
+																	}
                 ;
 
 // __________ Declaration and Assignation for variables __________
 
 list_expr 		: expr					{
-											struct Stack pila;
+											struct Stack stack;
 											symt_node* node = (symt_node*)$1;
-											pila.value = symt_get_value_from_node(node);
-											pila.next_value = NULL;
-											$$ = &pila;
+											stack.name = symt_get_name_from_node(node);
+											stack.value = symt_get_value_from_node(node);
+											stack.type = type;
+											stack.next_value = NULL;
+											$$ = &stack;
 										}
 				| expr ',' list_expr	{
-											struct Stack *pila = (Stack *)$3;
-											struct Stack* new_pila = (Stack *)(ml_malloc(sizeof(Stack)));
+											Stack *right_stack = (Stack*)$3;
+											Stack* stack = (Stack *)(ml_malloc(sizeof(Stack)));
 											symt_node* node = (symt_node*)$1;
-											new_pila->value = symt_get_value_from_node(node);
-											new_pila->next_value = pila;
-
-											$$ = new_pila;
+											stack.name = symt_get_name_from_node(node);
+											stack->value = symt_get_value_from_node(node);
+											stack->type = type;
+											stack->next_value = (Stack *)$3;
+											$$ = stack;
 										}
 				;
 
 ext_var 		: in_var
 				| HIDE IDENTIFIER ':' data_type										{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1, level);
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(VAR, $2, $4, 1, array_length, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 1, array_length, NULL, 1, level);
 																						tab = symt_push(tab, var); $$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1, level);
 
 																						symt_node *value = (symt_node *)$6;
 																						symt_assign_var(var->var, value->cons);
@@ -673,13 +755,13 @@ ext_var 		: in_var
 																						$$ = var; symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
-																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1);
+																						var = symt_insert_var(VAR, $2, $4, 0, 0, NULL, 1, level);
 																						tab = symt_push(tab, var);
 
-																						var = symt_search_by_name(tab, $2, VAR);
+																						var = symt_search_by_name(tab, $2, VAR, level);
 																						assertf(var != NULL, "variable %s has not been declared", $2);
 
 																						char *str_type_1 = symt_strget_vartype(var->var->type);
@@ -782,35 +864,32 @@ ext_var 		: in_var
 				;
 
 in_var 			: IDENTIFIER ':' data_type 											{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, VAR, $1, $3, 0, 0, NULL, 0);
-
-																						tab = symt_push(tab, node); $$ = node;
-																						symt_print(tab);
+																						node = symt_insert_tab_var(node, VAR, $1, $3, 0, 0, NULL, 0, level);
+																						tab = symt_push(tab, node); $$ = node; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type										{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, VAR, $1, $3, 1, array_length, NULL, 0);
+																						node = symt_insert_tab_var(node, VAR, $1, $3, 1, array_length, NULL, 0, level);
 																						tab = symt_push(tab, node);
 																						$$ = node; symt_print(tab);
 																					}
 				| IDENTIFIER '=' expr												{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						symt_node *value = (symt_node *)$3;
 																						symt_assign_var(var->var, value->cons);
-																						$$ = var;
-																						symt_print(tab);
+																						$$ = var; symt_print(tab);
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						symt_node *index = (symt_node*)$3;
 																						symt_node *value = (symt_node*)$6;
@@ -819,23 +898,22 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						$$ = var; symt_print(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
-																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR);
+																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
 																						symt_node *result_node = symt_new();
-																						result_node = symt_insert_tab_var(result_node, VAR, $1, $3, 0, 0, NULL, 0);
+																						result_node = symt_insert_tab_var(result_node, VAR, $1, $3, 0, 0, NULL, 0, level);
 
 																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(result_node->var, value->cons);
 																						tab = symt_push(tab, result_node);
-
 																						$$ = result_node;; symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						tab = symt_insert_tab_var(tab, VAR, $1, $3, 1, array_length, NULL, 0);
+																						tab = symt_insert_tab_var(tab, VAR, $1, $3, 1, array_length, NULL, 0, level);
 																						var = symt_search_by_name(tab, $1, VAR);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
@@ -915,12 +993,28 @@ in_var 			: IDENTIFIER ':' data_type 											{
 
 // __________ Procedures and functions __________
 
-func_declr 		: BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement { level++; } END_FUNCTION { symt_end_block(tab); level--; }
-				| HIDE BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' EOL statement { level++; } END_FUNCTION { symt_end_block(tab); level--; }
+func_declr 		: BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' 						{
+																										symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
+																										assertf(result == NULL, "function %s has already been defined", $2);
+																										tab = symt_insert_tab_rout(tab, FUNCTION, $2, $4, false, level++);
+																									} EOL statement END_FUNCTION { symt_end_block(tab); level--; }
+				| HIDE BEGIN_FUNCTION IDENTIFIER ':' data_type '(' declr_params ')' 				{
+																										symt_node *result = symt_search_by_name(tab, $3, FUNCTION, level);
+																										assertf(result == NULL, "function %s has already been defined", $3);
+																										tab = symt_insert_tab_rout(tab, FUNCTION, $3, $5, true, level++);
+																									} EOL statement END_FUNCTION { symt_end_block(tab); level--; }
 				;
 
-proc_declr 		: BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement { level++; } END_PROCEDURE { symt_end_block(tab); level--; }
-				| HIDE BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' EOL statement { level++; } END_PROCEDURE { symt_end_block(tab); level--; }
+proc_declr 		: BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' 									{
+																										symt_node *result = symt_search_by_name(tab, $2, PROCEDURE, level);
+																										assertf(result == NULL, "function %s has already been defined", $2);
+																										tab = symt_insert_tab_rout(tab, PROCEDURE, $2, VOID, false, level++);
+																									} EOL statement END_PROCEDURE { symt_end_block(tab); level--; }
+				| HIDE BEGIN_PROCEDURE IDENTIFIER '(' declr_params ')' 								{
+																										symt_node *result = symt_search_by_name(tab, $3, PROCEDURE, level);
+																										assertf(result == NULL, "function %s has already been defined", $3);
+																										tab = symt_insert_tab_rout(tab, PROCEDURE, $3, VOID, true, level++);
+																									} EOL statement END_PROCEDURE { symt_end_block(tab); level--; }
 				;
 
 // __________ Parameters __________
@@ -931,8 +1025,78 @@ declr_params 	: | param_declr ',' declr_params
 
 // __________ Call a function __________
 
-call_func 		: CALL IDENTIFIER
-				| CALL IDENTIFIER list_expr
+call_func 		: CALL IDENTIFIER					{
+														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
+														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE);
+														assertf(result != NULL, "%s routine does not exist", $2);
+														assertf(result->rout->params == NULL, "%s routine needs parameters", $2);
+														tab = symt_insert_tab_call(tab, $2, result->rout->type, NULL);
+													}
+				| CALL IDENTIFIER list_expr			{
+														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
+														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE);
+														assertf(result != NULL, "%s routine does not exist", $2);
+
+														assertf(result->rout->params != NULL, "%s routine does not need parameters", $2);
+														struct Stack* iter = (struct Stack*)$3;
+														symt_node *iter_p = result->rout->params;
+
+														int *int_value;
+														double *double_value;
+														char *char_value;
+														symt_cons *cons;
+
+														while (iter != NULL && iter_p != NULL)
+														{
+															symt_cons_t cons_t = symt_get_type_data(iter_p->var->type);
+															assertp(iter->type == cons_t, "type does not match");
+
+															switch(iter->type)
+															{
+																case CONS_INTEGER:
+																	int_value = (int*)iter->value;
+																	cons = symt_new_cons(iter->type, int_value);
+																	symt_assign_var(iter_p->var, cons);
+																break;
+
+																case CONS_DOUBLE:
+																	double_value = (double*)iter->value;
+																	cons = symt_new_cons(iter->type, double_value);
+																	symt_assign_var(iter_p->var, cons);
+																break;
+
+																case CONS_CHAR:
+																	char_value = (char*)iter->value;
+																	cons = symt_new_cons(iter->type, char_value);
+																	symt_assign_var(iter_p->var, cons);
+																break;
+
+																case CONS_STR:
+																	char_value = (char*)iter->value;
+																	cons = symt_new_cons(iter->type, char_value);
+																	symt_assign_var(iter_p->var, cons);
+																break;
+
+																case CONS_BOOL:
+																	int_value = (int*)iter->value;
+																	cons = symt_new_cons(iter->type, int_value);
+																	symt_assign_var(iter_p->var, cons);
+																break;
+															}
+
+															if (iter_p->var->is_array == true)
+															{
+																symt_node *aux = symt_search_by_name(tab, iter->name, VAR, level);
+																iter_p->var->array_length = aux->var->array_length;
+															}
+
+															iter = iter->next_node;
+															iter_p = iter_p->next_node;
+														}
+
+														assertp(iter == NULL && iter_p == NULL, "invalid number of parameters");
+														tab = symt_insert_tab_call(tab, $2, result->rout->type, result->rout->params);
+													}
 				;
 
 // __________ Add libraries __________
@@ -952,11 +1116,11 @@ more_EOL        : | EOL more_EOL
 // __________ Statement __________
 
 statement 		: | in_var EOL statement
-				| BEGIN_IF '(' expr ')' EOL statement break_rule more_else											{ level++; } END_IF { symt_end_block(tab); level--; } EOL statement
-				| BEGIN_WHILE '(' expr ')' EOL statement break_rule 												{ level++; } END_WHILE { symt_end_block(tab); level--; } EOL statement
-				| BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule							{ level++; } END_FOR { symt_end_block(tab); level--; } EOL statement
-                | BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH 										{ level++; } END_SWITCH { symt_end_block(tab); level--; } EOL statement
-				| call_func EOL { level++; } statement																{ level--; }
+				| { level++; } BEGIN_IF '(' expr ')' EOL statement break_rule more_else											END_IF { symt_end_block(tab); level--; } EOL statement
+				| { level++; } BEGIN_WHILE '(' expr ')' EOL statement break_rule 												END_WHILE { symt_end_block(tab); level--; } EOL statement
+				| { level++; } BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule						END_FOR { symt_end_block(tab); level--; } EOL statement
+                | { level++; } BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH 										END_SWITCH { symt_end_block(tab); level--; } EOL statement
+				| { level++; } call_func EOL statement																			{ level--; }
 				| RETURN expr EOL statement
 				| CONTINUE EOL statement
 				| EOL statement
@@ -1014,16 +1178,4 @@ void yyerror(const char *mssg)
 	s_error = 1;
 	printf("%s at line %i\n", mssg, num_lines);
 	exit(1);
-}
-
-void print_stack(struct Stack *p)
-{
-	assertp(p != NULL, "pila has not been constructed");
-	struct Stack *node = p; int i = 0;
-
-	while(node)
-	{
-		printf("\n valor en la posicion %d de la pila -> %d", i++, *((int*)(node->value)));
-		node = node->next_value;
-	}
 }

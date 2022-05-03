@@ -14,13 +14,14 @@ symt_call* symt_new_call(symt_name_t name, symt_var_t type, symt_node *params)
 	return call_value;
 }
 
-symt_node* symt_insert_call(symt_name_t name, symt_var_t type, symt_node *params)
+symt_node* symt_insert_call(symt_name_t name, symt_var_t type, symt_node *params, symt_level_t level)
 {
 	symt_call *call_value = symt_new_call(name, type, params);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = CALL_FUNC;
 	new_node->call = call_value;
+	new_node->level = level;
 	new_node->next_node = NULL;
 	return new_node;
 }

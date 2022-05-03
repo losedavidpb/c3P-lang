@@ -31,7 +31,7 @@ symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_
 	else if (value != NULL)
 	{
 		n_var->value = (bool*)(ml_malloc(sizeof(bool)));
-		bool value_bool = to_bool(*((int*)value));
+		bool value_bool = symt_to_bool(*((int*)value));
 		n_var->value = &value_bool;
 	}
 
@@ -41,13 +41,14 @@ symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_
 	return n_var;
 }
 
-symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide)
+symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, symt_level_t level)
 {
 	symt_var *n_var = symt_new_var(id, name, type, is_array, array_length, value, is_hide);
 
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = id;
 	new_node->var = n_var;
+	new_node->level = level;
 	new_node->next_node = NULL;
 	return new_node;
 }

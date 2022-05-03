@@ -290,21 +290,21 @@ symt_cons *symt_cons_gt(symt_cons* num1, symt_cons* num2)
 		case CONS_INTEGER:
 			value1_int = *((int*)num1->value);
 			value2_int = *((int*)num2->value);
-			value_int = to_bool(value1_int > value2_int);
+			value_int = symt_to_bool(value1_int > value2_int);
 			symt_assign_cons(result, &value_int);
 		break;
 
 		case CONS_DOUBLE:
 			value1_double = *((double*)num1->value);
 			value2_double = *((double*)num2->value);
-			value_double = to_bool(value1_double > value2_double);
+			value_double = symt_to_bool(value1_double > value2_double);
 			symt_assign_cons(result, &value_double);
 		break;
 
 		case CONS_CHAR: case CONS_STR:
 			value1_char = *((char*)num1->value);
 			value2_char = *((char*)num2->value);
-			value_char = to_bool(value1_char > value2_char);
+			value_char = symt_to_bool(value1_char > value2_char);
 			symt_assign_cons(result, &value_char);
 		break;
 	}
@@ -329,21 +329,21 @@ symt_cons *symt_cons_lt(symt_cons* num1, symt_cons* num2)
 		case CONS_INTEGER:
 			value1_int = *((int*)num1->value);
 			value2_int = *((int*)num2->value);
-			value_int = to_bool(value1_int < value2_int);
+			value_int = symt_to_bool(value1_int < value2_int);
 			symt_assign_cons(result, &value_int);
 		break;
 
 		case CONS_DOUBLE:
 			value1_double = *((double*)num1->value);
 			value2_double = *((double*)num2->value);
-			value_double = to_bool(value1_double < value2_double);
+			value_double = symt_to_bool(value1_double < value2_double);
 			symt_assign_cons(result, &value_double);
 		break;
 
 		case CONS_CHAR: case CONS_STR:
 			value1_char = *((char*)num1->value);
 			value2_char = *((char*)num2->value);
-			value_char = to_bool(value1_char < value2_char);
+			value_char = symt_to_bool(value1_char < value2_char);
 			symt_assign_cons(result, &value_char);
 		break;
 	}
@@ -368,21 +368,21 @@ symt_cons *symt_cons_eq(symt_cons* num1, symt_cons* num2)
 		case CONS_INTEGER:
 			value1_int = *((int*)num1->value);
 			value2_int = *((int*)num2->value);
-			value_int = to_bool(value1_int == value2_int);
+			value_int = symt_to_bool(value1_int == value2_int);
 			symt_assign_cons(result, &value_int);
 		break;
 
 		case CONS_DOUBLE:
 			value1_double = *((double*)num1->value);
 			value2_double = *((double*)num2->value);
-			value_double = to_bool(value1_double == value2_double);
+			value_double = symt_to_bool(value1_double == value2_double);
 			symt_assign_cons(result, &value_double);
 		break;
 
 		case CONS_CHAR: case CONS_STR:
 			value1_char = *((char*)num1->value);
 			value2_char = *((char*)num2->value);
-			value_char = to_bool(value1_char == value2_char);
+			value_char = symt_to_bool(value1_char == value2_char);
 			symt_assign_cons(result, &value_char);
 		break;
 	}
@@ -407,21 +407,21 @@ symt_cons *symt_cons_neq(symt_cons* num1, symt_cons* num2)
 		case CONS_INTEGER:
 			value1_int = *((int*)num1->value);
 			value2_int = *((int*)num2->value);
-			value_int = to_bool(value1_int != value2_int);
+			value_int = symt_to_bool(value1_int != value2_int);
 			symt_assign_cons(result, &value_int);
 		break;
 
 		case CONS_DOUBLE:
 			value1_double = *((double*)num1->value);
 			value2_double = *((double*)num2->value);
-			value_double = to_bool(value1_double != value2_double);
+			value_double = symt_to_bool(value1_double != value2_double);
 			symt_assign_cons(result, &value_double);
 		break;
 
 		case CONS_CHAR: case CONS_STR:
 			value1_char = *((char*)num1->value);
 			value2_char = *((char*)num2->value);
-			value_char = to_bool(value1_char != value2_char);
+			value_char = symt_to_bool(value1_char != value2_char);
 			symt_assign_cons(result, &value_char);
 		break;
 	}
@@ -446,21 +446,21 @@ symt_cons *symt_cons_leq(symt_cons* num1, symt_cons* num2)
 		case CONS_INTEGER:
 			value1_int = *((int*)num1->value);
 			value2_int = *((int*)num2->value);
-			value_int = to_bool(value1_int <= value2_int);
+			value_int = symt_to_bool(value1_int <= value2_int);
 			symt_assign_cons(result, &value_int);
 		break;
 
 		case CONS_DOUBLE:
 			value1_double = *((double*)num1->value);
 			value2_double = *((double*)num2->value);
-			value_double = to_bool(value1_double <= value2_double);
+			value_double = symt_to_bool(value1_double <= value2_double);
 			symt_assign_cons(result, &value_double);
 		break;
 
 		case CONS_CHAR: case CONS_STR:;
 			value1_char = *((char*)num1->value);
 			value2_char = *((char*)num2->value);
-			value_char = to_bool(value1_char <= value2_char);
+			value_char = symt_to_bool(value1_char <= value2_char);
 			symt_assign_cons(result, &value_char);
 		break;
 	}
@@ -485,21 +485,21 @@ symt_cons *symt_cons_geq(symt_cons* num1, symt_cons* num2)
 		case CONS_INTEGER:;
 			value1_int = *((int*)num1->value);
 			value2_int = *((int*)num2->value);
-			value_int = to_bool(value1_int >= value2_int);
+			value_int = symt_to_bool(value1_int >= value2_int);
 			symt_assign_cons(result, &value_int);
 		break;
 
 		case CONS_DOUBLE:;
 			value1_double = *((double*)num1->value);
 			value2_double = *((double*)num2->value);
-			value_double = to_bool((int)(value1_double >= value2_double));
+			value_double = symt_to_bool((int)(value1_double >= value2_double));
 			symt_assign_cons(result, &value_double);
 		break;
 
 		case CONS_CHAR: case CONS_STR:;
 			value1_char = *((char*)num1->value);
 			value2_char = *((char*)num2->value);
-			value_char = to_bool(value1_char >= value2_char);
+			value_char = symt_to_bool(value1_char >= value2_char);
 			symt_assign_cons(result, &value_char);
 		break;
 	}

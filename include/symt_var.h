@@ -23,7 +23,7 @@
 symt_var* symt_new_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide);
 
 /* Insert var symbol to a node */
-symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide);
+symt_node* symt_insert_var(symt_id_t id, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, symt_level_t level);
 
 /* Check if passed constant could be assigned to the variable */
 void symt_can_assign(symt_var_t type, symt_cons *cons);
