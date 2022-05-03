@@ -7,7 +7,7 @@ z : f32 = 30.10
 l : i32[10] = { 10, 20, 30 }
 
 proc hello_world()
-
+	d : i32 = 10
 endproc
 
 hide hx : i64 = 10

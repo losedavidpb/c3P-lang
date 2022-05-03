@@ -1174,17 +1174,12 @@ int main(int argc, char **argv)
 
 	for (int i = 1; i < argc; i++)
 	{
-		level = 0;
+		level = 0; s_error = 0; l_error = 0; num_lines = 1;
 		tab = symt_new();
-		num_lines = 1;
-		s_error = 0;
-		l_error = 0;
 
 		printf(" >> Analyzing syntax for %s ... ", argv[i]);
 		yyin = fopen(argv[i], "r");
-		yyparse();
-
-		fclose(yyin);
+		yyparse(); fclose(yyin);
 
 		if (s_error == 0 && l_error == 0) printf("\n %s: OK\n", argv[i]);
 		symt_delete(tab);

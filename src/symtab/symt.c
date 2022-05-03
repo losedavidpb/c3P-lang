@@ -51,9 +51,9 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, sy
 			{
 				switch (iter->id)
 				{
-					case VAR: if( strcmp(iter->var->name, name) == 0) return iter; 						break;
-					case FUNCTION: case PROCEDURE: if (strcmp(iter->rout->name, name) == 0) return iter; break;
-					default: /* Just to avoid warnings */ 												break;
+					case VAR: if( strcmp(iter->var->name, name) == 0) return iter; 							break;
+					case FUNCTION: case PROCEDURE: if (strcmp(iter->rout->name, name) == 0) return iter;	break;
+					default: /* Just to avoid warnings */ 													break;
 				}
 			}
 		}
@@ -110,15 +110,16 @@ void symt_end_block(symt_tab *tab)
 	assertp(tab != NULL, "table has not been constructed");
 	symt_node *iter = tab, *prev_iter = NULL, *prev_level = NULL;
 
-	while (iter->next_node != NULL){
-		if(iter->level != iter->next_node->level){
+	while (iter->next_node != NULL)
+	{
+		if (iter->level != iter->next_node->level)
 			prev_level = iter;
-		}
+
 		iter = iter->next_node;
 	}
 
 	symt_delete(prev_level->next_node);
-	prev_level->next_node=NULL;
+	prev_level->next_node = NULL;
 }
 
 symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
@@ -187,8 +188,8 @@ void symt_print(symt_tab *tab)
 
 			case FUNCTION: case PROCEDURE:
 				str_type = symt_strget_vartype(node->rout->type);
-				if(str_type == NULL) str_type = "VOID";
-				if(strcmp(str_type, "undefined") == 0)str_type = "VOID";
+				if (str_type == NULL) str_type = "VOID";
+				if (strcmp(str_type, "undefined") == 0) str_type = "VOID";
 				message = " name = %s | type = %s | is_hide = %d | level = %d";
 				printf(message, node->rout->name, str_type, node->rout->is_hide, node->level);
 			break;

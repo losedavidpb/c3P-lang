@@ -24,7 +24,7 @@
 /* Create dynamically a new symbol table */
 symt_tab* symt_new();
 
-
+/* Search a parameter based on its name */
 symt_node *symt_search_param(symt_tab *tab, symt_name_t name);
 
 /* Search at passed symbol table an element that has
