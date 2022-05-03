@@ -7,8 +7,8 @@
 
 int *intcopy(int *src, size_t num_elems)
 {
+	if(src == NULL) return NULL;
     int *dest = NULL;
-    assertp(src != NULL, "passed pointer must be not null");
     assertf(num_elems > 0, "%lu is not valid for num_elems", (unsigned long)num_elems);
 
     dest = (int *)(ml_malloc(num_elems * sizeof(int)));
@@ -18,8 +18,8 @@ int *intcopy(int *src, size_t num_elems)
 
 bool *boolcopy(bool *src, size_t num_elems)
 {
+	if(src == NULL) return NULL;
     bool *dest = NULL;
-    assertp(src != NULL, "passed pointer must be not null");
     assertf(num_elems > 0, "%lu is not valid for num_elems", (unsigned long)num_elems);
 
     dest = (bool *)(ml_malloc(num_elems * sizeof(bool)));
@@ -29,8 +29,8 @@ bool *boolcopy(bool *src, size_t num_elems)
 
 float *floatcopy(float *src, size_t num_elems)
 {
+	if(src == NULL) return NULL;
     float *dest = NULL;
-    assertp(src != NULL, "passed pointer must be not null");
     assertf(num_elems > 0, "%lu is not valid for num_elems", (unsigned long)num_elems);
 
     dest = (float *)(ml_malloc(num_elems * sizeof(float)));
@@ -40,8 +40,8 @@ float *floatcopy(float *src, size_t num_elems)
 
 double *doublecopy(double *src, size_t num_elems)
 {
+	if(src == NULL) return NULL;
     double *dest = NULL;
-    assertp(src != NULL, "passed pointer must be not null");
     assertf(num_elems > 0, "%lu is not valid for num_elems", (unsigned long)num_elems);
 
     dest = (double *)(ml_malloc(num_elems * sizeof(double)));
@@ -51,6 +51,7 @@ double *doublecopy(double *src, size_t num_elems)
 
 char *strcopy(char *src)
 {
+	if(src == NULL) return NULL;
     char *dest = NULL;
     assertp(src != NULL, "passed pointer must be not null");
     assertf(strlen(src) > 0, "%lu is not valid for num_elems", (unsigned long)strlen(src));
