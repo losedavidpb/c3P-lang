@@ -190,6 +190,7 @@ symt_node *symt_copy_node(symt_node *node)
 	{
 		copy_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 		copy_node->id = node->id;
+		copy_node->level = node->level;
 		copy_node->cons = symt_copy_cons(node->cons);
 		copy_node->var = symt_copy_var(node->var);
 		copy_node->rout = symt_copy_rout(node->rout);
