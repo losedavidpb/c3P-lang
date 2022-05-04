@@ -47,7 +47,7 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, sy
 	{
 		if (iter->id == id)
 		{
-			if (iter->level == level)
+			if (iter->level <= level)
 			{
 				switch (iter->id)
 				{

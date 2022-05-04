@@ -686,7 +686,7 @@ param_declr 	: IDENTIFIER ':' data_type							{
 // __________ Assignation for variables __________
 
 var_assign      : IDENTIFIER '=' expr								{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var != NULL, "variable %s has not been declared", $1);
 
 																		symt_node *value = (symt_node *)$3;
@@ -695,7 +695,7 @@ var_assign      : IDENTIFIER '=' expr								{
 																		symt_print(tab);
 																	}
                 | IDENTIFIER '[' int_expr ']' '=' expr				{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var != NULL, "variable %s has not been declared", $1);
 																		symt_node *index = (symt_node*)$3;
 																		symt_node *value = (symt_node*)$6;
@@ -1001,7 +1001,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																														}
 																			EOL statement END_FUNCTION 					{
 																															//assertf($11 != false, "empty functions are not valid");
-																															symt_end_block(tab); level--;
+																															symt_end_block(tab); level--; rout_name = NULL;
 																														}
 				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')' 				{
 																															symt_node *result = symt_search_by_name(tab, $3, FUNCTION, NULL, level);
@@ -1010,7 +1010,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																														}
 																			EOL statement END_FUNCTION 					{
 																															//assertf($12 != false, "empty functions are not valid");
-																															symt_end_block(tab); level--;
+																															symt_end_block(tab); level--; rout_name = NULL;
 																														}
 				;
 
@@ -1021,7 +1021,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																														}
 																			EOL statement END_PROCEDURE 				{
 																															//assertf($9 != false, "empty procedures are not valid");
-																															symt_end_block(tab); level--;
+																															symt_end_block(tab); level--; rout_name = NULL;
 																														}
 				| HIDE BEGIN_PROCEDURE IDENTIFIER { rout_name = $3; } '(' declr_params ')' 								{
 																															symt_node *result = symt_search_by_name(tab, $3, PROCEDURE, NULL, level);
@@ -1030,7 +1030,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																														}
 																			EOL statement END_PROCEDURE 				{
 																															//assertf($10 != false, "empty procedures are not valid");
-																															symt_end_block(tab); level--;
+																															symt_end_block(tab); level--; rout_name = NULL;
 																														}
 				;
 
