@@ -105,7 +105,6 @@
 
 %type<integer_t> data_type arr_data_type;
 %type<node_t> expr_num expr_char expr_string int_expr expr;
-// %type<node_t> var_assign param_declr;
 %type<stack> list_expr;
 %type<integer_t> statement more_else break_rule;
 
@@ -1127,7 +1126,8 @@ call_func 		: CALL IDENTIFIER					{
 // __________ Add libraries __________
 
 add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries
-				| ADD_LIBRARY PATH_ADD_LIBRARY EOL;
+				| ADD_LIBRARY PATH_ADD_LIBRARY EOL
+				;
 
 // __________ Switch case __________
 
