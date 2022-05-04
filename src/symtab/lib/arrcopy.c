@@ -61,3 +61,64 @@ char *strcopy(char *src)
 	assertp(dest != NULL, "copy could not be executed because of internal errors");
     return dest;
 }
+
+int *intsub(int *src, natural_t ini_dx, natural_t end_dx)
+{
+	if (src == NULL) return NULL;
+	assertf(end_dx >= ini_dx, "invalid index, %d must be greater than %d", (int)end_dx, (int)ini_dx);
+
+	natural_t new_size = (end_dx - ini_dx);
+	int *dest = (int*)(ml_malloc(new_size * sizeof(int)));
+	for (int i = 0, j = ini_dx; i < new_size; i++, j++) *(dest + i) = *(src + j);
+
+	return dest;
+}
+
+bool *boolsub(bool *src, natural_t ini_dx, natural_t end_dx)
+{
+	if (src == NULL) return NULL;
+	assertf(end_dx >= ini_dx, "invalid index, %d must be greater than %d", (int)end_dx, (int)ini_dx);
+
+	natural_t new_size = (end_dx - ini_dx);
+	bool *dest = (bool*)(ml_malloc(new_size * sizeof(bool)));
+	for (int i = 0, j = ini_dx; i < new_size; i++, j++) *(dest + i) = *(src + j);
+
+	return dest;
+}
+
+float *floatsub(float *src, natural_t ini_dx, natural_t end_dx)
+{
+	if (src == NULL) return NULL;
+	assertf(end_dx >= ini_dx, "invalid index, %d must be greater than %d", (int)end_dx, (int)ini_dx);
+
+	natural_t new_size = (end_dx - ini_dx);
+	float *dest = (float*)(ml_malloc(new_size * sizeof(float)));
+	for (int i = 0, j = ini_dx; i < new_size; i++, j++) *(dest + i) = *(src + j);
+
+	return dest;
+}
+
+double *doublesub(double *src, natural_t ini_dx, natural_t end_dx)
+{
+	if (src == NULL) return NULL;
+	assertf(end_dx >= ini_dx, "invalid index, %d must be greater than %d", (int)end_dx, (int)ini_dx);
+
+	natural_t new_size = (end_dx - ini_dx);
+	double *dest = (double*)(ml_malloc(new_size * sizeof(double)));
+	for (int i = 0, j = ini_dx; i < new_size; i++, j++) *(dest + i) = *(src + j);
+
+	return dest;
+}
+
+char *strsub(char *src, natural_t ini_dx, natural_t end_dx)
+{
+	if (src == NULL) return NULL;
+	assertf(end_dx >= ini_dx, "invalid index, %d must be greater than %d", (int)end_dx, (int)ini_dx);
+	assertf(end_dx <= strlen(src), "invalid index, %d must be less than %d", (int)end_dx, (int)strlen(src));
+
+	natural_t new_size = (end_dx - ini_dx);
+	char *dest = (char*)(ml_malloc(new_size * sizeof(char)));
+	for (int i = 0, j = ini_dx; i < new_size; i++, j++) *(dest + i) = *(src + j);
+
+	return dest;
+}
