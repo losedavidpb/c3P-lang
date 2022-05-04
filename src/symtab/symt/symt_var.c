@@ -59,7 +59,9 @@ void symt_can_assign(symt_var_t type, symt_cons *cons)
 {
 	assertp(cons != NULL, "passed constant has not be defined");
 	assertp(cons->value != NULL, "constant has not a valid value");
-	assertf(symt_get_type_data(type) == cons->type, "type does not match for assignation");
+
+	if (!(type == C && cons->type == CONS_STR && strlen((char*)cons->value) == 1))
+		assertf(symt_get_type_data(type) == cons->type, "type does not match for assignation");
 
 	int *int_value = NULL;
 	double *double_value = NULL;

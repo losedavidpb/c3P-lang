@@ -1,28 +1,26 @@
-#add <c3p.base>
-#add <c3p.math>
+x : i32 = 10
+y : i64 = 20
+z : f32 = 30.10
+m : b = T
+n : c = 'a'
+p : str = "Hola"
 
-func sum1 : i32 (_x : i32[])
-    x : i32 = 10
-    y : i32 = 20
-    x = 10 + 2
-    ret 2
-endfunc
+l : i32[10] = { 10, 20, 30 }
 
-?func sum2 : i32 (_x : i32[])
-?    x : i32 = 10
-?    y : i32 = 20
-?    x = 10 + 2
-?    ret 2
-?endfunc
-?
-?proc sum1 (_x : i32[])
-?    x : i32 = 10
-?    y : i32 = 20
-?    x = 10 + 2
-?endproc
-?
-?proc sum2 (_x : i32[])
-?    x : i32 = 10
-?    y : i32 = 20
-?    x = 10 + 2
-?endproc
+hide hx : i64 = 10
+hide hl : i32[10] = { 10, 20, 30 }
+
+rx : i64 = 10
+rl : i32[10] = { 10, 20, 30 }
+
+hide rhx : i64 = 10
+hide rhl : i32[10] = { 10, 20, 30 }
+
+hide hrx : i64 = 10
+hide hrl : i32[10] = { 10, 20, 30 }
+
+x = 30
+hx[0] = 30
+m = F
+n = 'b'
+a : c = p[0]
