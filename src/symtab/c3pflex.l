@@ -14,7 +14,7 @@
 
   #include "c3pbison.tab.h"
 
-#include "../../include/arrcopy.h"
+  #include "../../include/arrcopy.h"
   #include "../../include/symt.h"
   #include "../../include/symt_cons.h"
   #include "../../include/symt_var.h"
@@ -28,8 +28,6 @@
   int l_error = 0;        // Specify if errors were detected
   int num_lines = 1;      // Number of lines processed
 
-	// integer_type    i8|i16|i32|i64 double_type     f32|f64
-
   // Show and error message at console
   void showerr(const char *mssg, int cod);
   double get_double(const char *str);
@@ -39,7 +37,8 @@
 letter          [a-zA-Z]
 digit           [0-9]
 word            {letter}|{digit}|_
-identifier      {letter}{word}+|{letter}
+char_id 		{letter}|_
+identifier      {char_id}{word}+|{letter}
 
 char_type       c
 str_type        str

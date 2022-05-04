@@ -24,7 +24,7 @@ symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type,
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
 	n_var->name = strcopy(name);
-	if(rout_name != NULL) n_var->rout_name = strcopy(rout_name);
+	n_var->rout_name = strcopy(rout_name);
 	n_var->type = type;
 
 	if (type != B)
@@ -152,7 +152,7 @@ symt_var *symt_copy_var(symt_var *var)
 	{
 		symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
 		n_var->name = strcopy(var->name);
-		if(n_var->rout_name != NULL)n_var->rout_name = strcopy(var->rout_name);
+		n_var->rout_name = strcopy(var->rout_name);
 		n_var->type = var->type;
 		n_var->value = symt_copy_value(var->value, symt_get_type_data(n_var->type), var->array_length);
 		n_var->is_array = var->is_array;

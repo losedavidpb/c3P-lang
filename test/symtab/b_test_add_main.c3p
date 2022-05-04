@@ -2,5 +2,5 @@
 #add <c3p.math>
 
 proc main()
-
+	w : i32
 endproc

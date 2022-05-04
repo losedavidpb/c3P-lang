@@ -49,7 +49,13 @@ char *strcopy(char *src)
 {
 	if (src == NULL) return NULL;
     assertp(src != NULL, "passed pointer must be not null");
-    assertf(strlen(src) > 0, "%lu is not valid for num_elems", (unsigned long)strlen(src));
+	if (strlen(src) < 0) return NULL;
+
+    if (strlen(src) == 0)
+	{
+		char *dest = (char*)(ml_malloc(sizeof(char)));
+		return dest;
+	}
 
     char* dest = strdup(src);
 	assertp(dest != NULL, "copy could not be executed because of internal errors");

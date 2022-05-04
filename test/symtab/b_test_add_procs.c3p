@@ -2,9 +2,9 @@
 #add <c3p.math>
 
 proc hello_world()
-
+	w : i32
 endproc
 
 proc say_your_name(name : str)
-  
+	w : i32
 endproc

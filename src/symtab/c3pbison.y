@@ -227,7 +227,7 @@ int_expr 		: int_expr '+' int_expr 		{
 													$$ = result;
 												}
 				| IDENTIFIER					{
-													symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+													symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 													assertf(var != NULL, "variable %s has not been declared at line ", $1);
 
 													symt_node *result = symt_new();
@@ -602,92 +602,84 @@ arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
 // __________ Declaration for variables __________
 
 param_declr 	: IDENTIFIER ':' data_type							{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 0, 0, NULL, 0, true, level);
-																		tab = symt_push(tab, node); //$$ = node;
+																		tab = symt_push(tab, node);
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I8_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I16_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I32_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I64_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' F32_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' F64_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' CHAR_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' BOOL_TYPE '[' ']'					{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																		assertf(var == NULL, "variable %s has already been declared", $1);
 
 																		symt_node* node = symt_new();
 																		node = symt_insert_tab_var(node, $1, rout_name,	 $3, 1, -1, NULL, 0, true, level);
 																		tab = symt_push(tab, node);
-																		//$$ = node;
 																		symt_print(tab);
 																	}
 				;
@@ -695,7 +687,7 @@ param_declr 	: IDENTIFIER ':' data_type							{
 // __________ Assignation for variables __________
 
 var_assign      : IDENTIFIER '=' expr								{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																		assertf(var != NULL, "variable %s has not been declared", $1);
 
 																		symt_node *value = (symt_node *)$3;
@@ -704,7 +696,7 @@ var_assign      : IDENTIFIER '=' expr								{
 																		symt_print(tab);
 																	}
                 | IDENTIFIER '[' int_expr ']' '=' expr				{
-																		symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																		assertf(var != NULL, "variable %s has not been declared", $1);
 																		symt_node *index = (symt_node*)$3;
 																		symt_node *value = (symt_node*)$6;
@@ -740,23 +732,23 @@ list_expr 		: expr					{
 
 ext_var 		: in_var
 				| HIDE IDENTIFIER ':' data_type										{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, level);
-																						tab = symt_push(tab, var); //$$ = var;
+																						tab = symt_push(tab, var);
 																						symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type									{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var($2, NULL, $4, 1, array_length, NULL, 1, false, level);
-																						tab = symt_push(tab, var);// $$ = var;
+																						tab = symt_push(tab, var);
 																						symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' data_type '=' expr							{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, level);
@@ -764,17 +756,16 @@ ext_var 		: in_var
 																						symt_node *value = (symt_node *)$6;
 																						symt_assign_var(var->var, value->cons);
 																						tab = symt_push(tab, var);
-																						//$$ = var;
 																						symt_print(tab);
 																					}
 				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $2);
 
 																						var = symt_insert_var($2,NULL, $4, 0, 0, NULL, 1, false, level);
 																						tab = symt_push(tab, var);
 
-																						var = symt_search_by_name(tab, $2, VAR, level);
+																						var = symt_search_by_name(tab, $2, VAR, NULL, level);
 																						assertf(var != NULL, "variable %s has not been declared", $2);
 
 																						char *str_type_1 = symt_strget_vartype(var->var->type);
@@ -872,51 +863,47 @@ ext_var 		: in_var
 																							break;
 																						}
 
-																						//$$ = var;
 																						symt_print(tab);
 																					}
 				;
 
 in_var 			: IDENTIFIER ':' data_type 											{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
 																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, false, level);
-																						tab = symt_push(tab, node); //$$ = node;
+																						tab = symt_push(tab, node);
 																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type										{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
 																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 1, array_length, NULL, 0, false, level);
 																						tab = symt_push(tab, node);
-																						//$$ = node;
 																						symt_print(tab);
 																					}
 				| IDENTIFIER '=' expr												{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						symt_node *value = (symt_node *)$3;
 																						symt_assign_var(var->var, value->cons);
-																						//$$ = var;
 																						symt_print(tab);
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						symt_node *index = (symt_node*)$3;
 																						symt_node *value = (symt_node*)$6;
 
 																						symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
-																						//$$ = var;
 																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
-																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR, level);
+																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR, NULL, level);
 																						assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
 																						symt_node *result_node = symt_new();
@@ -925,15 +912,14 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(result_node->var, value->cons);
 																						tab = symt_push(tab, result_node);
-																						//$$ = result_node;
 																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						tab = symt_insert_tab_var(tab,  $1, rout_name, $3, 1, array_length, NULL, 0, false, level);
-																						var = symt_search_by_name(tab, $1, VAR, level);
+																						tab = symt_insert_tab_var(tab, $1, rout_name, $3, 1, array_length, NULL, 0, false, level);
+																						var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
 																						struct Stack *pila = $6;
@@ -1003,7 +989,6 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																								var->var->value = (void*)valores_char;
 																								break;
 																						}
-																						//$$ = var;
 																						symt_print(tab);
 																					}
 				;
@@ -1011,7 +996,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 // __________ Procedures and functions __________
 
 func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' declr_params ')' 						{
-																															symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
+																															symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, level);
 																															assertf(result == NULL, "function %s has already been defined", $2);
 																															tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, false, level++);
 																														}
@@ -1020,7 +1005,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																															symt_end_block(tab); level--;
 																														}
 				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')' 				{
-																															symt_node *result = symt_search_by_name(tab, $3, FUNCTION, level);
+																															symt_node *result = symt_search_by_name(tab, $3, FUNCTION, NULL, level);
 																															assertf(result == NULL, "function %s has already been defined", $3);
 																															tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $6, true, level++);
 																														}
@@ -1031,7 +1016,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 				;
 
 proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params ')' 									{
-																															symt_node *result = symt_search_by_name(tab, $2, PROCEDURE, level);
+																															symt_node *result = symt_search_by_name(tab, $2, PROCEDURE, NULL, level);
 																															assertf(result == NULL, "procedure %s has already been defined", $2);
 																															tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, false, level++);
 																														}
@@ -1040,7 +1025,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																															symt_end_block(tab); level--;
 																														}
 				| HIDE BEGIN_PROCEDURE IDENTIFIER { rout_name = $3; } '(' declr_params ')' 								{
-																															symt_node *result = symt_search_by_name(tab, $3, PROCEDURE, level);
+																															symt_node *result = symt_search_by_name(tab, $3, PROCEDURE, NULL, level);
 																															assertf(result == NULL, "procedure %s has already been defined", $3);
 																															tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, true, level++);
 																														}
@@ -1059,16 +1044,16 @@ declr_params 	: | param_declr ',' declr_params
 // __________ Call a function __________
 
 call_func 		: CALL IDENTIFIER					{
-														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
-														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, level);
+														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, level);
+														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, NULL, level);
 														assertf(result != NULL, "%s routine does not exist", $2);
 
 														symt_node *params = symt_search_param(tab, $2);
 														assertf(params == NULL, "%s routine does not need parameters", $2);
 													}
 				| CALL IDENTIFIER list_expr			{
-														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, level);
-														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, level);
+														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, level);
+														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, NULL, level);
 														assertf(result != NULL, "%s routine does not exist", $2);
 
 														symt_node *params = symt_search_param(tab, $2);
@@ -1127,7 +1112,7 @@ call_func 		: CALL IDENTIFIER					{
 
 															if (iter_p->var->is_array == true)
 															{
-																symt_node *aux = symt_search_by_name(tab, iter->name, VAR, level);
+																symt_node *aux = symt_search_by_name(tab, iter->name, VAR, NULL, level);
 																iter_p->var->array_length = aux->var->array_length;
 															}
 

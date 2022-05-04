@@ -38,7 +38,7 @@ symt_node *symt_search_param(symt_tab *tab, symt_name_t name)
 	return iter;
 }
 
-symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, symt_level_t level)
+symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, symt_name_t rout_name, symt_level_t level)
 {
 	assertp(tab != NULL, "table has not been defined");
 	symt_node *iter = tab;
@@ -51,7 +51,16 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, sy
 			{
 				switch (iter->id)
 				{
-					case VAR: if( strcmp(iter->var->name, name) == 0) return iter; 							break;
+					case VAR:
+						if (strcmp(iter->var->name, name) == 0)
+						{
+							if (rout_name == NULL && iter->var->rout_name == NULL) return iter;
+							else if (rout_name != NULL && iter->var->rout_name != NULL)
+							{
+								if (strcmp(rout_name, iter->var->rout_name) == 0) return iter;
+							}
+						}
+					break;
 					case FUNCTION: case PROCEDURE: if (strcmp(iter->rout->name, name) == 0) return iter;	break;
 					default: /* Just to avoid warnings */ 													break;
 				}
@@ -87,9 +96,9 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 }
 
 
-symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t rout_name, symt_name_t name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level)
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level)
 {
-	symt_node *new_node = symt_insert_var(rout_name, name, type, is_array, array_length, value, is_hide, is_param, level);
+	symt_node *new_node = symt_insert_var(name, rout_name, type, is_array, array_length, value, is_hide, is_param, level);
 	return symt_push(tab, new_node);
 }
 
@@ -171,7 +180,7 @@ void symt_print(symt_tab *tab)
 	printf("\n ## Table");
 
 	symt_node *node = (symt_node*)tab;
-	char *str_type, *message;
+	char *str_type, *message, *rout_name;
 
 	while(node != NULL)
 	{
@@ -181,15 +190,17 @@ void symt_print(symt_tab *tab)
 		{
 			case VAR:
 				str_type = symt_strget_vartype(node->var->type);
-				message = " name = %s | type = %s | is_hide = %d | is_array = %d | array_length = %d | level = %d";
-				printf(message, node->var->name, str_type, node->var->is_hide, node->var->is_array, node->var->array_length, node->level);
+				rout_name = node->var->rout_name;
+				if (rout_name == NULL) rout_name = "null";
+				message = " name = %s | rout_name = %s | type = %s | is_hide = %d | is_array = %d | array_length = %d | level = %d | is_param = %d";
+				printf(message, node->var->name, rout_name, str_type, node->var->is_hide, node->var->is_array, node->var->array_length, node->level, node->var->is_param);
 				symt_printf_value(node);
 			break;
 
 			case FUNCTION: case PROCEDURE:
 				str_type = symt_strget_vartype(node->rout->type);
-				if (str_type == NULL) str_type = "VOID";
-				if (strcmp(str_type, "undefined") == 0) str_type = "VOID";
+				if (str_type == NULL) str_type = "void";
+				if (strcmp(str_type, "undefined") == 0) str_type = "void";
 				message = " name = %s | type = %s | is_hide = %d | level = %d";
 				printf(message, node->rout->name, str_type, node->rout->is_hide, node->level);
 			break;
