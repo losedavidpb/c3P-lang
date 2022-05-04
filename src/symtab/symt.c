@@ -127,6 +127,7 @@ void symt_end_block(symt_tab *tab)
 		iter = iter->next_node;
 	}
 
+	if (prev_level == NULL) return;
 	symt_delete(prev_level->next_node);
 	prev_level->next_node = NULL;
 }

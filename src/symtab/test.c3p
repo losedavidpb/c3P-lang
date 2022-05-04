@@ -1,18 +1,28 @@
 #add <c3p.base>
 #add <c3p.math>
 
-func sum1 : i32 (x : i32, y : i64)
-	w : i32
+func sum1 : i32 (_x : i32[])
+    x : i32 = 10
+    y : i32 = 20
+    x = 10 + 2
+    ret 2
 endfunc
 
-func sum2 : i32 (x : i32, y : i64)
-	w : i32
-endfunc
-
-proc hello_world()
-	w : i32
-endproc
-
-proc say_your_name(name : str)
-	w : i32
-endproc
+?func sum2 : i32 (_x : i32[])
+?    x : i32 = 10
+?    y : i32 = 20
+?    x = 10 + 2
+?    ret 2
+?endfunc
+?
+?proc sum1 (_x : i32[])
+?    x : i32 = 10
+?    y : i32 = 20
+?    x = 10 + 2
+?endproc
+?
+?proc sum2 (_x : i32[])
+?    x : i32 = 10
+?    y : i32 = 20
+?    x = 10 + 2
+?endproc

@@ -17,11 +17,9 @@ rx : i64 = 10
 rl : i32[10] = { 10, 20, 30 }
 
 func sum1 : i32 (_x : i32, _y : i64)
-	w : i32
 endfunc
 
 func sum2 : i32 (_x : i32, _y : i64)
-	w : i32
 endfunc
 
 hide rhx : i64 = 10

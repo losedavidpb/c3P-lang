@@ -868,7 +868,7 @@ ext_var 		: in_var
 				;
 
 in_var 			: IDENTIFIER ':' data_type 											{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
@@ -877,7 +877,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type										{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						symt_node* node = symt_new();
@@ -886,7 +886,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_print(tab);
 																					}
 				| IDENTIFIER '=' expr												{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						symt_node *value = (symt_node *)$3;
@@ -894,7 +894,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_print(tab);
 																					}
 				| IDENTIFIER '[' expr ']' '=' expr									{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 																						symt_node *index = (symt_node*)$3;
 																						symt_node *value = (symt_node*)$6;
@@ -903,7 +903,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' data_type '=' expr									{
-																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						symt_node *var_without_value = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
 																						symt_node *result_node = symt_new();
@@ -915,7 +915,7 @@ in_var 			: IDENTIFIER ':' data_type 											{
 																						symt_print(tab);
 																					}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'				{
-																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																						assertf(var == NULL, "variable %s has already been declared", $1);
 
 																						tab = symt_insert_tab_var(tab, $1, rout_name, $3, 1, array_length, NULL, 0, false, level);
@@ -1001,7 +1001,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																															tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, false, level++);
 																														}
 																			EOL statement END_FUNCTION 					{
-																															assertf($11 != false, "empty functions are not valid");
+																															//assertf($11 != false, "empty functions are not valid");
 																															symt_end_block(tab); level--;
 																														}
 				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')' 				{
@@ -1010,7 +1010,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																															tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $6, true, level++);
 																														}
 																			EOL statement END_FUNCTION 					{
-																															assertf($12 != false, "empty functions are not valid");
+																															//assertf($12 != false, "empty functions are not valid");
 																															symt_end_block(tab); level--;
 																														}
 				;
@@ -1021,7 +1021,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																															tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, false, level++);
 																														}
 																			EOL statement END_PROCEDURE 				{
-																															assertf($9 != false, "empty procedures are not valid");
+																															//assertf($9 != false, "empty procedures are not valid");
 																															symt_end_block(tab); level--;
 																														}
 				| HIDE BEGIN_PROCEDURE IDENTIFIER { rout_name = $3; } '(' declr_params ')' 								{
@@ -1030,7 +1030,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																															tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, true, level++);
 																														}
 																			EOL statement END_PROCEDURE 				{
-																															assertf($10 != false, "empty procedures are not valid");
+																															//assertf($10 != false, "empty procedures are not valid");
 																															symt_end_block(tab); level--;
 																														}
 				;
@@ -1044,16 +1044,16 @@ declr_params 	: | param_declr ',' declr_params
 // __________ Call a function __________
 
 call_func 		: CALL IDENTIFIER					{
-														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, level);
-														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, NULL, level);
+														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, 0);
+														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, NULL, 0);
 														assertf(result != NULL, "%s routine does not exist", $2);
 
 														symt_node *params = symt_search_param(tab, $2);
 														assertf(params == NULL, "%s routine does not need parameters", $2);
 													}
 				| CALL IDENTIFIER list_expr			{
-														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, level);
-														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, NULL, level);
+														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, 0);
+														if (result == NULL) result = symt_search_by_name(tab, $2, PROCEDURE, NULL, 0);
 														assertf(result != NULL, "%s routine does not exist", $2);
 
 														symt_node *params = symt_search_param(tab, $2);
@@ -1145,15 +1145,12 @@ statement 		: { $$ = false; } | in_var EOL statement														 													
 				| { level++; } BEGIN_WHILE '(' expr ')' EOL statement break_rule 								END_WHILE { symt_end_block(tab); level--;} EOL statement 	{ $$ = true; }
 				| { level++; } BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule		END_FOR { symt_end_block(tab); level--; } EOL statement 	{ $$ = true; }
                 | { level++; } BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH 						END_SWITCH { symt_end_block(tab); level--; } EOL statement 	{ $$ = true; }
-				| { level++; } call_func EOL statement															{ level--; }
+				| { level++; } call_func EOL statement															{ level--; $$ = true; }
 				| RETURN expr EOL statement	 																																{ $$ = true; }
 				| CONTINUE EOL statement     																																{ $$ = true; }
 				| EOL statement   			 																																{
-																																												if($2 != false){
-																																													$$ = true;
-																																												}else {
-																																													$$ = false;
-																																												}
+																																												if ($2 != false) $$ = true;
+																																												else $$ = false;
 																																											}
 				| error EOL { printf(" at expression\n"); } statement																										{ $$ = true; }
 				;

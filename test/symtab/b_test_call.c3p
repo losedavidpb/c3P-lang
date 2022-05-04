@@ -1,10 +1,14 @@
 #add <c3p.base>
 #add <c3p.math>
 
-proc main()
+proc show()
+	w : i32
+endproc
 
-    call show 1
-    call show "Hello World"
-    call function 1, 2
+proc main()
+	call show
+    ?call show 1
+    ?call show "Hello World"
+    ?call function 1, 2
 
 endproc
