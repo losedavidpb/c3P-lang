@@ -70,6 +70,8 @@ endif                                           { return END_IF; }
 
 while                                           { return BEGIN_WHILE; }
 endwhile                                        { return END_WHILE; }
+for												{ return BEGIN_FOR; }
+endfor											{ return END_FOR; }
 continue                                        { return CONTINUE; }
 break                                           { return BREAK; }
 
