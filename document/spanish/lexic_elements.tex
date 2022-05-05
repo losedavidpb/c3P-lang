@@ -16,16 +16,14 @@ A continuación, se muestra una lista de las palabras clave en \textbf{c3P}:
 
 \#add, b, break, c, call, continue, def, else, endfor, endfunc, endif, endproc,
 endswitch, endwhile, f32, f64, for, func, hide, i8, i16, i32, i64, if, proc,
-readonly, ret, str, switch,  while
+ret, str, switch,  while
 
 \subsection{Constantes}
 
 Una \textbf{constante} es un valor numérico o de caracteres que se utilizan como valores
-literales para definir el valor de las variables. En \textbf{c3P}, se permite asignar
-variables a valores de un tipo de dato diferente, puesto que en esta asignación se
-está realizando una transformación del dato conocida como \textbf{casting}, en la
-que se convierte el valor de la constante que se asigna a la variable en la representación
-más precisa posible que describe con el tipo de dato de la variable su valor anterior.
+literales para definir el valor de las variables. En \textbf{c3P}, no se permite asignar
+variables a valores de un tipo de dato diferente, puesto que en esta asignación no se
+está realizando una transformación del dato conocida como \textbf{casting}.
 
 \subsubsection{Constantes enteras}
 
@@ -47,7 +45,7 @@ en coma flotante. La codificación de este tipo de constate consta de una secuen
 de dígitos que conforman la parte entera del mundo, seguido de un punto decimal y
 una secuencia de dígitos que corresponden a la parte fraccionaria. Es importante
 mencionar que en \textbf{c3P} no se puede omitir en la declaración de la constante
-la parte fraccionaria, aunque sea nula.
+la parte fraccionaria, y tampoco se puede declarar número cuya parte decimal sea nula.
 
 \subsubsection{Constantes de valores booleanos}
 

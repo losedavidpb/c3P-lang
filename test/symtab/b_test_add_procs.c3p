@@ -1,5 +1,6 @@
-#add <c3p.base>
-#add <c3p.math>
+#add <c3p/base>
+#add <c3p/math>
+
 
 proc hello_world()
 	w : i32

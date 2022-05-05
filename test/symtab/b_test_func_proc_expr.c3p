@@ -1,5 +1,6 @@
-#add <c3p.base>
-#add <c3p.math>
+#add <c3p/base>
+#add <c3p/math>
+
 
 func sum1 : i32 (_x : i32[])
     x : i32 = 10

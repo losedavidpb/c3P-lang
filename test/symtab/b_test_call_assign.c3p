@@ -1,11 +1,11 @@
-#add <c3p/base>
-#add <c3p/math>
-
-
 func sum1 : i32 (x : i32, y : i64)
 	w : i32
 endfunc
 
-func sum2 : i32 (x : i32, y : i64)
+func sum2 : i64 ()
 	w : i32
 endfunc
+
+x : i32
+x = call sum1 11, 2
+y : i64 = call sum2

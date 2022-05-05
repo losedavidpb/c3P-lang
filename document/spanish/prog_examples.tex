@@ -1,37 +1,39 @@
 \subsection{hello\_world.c3p}
 
 \begin{verbatim}
-#add <c3p.base>
+#add <c3p/base>
 
 proc main()
     call showln "Hello, world!"
-endproc    
+endproc
 \end{verbatim}
 
 \subsection{mean\_age.c3p}
 \begin{verbatim}
-#add <c3p.base>
+#add <c3p/base>
 
 proc main()
     i32 : total_ages
     i16 : age_mean
-    
+
     total_ages = call input "Inserta el número de edades ", "%i"
-    
+
     for (i : i32 = 0, i < total_ages, i = i + 1)
-        i32 : age = call input "Inserta la edad " + str(i), "%i"
+	stri : str = call str i
+        i32 : age = call input "Inserta la edad " + stri, "%i"
         age_mean = age_mean + age
     endfor
-    
+
     age_mean = age_mean / total_ages
-    call showln "La edad media es: + str(i)
-endproc   
+    age_str_mean = call str age_mean
+    call showln "La edad media es: + age_str_mean
+endproc
 \end{verbatim}
 
 \subsection{fibonacci.c3p}
 
 \begin{verbatim}
-#add <c3p.base>
+#add <c3p/base>
 
 func fibonacci(n : i32)
     if (n > 1)
@@ -39,7 +41,7 @@ func fibonacci(n : i32)
         f2 : i32 = call fibonacci n - 2
         ret f1 + f2
     endif
-    
+
     ret n
 endfunc
 
@@ -48,9 +50,13 @@ proc main()
     n20 : i32 = call fibonacci 20
     n30 : i32 = call fibonacci 30
     n40 : i32 = call fibonacci 40
-    call showln "fib(10) = " + str(n10) 
-    call showln "fib(20) = " + str(n20) 
-    call showln "fib(30) = " + str(n30) 
-    call showln "fib(40) = " + str(n40) 
+    n10_str : str = call str n10
+    n20_str : str = call str n20
+    n30_str : str = call str n30
+    n40_str : str = call str n40
+    call showln "fib(10) = " + n10_str
+    call showln "fib(20) = " + n20_str
+    call showln "fib(30) = " + n30_str
+    call showln "fib(40) = " + n40_str
 endproc
 \end{verbatim}
