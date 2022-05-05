@@ -8,6 +8,7 @@
 #include "../../../include/symt_cons.h"
 #include "../../../include/symt_rout.h"
 #include "../../../include/symt_var.h"
+#include <stdio.h>
 
 symt_node* symt_new_node()
 {
@@ -103,7 +104,7 @@ void symt_printf_value(symt_node* node)
 			{
 				case CONS_INTEGER: printf(" | value = %d", *(int*)value); 		break;
 				case CONS_DOUBLE: printf(" | value = %lf", *(double*)value); 	break;
-				case CONS_CHAR: printf(" | value = %c", *(char*)value); 		break;
+				case CONS_CHAR: printf(" | value = %c", *(char*)value); 			break;
 				case CONS_STR: printf(" | value = %s", (char*)value); 			break;
 				default: break;
 			}
@@ -169,11 +170,11 @@ void symt_delete_node(symt_node *node)
 
 	while (iter != NULL)
 	{
-		iter->id = SYMT_ROOT_ID;
-		symt_delete_var(iter->var); iter->var = NULL;
-		symt_delete_cons(iter->cons); iter->cons = NULL;
-		symt_delete_rout(iter->rout); iter->rout = NULL;
+		if (iter->id == VAR) symt_delete_var(iter->var); iter->var = NULL;
+		if (iter->id == CONSTANT) symt_delete_cons(iter->cons); iter->cons = NULL;
+		if (iter->id == PROCEDURE || iter->id == FUNCTION) symt_delete_rout(iter->rout); iter->rout = NULL;
 
+		iter->id = SYMT_ROOT_ID;
 		prev = iter; iter = iter->next_node;
 		prev->next_node = NULL;
 		ml_free(prev); prev = NULL;

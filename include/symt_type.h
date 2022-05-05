@@ -56,9 +56,9 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 #define I64_MAX 9223372036854775807
 
 /* Range of values for floats */
-#define F32_MIN -1.5e-45
+#define F32_MIN -3.4e37
 #define F32_MAX 3.4e38
-#define F64_MIN -5.0e-324
+#define F64_MIN -1.7e308
 #define F64_MAX 1.7e308
 
 /* Range of values for characters */
