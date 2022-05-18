@@ -34,6 +34,8 @@
 	extern FILE *yyin;				// Current file for Bison
 
 	FILE *obj;						// Object file
+	int next_label = 0;				// Next label that will be created
+
 	int sm = 0x12000;
 
 	int yydebug = 1; 				// Enable this to active debug mode
@@ -96,7 +98,6 @@
 %token<type_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
-%token BEGIN_SWITCH END_SWITCH DEFAULT_SWITCH
 %token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE CONTINUE BREAK
 %token BEGIN_PROCEDURE END_PROCEDURE BEGIN_FUNCTION END_FUNCTION RETURN CALL
 %token ADD_LIBRARY
@@ -193,7 +194,7 @@ expr_char       : CHAR                          {
                                                 }
 				;
 
-expr_string 	: STRING		 					{
+expr_string 	: STRING		 				{
 													type = CONS_STR;
 													symt_node *result = symt_new_node();
 													result = symt_insert_tab_cons(result, CONS_STR, $1);
@@ -204,11 +205,7 @@ expr_string 	: STRING		 					{
 iden_expr		: expr '+' expr					{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													type = num1->cons->type;
-
-													/*if (num1 != NULL && num2 != NULL){
-														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0+R1;\n", *(int*)num1->var->value, *(int*)num2->var->value);
-													}*/
+													qw_write_expr(obj, QW_ADD, num1, num2, -1);
 
 													symt_cons* res_cons = symt_cons_add(type, num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -221,11 +218,7 @@ iden_expr		: expr '+' expr					{
 				| expr '-' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													type = num1->cons->type;
-
-													/*if (num1 != NULL && num2 != NULL){
-														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0-R1;\n", *(int*)num1->var->value, *(int*)num2->var->value);
-													}*/
+													qw_write_expr(obj, QW_SUB, num1, num2, -1);
 
 													symt_cons* res_cons = symt_cons_sub(type, num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -238,11 +231,7 @@ iden_expr		: expr '+' expr					{
 				| expr '*' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													type = num1->cons->type;
-
-													/*if (num1 != NULL && num2 != NULL){
-														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0*R1;\n", *(int*)num1->var->value, *(int*)num2->var->value);
-													}*/
+													qw_write_expr(obj, QW_MULT, num1, num2, -1);
 
 													symt_cons* res_cons = symt_cons_mult(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
@@ -255,11 +244,7 @@ iden_expr		: expr '+' expr					{
 				| expr '/' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													type = num1->cons->type;
-
-													/*if (num1 != NULL && num2 != NULL){
-														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0/R1;\n", *(int*)num1->var->value, *(int*)num2->var->value);
-													}*/
+													qw_write_expr(obj, QW_DIV, num1, num2, -1);
 
 													symt_cons* res_cons = symt_cons_div(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
@@ -272,7 +257,8 @@ iden_expr		: expr '+' expr					{
 				| expr '%' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													type = num1->cons->type;
+													qw_write_expr(obj, QW_MOD, num1, num2, next_label++);
+
 													symt_cons* res_cons = symt_cons_mod(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
 
@@ -284,7 +270,8 @@ iden_expr		: expr '+' expr					{
 				| expr '^' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													type = num1->cons->type;
+													qw_write_expr(obj, QW_POW, num1, num2, next_label++);
+
 													symt_cons* res_cons = symt_cons_pow(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
 
@@ -296,6 +283,8 @@ iden_expr		: expr '+' expr					{
 				| expr '<' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
+													qw_write_expr(obj, QW_LESS, num1, num2, -1);
+
 													symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -307,6 +296,8 @@ iden_expr		: expr '+' expr					{
 				| expr '>' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
+													qw_write_expr(obj, QW_GREATER, num1, num2, -1);
+
 													symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -318,6 +309,8 @@ iden_expr		: expr '+' expr					{
 				| expr EQUAL expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
+													qw_write_expr(obj, QW_EQUAL, num1, num2, -1);
+
 													symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -329,6 +322,8 @@ iden_expr		: expr '+' expr					{
 				| expr NOTEQUAL expr 			{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
+													qw_write_expr(obj, QW_NOT_EQUAL, num1, num2, -1);
+
 													symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -340,6 +335,8 @@ iden_expr		: expr '+' expr					{
 				| expr LESSEQUAL expr 			{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
+													qw_write_expr(obj, QW_LESS_THAN, num1, num2, -1);
+
 													symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -351,6 +348,8 @@ iden_expr		: expr '+' expr					{
 				| expr MOREEQUAL expr 			{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
+													qw_write_expr(obj, QW_GREATER_THAN, num1, num2, -1);
+
 													symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
@@ -363,6 +362,8 @@ iden_expr		: expr '+' expr					{
 													symt_node* num1 = (symt_node*)$1;
 													symt_node* num2 = (symt_node*)$3;
 													assertf(num1->cons->type != CONS_CHAR, "char types does not support logic operation");
+
+													qw_write_expr(obj, QW_AND, num1, num2, -1);
 													int value1_int = *((int*)num1->cons->value);
 													int value2_int = *((int*)num2->cons->value);
 													int result = value1_int && value2_int;
@@ -376,6 +377,8 @@ iden_expr		: expr '+' expr					{
 													symt_node* num1 = $1;
 													symt_node* num2 = $3;
 													assertf(num1->cons->type != CONS_CHAR, "char types does not support logic operation");
+
+													qw_write_expr(obj, QW_OR, num1, num2, -1);
 													int value1_int = *((int*)num1->cons->value);
 													int value2_int = *((int*)num2->cons->value);
 													int result = value1_int || value2_int;
@@ -388,6 +391,8 @@ iden_expr		: expr '+' expr					{
 				| NOT expr 						{
 													symt_node* num1 = (symt_node*)$2;
 													assertf(num1->cons->type != CONS_CHAR, "char types does not support logic operation");
+													qw_write_expr(obj, QW_NOT, num1, NULL, -1);
+
 													int value1 = *((int*)num1->cons->value);
 													int result = !value1;
 
@@ -398,6 +403,7 @@ iden_expr		: expr '+' expr					{
 												}
 				| IDENTIFIER '[' int_expr ']'	{
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
 													symt_node *index = (symt_node*)$3;
 
@@ -426,10 +432,12 @@ iden_expr		: expr '+' expr					{
 
 														default: break;
 													}
+
 													$$ = result;
 												}
 				| IDENTIFIER					{
-													symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, level);
+													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared at line ", $1);
 
 													symt_node *result = symt_new();
@@ -1013,38 +1021,32 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 // __________ Procedures and functions __________
 
-func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' declr_params ')' 							{
-																																symt_node *result = symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0);
-																																assertf(result == NULL, "function %s has already been defined", rout_name);
-																																tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, false, level++);
-																															} EOL statement END_FUNCTION { symt_end_block(tab); level--; rout_name = NULL; }
-				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')'						{
-																																symt_node *result = symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0);
-																																assertf(result == NULL, "function %s has already been defined", $3);
-																																tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $6, true, level++);
-																															}
-																			EOL statement END_FUNCTION 						{
-																																symt_end_block(tab);
-																																rout_name = NULL;
-																																level--;
-																															}
+func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' declr_params ')' 			{
+																												symt_node *result = symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0);
+																												assertf(result == NULL, "function %s has already been defined", rout_name);
+																												tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, false, level++);
+																												qw_write_routine(obj, rout_name, next_label++);
+																											} EOL statement RETURN expr EOL END_FUNCTION { symt_end_block(tab); level--; qw_write_close_routine(obj, rout_name); rout_name = NULL; }
+				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')'		{
+																												symt_node *result = symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0);
+																												assertf(result == NULL, "function %s has already been defined", $3);
+																												tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $6, true, level++);
+																												qw_write_routine(obj, rout_name, next_label++);
+																											} EOL statement RETURN expr EOL END_FUNCTION { symt_end_block(tab); qw_write_close_routine(obj, rout_name); rout_name = NULL; level--;  }
 				;
 
 proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params ')' 						{
-																																symt_node *result = symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0);
-																																assertf(result == NULL, "procedure %s has already been defined", rout_name);
-																																tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, false, level++);
-																															} EOL statement END_PROCEDURE { symt_end_block(tab); level--; rout_name = NULL; }
+																												symt_node *result = symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0);
+																												assertf(result == NULL, "procedure %s has already been defined", rout_name);
+																												tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, false, level++);
+																												qw_write_routine(obj, rout_name, next_label++);
+																											} EOL statement END_PROCEDURE { symt_end_block(tab); level--; qw_write_close_routine(obj, rout_name); rout_name = NULL; }
 				| HIDE BEGIN_PROCEDURE IDENTIFIER { rout_name = $3; } '(' declr_params ')' 					{
-																																symt_node *result = symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0);
-																																assertf(result == NULL, "procedure %s has already been defined", rout_name);
-																																tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, true, level++);
-																															}
-																			EOL statement END_PROCEDURE 					{
-																																symt_end_block(tab);
-																																rout_name = NULL;
-																																level--;
-																															}
+																												symt_node *result = symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0);
+																												assertf(result == NULL, "procedure %s has already been defined", rout_name);
+																												tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, true, level++);
+																												qw_write_routine(obj, rout_name, next_label++);
+																											} EOL statement END_PROCEDURE { symt_end_block(tab); qw_write_close_routine(obj, rout_name); rout_name = NULL; level--; }
 				;
 
 // __________ Parameters __________
@@ -1178,14 +1180,6 @@ add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries			{
 																			}
 				;
 
-// __________ Switch case __________
-
-switch_case     : EOL switch_case | expr ':' EOL statement BREAK EOL switch_case
-                | DEFAULT_SWITCH ':' EOL statement BREAK EOL more_EOL
-                ;
-
-more_EOL        : | EOL more_EOL
-                ;
 
 // __________ Statement __________
 
@@ -1193,9 +1187,7 @@ statement 		: { $$ = false; } | in_var EOL statement														 													
 				| { level++; } BEGIN_IF '(' expr ')' EOL statement break_rule more_else						END_IF { symt_end_block(tab); level--; } EOL statement 		{ $$ = true; }
 				| { level++; } BEGIN_WHILE '(' expr ')' EOL statement break_rule 							END_WHILE { symt_end_block(tab); level--;} EOL statement 	{ $$ = true; }
 				| { level++; } BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule	END_FOR { symt_end_block(tab); level--; } EOL statement 	{ $$ = true; }
-                | { level++; } BEGIN_SWITCH '(' IDENTIFIER ')' EOL switch_case END_SWITCH 					END_SWITCH { symt_end_block(tab); level--; } EOL statement 	{ $$ = true; }
 				| { level++; } call_func EOL statement																													{ level--; $$ = true; }
-				| RETURN expr EOL statement	 																															{ $$ = true; }
 				| CONTINUE EOL statement     																															{ $$ = true; }
 				| EOL statement   			 																															{
 																																											if ($2 != false) $$ = true;
@@ -1228,6 +1220,7 @@ program 		: | ext_var program
 int main(int argc, char **argv)
 {
 	tab = symt_new();
+	next_label = 0;
 
 	obj = qw_new(strappend(argv[1], ".q.c"));
 	qw_prepare(obj);

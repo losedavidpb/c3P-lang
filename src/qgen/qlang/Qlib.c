@@ -24,6 +24,12 @@ unsigned char *inv_str(unsigned char *r)
   return p;
 }
 
+double pow(double num1, double num2)
+{
+	while (num2-- > 0) num1 += num1;
+	return num1;
+}
+
 /* Routines for Q library
 *****************************
 */
@@ -59,6 +65,29 @@ L putf_:
 	printf((char*)p,R2);             	// translate
     reinv_str(p,&U(R1));   	    		// re-invert
 	GT(R0);                             // return
+}
+
+// void pow_(int num, int exp)
+// Input:	R0=return label
+//			R1=number on which operation would be applied
+//			R2=exponent value for pow operation
+// Registers would not be modified except R1 that has the result
+L pow_:
+{
+	R1=pow(R1,R2);
+	GT(R0);
+}
+
+// void mod_(int num1, int num2)
+// Input:	R0=return label
+//			R1=first number
+//			R2=second number
+// Registers would not be modified except R1 that has the result
+L mod_:
+{
+	IF(R2==0) GT(exit_);
+	R1=R1%R2;
+	GT(R0);
 }
 
 ENDLIB

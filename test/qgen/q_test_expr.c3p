@@ -1,3 +1,23 @@
+y : i32 = 200
+
 proc main()
-	x : i32
+	x : i32 = 0
+	x = x + 20
+	z : i32
+	z = 10
+	x = y - 20
+	x = 10 * 20
+	x = 10 / 20
+	x = 10 ^ 2
+	x = 10 % 20
+	cond : b
+	cond = 2 == 10
+	cond = 2 != 10
+	cond = 2 > 10
+	cond = 2 < 10
+	cond = 2 >= 10
+	cond = 2 <= 10
+	cond = T and T
+	cond = T or T
+	cond = not T
 endproc
