@@ -17,6 +17,9 @@
 	#include <string.h>
 	#include <stdbool.h>
 	#include <unistd.h>
+	#include <stdio.h>
+
+	#include "Qlib.h"
 
 	#include "../../include/symt.h"
 	#include "../../include/symt_cons.h"
@@ -26,17 +29,22 @@
 	#include "../../include/assertb.h"
 	#include "../../include/arrcopy.h"
 	#include "../../include/memlib.h"
-	#include "../../include/qlang/qwriter.h"
-	#include "../../include/qlang/Qlib.h"
 
 	extern int l_error;	  			// Specify if lexical errors were detected
 	extern int num_lines; 			// Number of lines processed
 	extern FILE *yyin;				// Current file for Bison
+	FILE *yyin_old;
 
+<<<<<<< HEAD
 	FILE *obj;						// Object file
 	int next_label = 0;				// Next label that will be created
 
+=======
+>>>>>>> 225043810916994e03863bdc48739e959eebae7f
 	int sm = 0x12000;
+	int et = 0;
+
+	FILE *obj;
 
 	int yydebug = 1; 				// Enable this to active debug mode
 	int s_error = 0; 				// Specify if syntax errors were detected
@@ -156,6 +164,7 @@ int_expr 		: '(' int_expr ')' 				{ $$ = $2; }
 													result = symt_insert_tab_cons(result, CONS_INTEGER, &$1);
 													$$ = result;
 												}
+
 				;
 
 expr_num 		: T 							{
@@ -443,8 +452,7 @@ iden_expr		: expr '+' expr					{
 													symt_node *result = symt_new();
 													result = symt_insert_tab_cons(result, symt_get_type_data(var->var->type), var->var->value);
 													$$ = result;
-												}
-				;
+												};
 
 // __________ Constants and Data type __________
 
@@ -1197,7 +1205,7 @@ statement 		: { $$ = false; } | in_var EOL statement														 													
 				;
 
 more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab); } EOL statement break_rule { $$ = true; }
-				| ELSE_IF { symt_end_block(tab); }  BEGIN_IF '(' expr ')' EOL statement break_rule more_else { $$ = true; }
+				| ELSE_IF { symt_end_block(tab); }  BEGIN_IF '(' expr ')' { $<integer_t>$=++et; fprintf(obj, "IF(!R0) GT(%d);\n", et); } EOL statement break_rule { fprintf(obj, "L %d:\tR7=R7+4;\n", $<integer_t>7); } more_else { $$ = true; }
 				;
 
 break_rule 		: { $$ = false; } | BREAK EOL statement { $$ = true;}
@@ -1222,19 +1230,23 @@ int main(int argc, char **argv)
 	tab = symt_new();
 	next_label = 0;
 
-	obj = qw_new(strappend(argv[1], ".q.c"));
-	qw_prepare(obj);
+	//for (int i = 1; i < argc; i++)
+	//{
+		level = 0; num_lines = 1; s_error = 0; l_error = 0;
+		tab = symt_new();
 
-	yyin = fopen(argv[1], "r");
-	yyparse();
+		printf(" >> Analyzing syntax for %s ... ", argv[1]);
+		yyin = fopen(argv[1], "r");
+		obj = fopen(argv[2], "w");
+		fprintf(obj, "#include \"Q.h\"\nBEGIN\n");
+		yyparse();
+		fprintf(obj, "END\n");
+		fclose(yyin);
 
-	fclose(yyin);
-	qw_close(obj);
+		if (s_error == 0 && l_error == 0) printf("\n %s: OK\n", argv[1]);
+		symt_delete(tab);
+	//}
 
-	if (s_error == 0 && l_error == 0)
-		printf("\n %s: OK\n", argv[1]);
-
-	symt_delete(tab);
 	return 0;
 }
 
