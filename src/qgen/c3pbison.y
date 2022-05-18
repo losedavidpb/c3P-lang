@@ -19,20 +19,25 @@
 	#include <unistd.h>
 	#include <stdio.h>
 
+	#include "Qlib.h"
+
 	#include "../../include/symt.h"
 	#include "../../include/symt_cons.h"
 	#include "../../include/symt_var.h"
   	#include "../../include/symt_rout.h"
   	#include "../../include/symt_node.h"
-
 	#include "../../include/assertb.h"
 	#include "../../include/arrcopy.h"
 	#include "../../include/memlib.h"
-	#include "../../include/Qlib.h"
 
 	extern int l_error;	  			// Specify if lexical errors were detected
 	extern int num_lines; 			// Number of lines processed
 	extern FILE *yyin;				// Current file for Bison
+	FILE *yyin_old;
+
+	int sm = 0x12000;
+
+	FILE *obj;
 
 	int yydebug = 1; 				// Enable this to active debug mode
 	int s_error = 0; 				// Specify if syntax errors were detected
@@ -204,8 +209,13 @@ iden_expr		: expr '+' expr					{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													type = num1->cons->type;
-													symt_cons* res_cons = symt_cons_add(type, num1->cons, num2->cons);
-													symt_delete(num1); symt_delete(num2);
+
+													if (var!=NULL){
+														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0+R1;\n", *(int*)num1->var->value, *(int*)num1->var->value);
+													}
+
+													//symt_cons* res_cons = symt_cons_add(type, num1->cons, num2->cons);
+													//symt_delete(num1); symt_delete(num2);
 
 													symt_node *result = symt_new();
 													result->id = CONSTANT;
@@ -216,8 +226,13 @@ iden_expr		: expr '+' expr					{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													type = num1->cons->type;
-													symt_cons* res_cons = symt_cons_sub(type, num1->cons, num2->cons);
-													symt_delete(num1); symt_delete(num2);
+
+													if (var!=NULL){
+														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0-R1;\n", *(int*)num1->var->value, *(int*)num1->var->value);
+													}
+
+													//symt_cons* res_cons = symt_cons_sub(type, num1->cons, num2->cons);
+													//symt_delete(num1); symt_delete(num2);
 
 													symt_node *result = symt_new();
 													result->id = CONSTANT;
@@ -228,8 +243,13 @@ iden_expr		: expr '+' expr					{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													type = num1->cons->type;
-													symt_cons* res_cons = symt_cons_mult(type, num1->cons, num2->cons);
-													symt_delete_node(num1); symt_delete_node(num2);
+
+													if (var!=NULL){
+														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0*R1;\n", *(int*)num1->var->value, *(int*)num1->var->value);
+													}
+
+													//symt_cons* res_cons = symt_cons_mult(type, num1->cons, num2->cons);
+													//symt_delete_node(num1); symt_delete_node(num2);
 
 													symt_node *result = symt_new();
 													result->id = CONSTANT;
@@ -240,8 +260,13 @@ iden_expr		: expr '+' expr					{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
 													type = num1->cons->type;
-													symt_cons* res_cons = symt_cons_div(type, num1->cons, num2->cons);
-													symt_delete_node(num1); symt_delete_node(num2);
+
+													if (var!=NULL){
+														fprintf(obj, "\tR0=I(%d);\n\tR1=I(%d);\n\tR0=R0/R1;\n", *(int*)num1->var->value, *(int*)num1->var->value);
+													}
+
+													//symt_cons* res_cons = symt_cons_div(type, num1->cons, num2->cons);
+													//symt_delete_node(num1); symt_delete_node(num2);
 
 													symt_node *result = symt_new();
 													result->id = CONSTANT;
@@ -595,6 +620,7 @@ param_declr 	: IDENTIFIER ':' data_type							{
 
 var_assign      : IDENTIFIER '=' expr								{
 																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+
 																		assertf(var != NULL, "variable %s has not been declared", $1);
 
 																		symt_node *value = (symt_node *)$3;
@@ -1204,16 +1230,25 @@ program 		: | ext_var program
 
 int main(int argc, char **argv)
 {
-	tab = symt_new();
+	printf("c3psymt -- Better Syntax Analyzer\n");
+	printf("=================================\n");
 
-	yyin = fopen(argv[1], "r");
-	yyparse();
-	fclose(yyin);
+	//for (int i = 1; i < argc; i++)
+	//{
+		level = 0; num_lines = 1; s_error = 0; l_error = 0;
+		tab = symt_new();
 
-	if (s_error == 0 && l_error == 0)
-		printf("\n %s: OK\n", argv[1]);
+		printf(" >> Analyzing syntax for %s ... ", argv[1]);
+		yyin = fopen(argv[1], "r");
+		obj = fopen(argv[2], "w");
+		fprintf(obj, "#include \"Q.h\"\nBEGIN\n");
+		yyparse();
+		fprintf(obj, "END\n");
+		fclose(yyin);
 
-	symt_delete(tab);
+		if (s_error == 0 && l_error == 0) printf("\n %s: OK\n", argv[1]);
+		symt_delete(tab);
+	//}
 
 	return 0;
 }
