@@ -57,4 +57,49 @@ double *doublesub(double *src, natural_t ini_dx, natural_t end_dx);
    Null would be returned whether passed parameters are not valid */
 char *strsub(char *src, natural_t ini_dx, natural_t end_dx);
 
+/* Cat passed source into destiny from passed number. This
+   would not be possible whether there are not enough space
+   to include all elements at destiny */
+void intcat(int *dest, int *src, natural_t ini_dx, natural_t len);
+
+/* Cat passed source into destiny from passed number. This
+   would not be possible whether there are not enough space
+   to include all elements at destiny */
+void boolcat(bool *dest, bool *src, natural_t ini_dx, natural_t len);
+
+/* Cat passed source into destiny from passed number. This
+   would not be possible whether there are not enough space
+   to include all elements at destiny */
+void floatcat(float *dest, float *src, natural_t ini_dx, natural_t len);
+
+/* Cat passed source into destiny from passed number. This
+   would not be possible whether there are not enough space
+   to include all elements at destiny */
+void doublecat(double *dest, double *src, natural_t ini_dx, natural_t len);
+
+/* Cat passed source into destiny from passed number. This
+   would not be possible whether there are not enough space
+   to include all elements at destiny */
+void stringcat(char *dest, char *src);
+
+/* Append passed source into a new variable which would be
+   the result of the concatenation of destiny and source */
+int *intappend(int *dest, int *src, natural_t len1, natural_t len2);
+
+/* Append passed source into a new variable which would be
+   the result of the concatenation of destiny and source */
+bool *boolappend(bool *dest, bool *src, natural_t len1, natural_t len2);
+
+/* Append passed source into a new variable which would be
+   the result of the concatenation of destiny and source */
+float *floatappend(float *dest, float *src, natural_t len1, natural_t len2);
+
+/* Append passed source into a new variable which would be
+   the result of the concatenation of destiny and source */
+double *doubleappend(double *dest, double *src, natural_t len1, natural_t len2);
+
+/* Append passed source into a new variable which would be
+   the result of the concatenation of destiny and source */
+char *strappend(char *dest, char *src);
+
 #endif  // COPY_H

@@ -1,6 +1,6 @@
 // Qlib.c 3.7.3     Q LIBRARY
 
-#include "Q.h"
+#include "../../../include/qlang/Q.h"
 
 /* Re-invert the order of Q strings in order to have
    compatibility to C libraries */
@@ -23,7 +23,6 @@ unsigned char *inv_str(unsigned char *r)
   reinv_str(p,r);    // invert
   return p;
 }
-
 
 /* Routines for Q library
 *****************************

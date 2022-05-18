@@ -57,7 +57,11 @@ char *strcopy(char *src)
 		return dest;
 	}
 
-    char* dest = strdup(src);
+	char *dest = (char*)(ml_malloc(strlen(src) * sizeof(char)));
+	for (int i = 0; i < strlen(src); i++) *(dest + i) = *(src + i);
+	*(dest + strlen(src)) = '\0';
+
+    //dest = strncpy(dest, src, strlen(src) + 1);
 	assertp(dest != NULL, "copy could not be executed because of internal errors");
     return dest;
 }
@@ -118,7 +122,96 @@ char *strsub(char *src, natural_t ini_dx, natural_t end_dx)
 
 	natural_t new_size = (end_dx - ini_dx);
 	char *dest = (char*)(ml_malloc(new_size * sizeof(char)));
-	for (int i = 0, j = ini_dx; i < new_size; i++, j++) *(dest + i) = *(src + j);
+	strncpy(dest, src + ini_dx, new_size);
+    *(dest + (end_dx-1) )= '\0';
 
 	return dest;
+}
+
+void intcat(int *dest, int *src, natural_t ini_dx, natural_t len)
+{
+	if (dest == NULL || src == NULL) return;
+	assertf(ini_dx >= 0 && ini_dx < len, "invalid index, %d must be a valid position", (int)ini_dx);
+
+	for (int i = ini_dx, j = 0; i < (len - ini_dx); i++, j++)
+		*(dest + i) = *(src + j);
+}
+
+void boolcat(bool *dest, bool *src, natural_t ini_dx, natural_t len)
+{
+	if (dest == NULL || src == NULL) return;
+	assertf(ini_dx >= 0 && ini_dx < len, "invalid index, %d must be a valid position", (int)ini_dx);
+
+	for (int i = ini_dx, j = 0; i < (len - ini_dx); i++, j++)
+		*(dest + i) = *(src + j);
+}
+
+void floatcat(float *dest, float *src, natural_t ini_dx, natural_t len)
+{
+	if (dest == NULL || src == NULL) return;
+	assertf(ini_dx >= 0 && ini_dx < len, "invalid index, %d must be a valid position", (int)ini_dx);
+
+	for (int i = ini_dx, j = 0; i < (len - ini_dx); i++, j++)
+		*(dest + i) = *(src + j);
+}
+
+void doublecat(double *dest, double *src, natural_t ini_dx, natural_t len)
+{
+	if (dest == NULL || src == NULL) return;
+	assertf(ini_dx >= 0 && ini_dx < len, "invalid index, %d must be a valid position", (int)ini_dx);
+
+	for (int i = ini_dx, j = 0; i < (len - ini_dx); i++, j++)
+		*(dest + i) = *(src + j);
+}
+
+void stringcat(char *dest, char *src)
+{
+	if (dest == NULL || src == NULL) return;
+	strcat(dest, src);
+}
+
+int *intappend(int *dest, int *src, natural_t len1, natural_t len2)
+{
+	if (dest == NULL || src == NULL) return NULL;
+	int * res = (int*)(ml_malloc(sizeof(int) * (len1 + len2)));
+	for (int i = 0; i < len1; i++) *(res + i) = *(dest + i);
+	for (int i = len1, j = 0; i < (len1 + len2); i++, j++) *(res + i) = *(src + j);
+	return res;
+}
+
+bool *boolappend(bool *dest, bool *src, natural_t len1, natural_t len2)
+{
+	if (dest == NULL || src == NULL) return NULL;
+	bool * res = (bool*)(ml_malloc(sizeof(bool) * (len1 + len2)));
+	for (int i = 0; i < len1; i++) *(res + i) = *(dest + i);
+	for (int i = len1, j = 0; i < (len1 + len2); i++, j++) *(res + i) = *(src + j);
+	return res;
+}
+
+float *floatappend(float *dest, float *src, natural_t len1, natural_t len2)
+{
+	if (dest == NULL || src == NULL) return NULL;
+	float * res = (float*)(ml_malloc(sizeof(float) * (len1 + len2)));
+	for (int i = 0; i < len1; i++) *(res + i) = *(dest + i);
+	for (int i = len1, j = 0; i < (len1 + len2); i++, j++) *(res + i) = *(src + j);
+	return res;
+}
+
+double *doubleappend(double *dest, double *src, natural_t len1, natural_t len2)
+{
+	if (dest == NULL || src == NULL) return NULL;
+	double * res = (double*)(ml_malloc(sizeof(double) * (len1 + len2)));
+	for (int i = 0; i < len1; i++) *(res + i) = *(dest + i);
+	for (int i = len1, j = 0; i < (len1 + len2); i++, j++) *(res + i) = *(src + j);
+	return res;
+}
+
+char *strappend(char *dest, char *src)
+{
+	if (dest == NULL || src == NULL) return NULL;
+	char * res = (char*)(ml_malloc(sizeof(char) * (strlen(dest) + strlen(src))));
+	for (int i = 0; i < strlen(dest); i++) *(res + i) = *(dest + i);
+	for (int i = strlen(dest), j = 0; i < (strlen(dest) + strlen(src)); i++, j++) *(res + i) = *(src + j);
+	*(res + strlen(dest) + strlen(src)) = '\0';
+	return res;
 }

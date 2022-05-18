@@ -30,3 +30,7 @@ build
 
 # LaTeX temporary files
 document/spanish/.tmp
+
+# Q language
+IQ-cpp.q.c
+q_test_*.q.c

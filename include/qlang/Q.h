@@ -159,8 +159,8 @@ EXTERN Pt HP;                   // address, virt. of the last pos. actually assi
 #define MAS(x) ((x)/AS)*AS  // convierte a multiplo de AS hacia dir. num�r. inferiores
 // MORE(x) (((x)-AS+1)/AS)*AS /* id. superiors
 // effectively extend the static zone to position MAS(e) (from Z+1)
-unsigned char u_wall; // evita aviso -Wall
-#define ZE(e) if ((Pt)(e)<CP) {CP=(Pt)MAS(e); u_wall=U((Pt)MAS(e)); /* fuerza asignaci�n */ }
+unsigned char u_wall; // avoid -Wall warning
+#define ZE(e) if ((Pt)(e)<CP) {CP=(Pt)MAS(e); u_wall=U((Pt)MAS(e)); /* force assigment */ }
 
 // has the same effect as the old NC (b>0 increases stack size: _de_increase CP
 #define nvo_NC(b) CP-=(b);      // if before NC(+n), now R7=R7-n and further access
@@ -172,74 +172,74 @@ unsigned char u_wall; // evita aviso -Wall
 #define BS  0x00100 // 256 B: stack allocation unit
 #define DMS (d+s) // will read or write to dir. virt. d..DMS-1
 
-#define QF                                                                           \
-                                                                                     \
-void errxit(int cod) {                                                               \
-char *mens[]=                                                                        \
- {/* 0 */ "" /* not appropriate 0 as longjmp code */ \
-   /* 1 */ , "Attempt to free a section larger than the heap in heap" \
-   /* 2 */ , "Memory access out of bounds" \
-   /* 3 */ , "Memory block to allocate too large" \
-   /* 4 */ , "Exceeded the maximum size of static zone plus stack, or heap" \
-   /* 5 */ , "The system does not supply more memory" \
-   /* 6 */ , "Static memory allocation at address not less than Z" \
-   /* 7 */ , "END reached" \
-   /* 8 */ , "ENDLIB reached" \
-   /* 9 */ , "Jump to nonexistent label"                                         \
- };                                                                                 \
- fflush(stdout);                                                                    \
- fprintf(stderr,"\nQ.h: %s (error %i)\n",mens[cod],cod);                            \
- longjmp(env,cod); /* jump to exception handler */                            		\
- /* unreachable */ printf("\nQ.h: error interno\n"); raise(SIGABRT);               \
-}                                                                                   \
-                                                                                    \
-/* Increase the size of the heap by b bytes (or decrement it if b<0) 				\
-Modify (and return) the HP value accordingly */                        \
-void NH(tR b) {                                                                      \
-  Pt nvoHP;                                                                          \
-  if ((b)>BSX) errxit(3); /* block to allocate too big */                   		\
-  else if ((nvoHP=HP-(b))>H) errxit(1); /* attempt to release more heap than there is */\
-  else if (nvoHP<Z) errxit(4); /* maximum heap size exceeded */                     \
-  else if (!(heap = (UC*)realloc(heap, H-nvoHP))) errxit(5); /* realloc error */  \
-  HP=nvoHP;                                                                          \
-}                                                                                    \
-                                                                                     \
-UC *DIR(PTR d, UC s) {                                                               \
-  /* Convert virtual address d to z.e., stack or heap to address \
-    real. We reverse the order of memory addresses, so that stack \
+#define QF                                                                          					\
+                                                                                    					\
+void errxit(int cod) {                                                              					\
+char *mens[]=                                                                       					\
+ {/* 0 */ "" /* not appropriate 0 as longjmp code */ 													\
+   /* 1 */ , "Attempt to free a section larger than the heap in heap" 									\
+   /* 2 */ , "Memory access out of bounds" 																\
+   /* 3 */ , "Memory block to allocate too large" 														\
+   /* 4 */ , "Exceeded the maximum size of static zone plus stack, or heap" 							\
+   /* 5 */ , "The system does not supply more memory" 													\
+   /* 6 */ , "Static memory allocation at address not less than Z" 										\
+   /* 7 */ , "END reached" 																				\
+   /* 8 */ , "ENDLIB reached" 																			\
+   /* 9 */ , "Jump to nonexistent label"                                        						\
+ };                                                                                 					\
+ fflush(stdout);                                                                    					\
+ fprintf(stderr,"\nQ.h: %s (error %i)\n",mens[cod],cod);                            					\
+ longjmp(env,cod); /* jump to exception handler */                            							\
+ /* unreachable */ printf("\nQ.h: internal error\n"); raise(SIGABRT);                 					\
+}                                                                                   					\
+                                                                                    					\
+/* Increase the size of the heap by b bytes (or decrement it if b<0) 									\
+Modify (and return) the HP value accordingly */                        									\
+void NH(tR b) {                                                                     					\
+  Pt nvoHP;                                                                         					\
+  if ((b)>BSX) errxit(3); /* block to allocate too big */                   							\
+  else if ((nvoHP=HP-(b))>H) errxit(1); /* attempt to release more heap than there is */				\
+  else if (nvoHP<Z) errxit(4); /* maximum heap size exceeded */                     					\
+  else if (!(heap = (UC*)realloc(heap, H-nvoHP))) errxit(5); /* realloc error */  						\
+  HP=nvoHP;                                                                         					\
+}                                                                                   					\
+                                                                                    					\
+UC *DIR(PTR d, UC s) {                                                              					\
+  /* Convert virtual address d to z.e., stack or heap to address 										\
+    real. We reverse the order of memory addresses, so that stack 										\
     --and thus heap-- grow (virtually) towards \ addresses
     numerically lower, while realloc, and the \ operations
-    multibyte read/write (e.g. 4-byte int) do it to \
-    numerically higher addresses. We can't make the heap \
-    grow in the opposite direction, because then there would be different endians \
-    on stack and heap. The virtual machine is therefore big endian, and the \
-    strings are stored to address. virt. superior --but really \
-    towards direction lower so you have to reorder them \
-    temporarily for i/o with libC. */                                      \
-  Pt bloq /* extent size */ , nvoCPX;                                     \
-  if (d<=Z-s) /* avoid DMS>=0 when (signed)d<0 */                                  \
-    if (d>=CPX) return ze_pila+Z-DMS; /* even if >=CP (user pgm error) */  \
-    else {                                                                           \
-      nvoCPX=CPX-(bloq=(CPX-CP+BS-1)/BS*BS); /* calculate according to CP, not according to d! */ \
-      if (bloq>BSX) errxit(3); /* block to allocate too big */               \
-      else if (nvoCPX>Z) errxit(4); /* (better than >=) maximum stack size exceeded */ \
-      else if (d>=nvoCPX)                                                            \
-	if (!(ze_pila = (UC *)realloc(ze_pila, Z-nvoCPX)))                           \
-	  errxit(5); /* realloc error */                                          \
-	else {CPX=nvoCPX; return ze_pila+Z-DMS;}                                     \
-      else errxit(2); /* access below stack mapped zone */            \
-    }                                                                                \
-  else if (d<=H-s && d>=HP) return heap+H-DMS;                                       \
-  else errxit(2); /* top access to stack outside zone assigned to heap */    \
-  return 0; /* avoid warning if -Wall */                                               \
-}                                                                                    \
-                                                                                     \
-/* load a string (C format: '\0' trailing mark) */                             \
-void STR(Pt p, const char *r) {	                                                     \
-    if (p+strlen(r)+1>Z) errxit(6); /* static zone must be less than Z */    \
-    ZE(p); 			                                                     \
-    do U(p++)=*r; while (*r++);                                                      \
-  }                                                                                  \
+    multibyte read/write (e.g. 4-byte int) do it to 													\
+    numerically higher addresses. We can't make the heap 												\
+    grow in the opposite direction, because then there would be different endians						\
+    on stack and heap. The virtual machine is therefore big endian, and the 							\
+    strings are stored to address. virt. superior --but really 											\
+    towards direction lower so you have to reorder them 												\
+    temporarily for i/o with libC. */                                      								\
+  Pt bloq /* extent size */ , nvoCPX;                                     								\
+  if (d<=Z-s) /* avoid DMS>=0 when (signed)d<0 */                                  						\
+    if (d>=CPX) return ze_pila+Z-DMS; /* even if >=CP (user pgm error) */  								\
+    else {                                                                          		 			\
+      nvoCPX=CPX-(bloq=(CPX-CP+BS-1)/BS*BS); /* calculate according to CP, not according to d! */ 		\
+      if (bloq>BSX) errxit(3); /* block to allocate too big */               							\
+      else if (nvoCPX>Z) errxit(4); /* (better than >=) maximum stack size exceeded */ 					\
+      else if (d>=nvoCPX)                                                            					\
+	if (!(ze_pila = (UC *)realloc(ze_pila, Z-nvoCPX)))                           						\
+	  errxit(5); /* realloc error */                                          							\
+	else {CPX=nvoCPX; return ze_pila+Z-DMS;}                                     						\
+      else errxit(2); /* access below stack mapped zone */            									\
+    }                                                                               					\
+  else if (d<=H-s && d>=HP) return heap+H-DMS;                                      					\
+  else errxit(2); /* top access to stack outside zone assigned to heap */    							\
+  return 0; /* avoid warning if -Wall */                                               					\
+}                                                                                   					\
+                                                                                    					\
+/* load a string (C format: '\0' trailing mark) */                             							\
+void STR(Pt p, const char *r) {	                                                     					\
+    if (p+strlen(r)+1>Z) errxit(6); /* static zone must be less than Z */    							\
+    ZE(p); 			                                                     								\
+    do U(p++)=*r; while (*r++);                                                      					\
+  }                                                                                  					\
 
 // Access to virtual memory address d, according to data type. Note:
 // it is necessary to write it like this to be able to apply the & operator,
@@ -310,7 +310,7 @@ main() {                                                                        
   int i, cod;  /* aux */                                                                 \
   enum {carg, ejec} est=carg;		                                                 \
   if (cod=setjmp(env)) {                                                                 \
-    if (cod==ABO) printf("\nEjecuci�n abortada por salto a %i\n",ABO);                   \
+    if (cod==ABO) printf("\naborted execution because of jumpt to %i\n",ABO);                   \
     raise(SIGABRT);  /*exit(cod);*/                                                      \
   }                                                                                      \
   ze_pila=NULL;                                                                          \
@@ -319,7 +319,7 @@ main() {                                                                        
   HP=H;                                                                                  \
   etiq=COM;                                                                              \
   do {                                                                                   \
-    if (DEP) printf("etiq==%i\n",etiq);                                                  \
+    if (DEP) printf("label==%i\n",etiq);                                                  \
 GT_switch:                                                                               \
     switch (etiq)                                                                        \
       {                                                                                  \
