@@ -527,7 +527,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -537,7 +537,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -547,7 +547,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -557,7 +557,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -567,7 +567,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 8;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -577,7 +577,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 8;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -587,7 +587,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -597,7 +597,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 
 														symt_node* node = symt_new();
 														node = symt_insert_tab_var(node, $1, rout_name,	 $3, 1, -1, NULL, 0, level, q_direction);
-														q_direction += 4;
+														q_direction -= 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -635,7 +635,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					symt_node* node = symt_new();
 																					node = symt_insert_tab_var(node, $1, rout_name, $3, 0, 0, NULL, 0, level, q_direction);
 																					symt_cons_t type_n = symt_get_type_data(node->var->type);
-																					if (type_n == CONS_DOUBLE) q_direction += 8; else q_direction += 4;
+																					if (type_n == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 																					tab = symt_push(tab, node);
 
 																					qw_write_value_to_var(obj, type_n, node->var->q_direction, node->var->value);
@@ -649,7 +649,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					symt_node* node = symt_new();
 																					node = symt_insert_tab_var(node, $1, rout_name,  $3, 1, array_length, NULL, 0, level, q_direction);
 																					symt_cons_t type_n = symt_get_type_data(node->var->type);
-																					if (type_n == CONS_DOUBLE) q_direction += 8; else q_direction += 4;
+																					if (type_n == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 																					tab = symt_push(tab, node);
 
 																					qw_write_value_to_var(obj, type_n, var->var->q_direction, var->var->value);
@@ -683,7 +683,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					symt_node *result_node = symt_new();
 																					result_node = symt_insert_tab_var(result_node, $1, rout_name, $3, 0, 0, NULL, 0, level, q_direction);
 																					symt_cons_t type_n = symt_get_type_data(result_node->var->type);
-																					if (type_n == CONS_DOUBLE) q_direction += 8; else q_direction += 4;
+																					if (type_n == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 																					symt_node *value = (symt_node *)$5;
 																					symt_assign_var(result_node->var, value->cons);
@@ -704,7 +704,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					assertf(var == NULL, "variable %s has already been declared", $1);
 
 																					tab = symt_insert_tab_var(tab, $1, rout_name, $3, 1, array_length, NULL, 0, level, q_direction);
-																					q_direction += 4;
+																					q_direction -= 4;
 
 																					var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
@@ -996,12 +996,13 @@ call_func 		: CALL IDENTIFIER					{
 // __________ Statement __________
 
 statement 		: { $$ = false; } | var EOL statement														 														{ $$ = true; }
-				| { level++; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement 										{
+				| { level++; no_store_expr = true; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement 				{
+																																										no_store_expr = false;
 																																										qw_write_new_label(obj, $<integer_t>6);
 																																									} more_else	END_IF {
 																																										symt_end_block(tab, level); level--;
 																																									} EOL statement { $$ = true; }
-				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); no_store_expr = true; is_for = false; } BEGIN_WHILE '(' expr ')' 		{
+				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); no_store_expr = true; } BEGIN_WHILE '(' expr ')' 		{
 																																										no_store_expr = false;
 																																										qw_write_condition(obj, label);
 																																										end_last_loop=label;

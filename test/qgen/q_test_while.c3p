@@ -1,10 +1,18 @@
 proc main()
 	x : i32 = 0
+	m : i32 = 10
 	y : f32 = 0.1
 	z : f32 = 10.1
 
 	while (x < 10)
 		x = x + 1
+	endwhile
+
+	while (x >= 10)
+		m = m - 1
+		if (m < 5)
+			break
+		endif
 	endwhile
 
 	while (y < 10.1)

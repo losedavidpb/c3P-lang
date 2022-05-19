@@ -54,6 +54,7 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, sy
 						if (strcmp(iter->var->name, name) == 0)
 						{
 							if (rout_name == NULL && iter->var->rout_name == NULL) return iter;
+							if (iter->var->rout_name == NULL && iter->level == 0) return iter;
 							else if (rout_name != NULL && iter->var->rout_name != NULL)
 							{
 								if (strcmp(rout_name, iter->var->rout_name) == 0) return iter;
