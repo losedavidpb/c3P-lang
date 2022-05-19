@@ -85,10 +85,12 @@ L putf_double_:
 // Input:	R0=return label
 //			R1=number on which operation would be applied
 //			R2=exponent value for pow operation
+//			R3=0 for integers, 1 for double
 // Registers would not be modified except R1 that has the result
 L pow_:
 {
-	R1=pow(R1,R2);
+	IF(R3==0) R1=pow(R1,R2);
+	IF(R3==1) RR1=pow(RR1,RR2);
 	GT(R0);
 }
 
@@ -96,11 +98,13 @@ L pow_:
 // Input:	R0=return label
 //			R1=first number
 //			R2=second number
+//			R3=0 for integers, 1 for double
 // Registers would not be modified except R1 that has the result
 L mod_:
 {
 	IF(R2==0) GT(exit_);
-	R1=R1%R2;
+	IF(R3==0) R1=R1%R2;
+	IF(R3==1) RR1=(int)RR1%(int)RR2;
 	GT(R0);
 }
 

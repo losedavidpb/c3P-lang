@@ -14,10 +14,10 @@
 	(type == CONS_CHAR? "char" : "undefined"))))
 
 /* Create a new constant symbol */
-symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value);
+symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value, int q_direction);
 
 /* Insert const symbol to a symbol node */
-symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value);
+symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value, int q_direction);
 
 /* Assign value at passed constant */
 void symt_assign_cons(symt_cons *var, symt_value_t value);

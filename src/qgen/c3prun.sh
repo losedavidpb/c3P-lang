@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 test_path=($(ls ../../test/qgen/*.c3p))
-make -s
+[[ ! -z $1 ]] && [[ $1 =~ "-c" ]] && make -s
 
 echo "c3pq -- Compiler using Q language"
 echo "================================="

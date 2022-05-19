@@ -42,7 +42,7 @@ void qw_write_close_routine(FILE *obj, char *name, bool is_main);
 void qw_write_begin_loop(FILE *obj, symt_label_t label);
 
 /* Write the last lines of a loop */
-void qw_write_end_loop(FILE *obj, symt_label_t label);
+void qw_write_end_loop(FILE *obj, symt_label_t label, symt_label_t next_label);
 
 /* Write a new label */
 void qw_write_new_label(FILE *obj, symt_label_t label);
@@ -56,11 +56,20 @@ void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label);
 /* Write a new condition */
 void qw_write_condition(FILE *obj, symt_label_t label);
 
+/* Write a value to a variable stored at memory  */
+void qw_write_value_to_var(FILE *obj, symt_cons_t type, int q_direction, symt_value_t value);
+
+/* Write the variable's value to a register */
+void qw_write_var_to_reg(FILE *obj, symt_label_t num_reg, symt_cons_t type, int q_direction);
+
 /* Write a value to a register */
-void qw_write_value_to_reg(FILE *obj, symt_label_t num_reg, symt_cons_t type, symt_value_t value);
+void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_t value);
+
+/* Write a register into a variable */
+void qw_write_reg_to_var(FILE *obj, int num_reg, symt_cons_t type, int q_direction);
 
 /* Write an expression for two numbers */
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, symt_label_t label);
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, symt_label_t label, bool no_store_expr);
 
 /* Close passed object file */
 void qw_close(FILE * obj, symt_label_t label);

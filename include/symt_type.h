@@ -84,6 +84,7 @@ typedef struct symt_var
     symt_value_t value;
     bool is_array, is_param;
     size_t array_length;
+	int q_direction;
 } symt_var;
 
 /* Type for constants */
@@ -91,6 +92,7 @@ typedef struct symt_cons
 {
     symt_cons_t type;
     symt_value_t value;
+	int q_direction;
 } symt_cons;
 
 /* Type for functions and procedures */

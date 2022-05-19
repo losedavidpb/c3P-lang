@@ -35,9 +35,12 @@
 
 	FILE *obj;						// Object file
 	symt_label_t label = 1;			// Label that will be created
+	int q_direction = 0x11fea;		// Memory direction for Q
 
 	int begin_last_loop = 0;		// Label for the start of a loop
 	int end_last_loop = 0;			// Label for the end of a loop
+	bool no_store_expr;				// Check if expression would be stored at a variable
+	bool is_for;					// Check if it is a for loop
 
 	int yydebug = 1; 				// Enable this to active debug mode
 	int s_error = 0; 				// Specify if syntax errors were detected
@@ -96,7 +99,7 @@
 %token<type_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
-%token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE CONTINUE BREAK
+%token BEGIN_WHILE END_WHILE CONTINUE BREAK
 %token BEGIN_PROCEDURE END_PROCEDURE BEGIN_FUNCTION END_FUNCTION RETURN CALL
 %token AND OR NOT
 
@@ -203,7 +206,7 @@ expr_string 	: STRING		 				{
 iden_expr		: expr '+' expr					{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_ADD, num1, num2, -1);
+													qw_write_expr(obj, QW_ADD, num1, num2, -1, no_store_expr);
 
 													symt_cons* res_cons = symt_cons_add(type, num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -216,7 +219,7 @@ iden_expr		: expr '+' expr					{
 				| expr '-' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_SUB, num1, num2, -1);
+													qw_write_expr(obj, QW_SUB, num1, num2, -1, no_store_expr);
 
 													symt_cons* res_cons = symt_cons_sub(type, num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -229,7 +232,7 @@ iden_expr		: expr '+' expr					{
 				| expr '*' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_MULT, num1, num2, -1);
+													qw_write_expr(obj, QW_MULT, num1, num2, -1, no_store_expr);
 
 													symt_cons* res_cons = symt_cons_mult(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
@@ -242,7 +245,7 @@ iden_expr		: expr '+' expr					{
 				| expr '/' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_DIV, num1, num2, -1);
+													qw_write_expr(obj, QW_DIV, num1, num2, -1, no_store_expr);
 
 													symt_cons* res_cons = symt_cons_div(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
@@ -255,7 +258,7 @@ iden_expr		: expr '+' expr					{
 				| expr '%' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_MOD, num1, num2, label++);
+													qw_write_expr(obj, QW_MOD, num1, num2, label++, no_store_expr);
 
 													symt_cons* res_cons = symt_cons_mod(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
@@ -268,7 +271,7 @@ iden_expr		: expr '+' expr					{
 				| expr '^' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_POW, num1, num2, label++);
+													qw_write_expr(obj, QW_POW, num1, num2, label++, no_store_expr);
 
 													symt_cons* res_cons = symt_cons_pow(type, num1->cons, num2->cons);
 													symt_delete_node(num1); symt_delete_node(num2);
@@ -281,7 +284,7 @@ iden_expr		: expr '+' expr					{
 				| expr '<' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_LESS, num1, num2, -1);
+													qw_write_expr(obj, QW_LESS, num1, num2, -1, no_store_expr);
 
 													symt_cons *res_cons = symt_cons_lt(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -294,7 +297,7 @@ iden_expr		: expr '+' expr					{
 				| expr '>' expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_GREATER, num1, num2, -1);
+													qw_write_expr(obj, QW_GREATER, num1, num2, -1, no_store_expr);
 
 													symt_cons *res_cons = symt_cons_gt(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -307,7 +310,7 @@ iden_expr		: expr '+' expr					{
 				| expr EQUAL expr 				{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_EQUAL, num1, num2, -1);
+													qw_write_expr(obj, QW_EQUAL, num1, num2, -1, no_store_expr);
 
 													symt_cons *res_cons = symt_cons_eq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -320,7 +323,7 @@ iden_expr		: expr '+' expr					{
 				| expr NOTEQUAL expr 			{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_NOT_EQUAL, num1, num2, -1);
+													qw_write_expr(obj, QW_NOT_EQUAL, num1, num2, -1, no_store_expr);
 
 													symt_cons *res_cons = symt_cons_neq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -333,7 +336,7 @@ iden_expr		: expr '+' expr					{
 				| expr LESSEQUAL expr 			{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_LESS_THAN, num1, num2, -1);
+													qw_write_expr(obj, QW_LESS_THAN, num1, num2, -1, no_store_expr);
 
 													symt_cons *res_cons = symt_cons_leq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -346,7 +349,7 @@ iden_expr		: expr '+' expr					{
 				| expr MOREEQUAL expr 			{
 													symt_node *num1 = (symt_node*)$1;
 													symt_node *num2 = (symt_node*)$3;
-													qw_write_expr(obj, QW_GREATER_THAN, num1, num2, -1);
+													qw_write_expr(obj, QW_GREATER_THAN, num1, num2, -1, no_store_expr);
 
 													symt_cons *res_cons = symt_cons_geq(num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
@@ -361,7 +364,7 @@ iden_expr		: expr '+' expr					{
 													symt_node* num2 = (symt_node*)$3;
 													assertf(num1->cons->type != CONS_CHAR, "char types does not support logic operation");
 
-													qw_write_expr(obj, QW_AND, num1, num2, -1);
+													qw_write_expr(obj, QW_AND, num1, num2, -1, no_store_expr);
 													int value1_int = *((int*)num1->cons->value);
 													int value2_int = *((int*)num2->cons->value);
 													int result = value1_int && value2_int;
@@ -376,7 +379,7 @@ iden_expr		: expr '+' expr					{
 													symt_node* num2 = $3;
 													assertf(num1->cons->type != CONS_CHAR, "char types does not support logic operation");
 
-													qw_write_expr(obj, QW_OR, num1, num2, -1);
+													qw_write_expr(obj, QW_OR, num1, num2, -1, no_store_expr);
 													int value1_int = *((int*)num1->cons->value);
 													int value2_int = *((int*)num2->cons->value);
 													int result = value1_int || value2_int;
@@ -389,7 +392,7 @@ iden_expr		: expr '+' expr					{
 				| NOT expr 						{
 													symt_node* num1 = (symt_node*)$2;
 													assertf(num1->cons->type != CONS_CHAR, "char types does not support logic operation");
-													qw_write_expr(obj, QW_NOT, num1, NULL, -1);
+													qw_write_expr(obj, QW_NOT, num1, NULL, -1, no_store_expr);
 
 													int value1 = *((int*)num1->cons->value);
 													int result = !value1;
@@ -416,17 +419,17 @@ iden_expr		: expr '+' expr					{
 													{
 														case CONS_INTEGER:
 															int_value = (int*)var->var->value;
-															result = symt_insert_tab_cons(result, type, (int_value + *((int*)index->cons->value)));
+															result = symt_insert_tab_cons_q(result, type, (int_value + *((int*)index->cons->value)), result->var->q_direction);
 														break;
 
 														case CONS_DOUBLE:
 															double_value = (double*)var->var->value;
-															result = symt_insert_tab_cons(result, type, (double_value + *((int*)index->cons->value)));
+															result = symt_insert_tab_cons_q(result, type, (double_value + *((int*)index->cons->value)), result->var->q_direction);
 														break;
 
 														case CONS_CHAR: case CONS_STR:
 															char_value = (char*)var->var->value;
-															result = symt_insert_tab_cons(result, type, (char_value + *((int*)index->cons->value)));
+															result = symt_insert_tab_cons_q(result, type, (char_value + *((int*)index->cons->value)), result->var->q_direction);
 														break;
 
 														default: break;	// Just to avoid warnings
@@ -437,10 +440,10 @@ iden_expr		: expr '+' expr					{
 				| IDENTIFIER					{
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
-													assertf(var != NULL, "variable %s has not been declared at line ", $1);
+													assertf(var != NULL, "variable %s has not been declared", $1);
 
 													symt_node *result = symt_new();
-													result = symt_insert_tab_cons(result, symt_get_type_data(var->var->type), var->var->value);
+													result = symt_insert_tab_cons_q(result, symt_get_type_data(var->var->type), var->var->value, var->var->q_direction);
 													$$ = result;
 												};
 
@@ -514,7 +517,7 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, false, -1, NULL, false, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, false, -1, NULL, false, level, q_direction);
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -523,7 +526,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -532,7 +536,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -541,7 +546,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -550,7 +556,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -559,7 +566,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -568,7 +576,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -577,7 +586,8 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
@@ -586,32 +596,13 @@ param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(var == NULL, "variable %s has already been declared", $1);
 
 														symt_node* node = symt_new();
-														node = symt_insert_tab_var(node, $1, rout_name,	 $3, 1, -1, NULL, 0, level);
+														node = symt_insert_tab_var(node, $1, rout_name,	 $3, 1, -1, NULL, 0, level, q_direction);
+														q_direction += 4;
 														tab = symt_push(tab, node);
 														symt_print(tab);
 													}
 				;
 
-// __________ Assignation for variables __________
-
-var_assign      : IDENTIFIER '=' expr					{
-															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-															assertf(var != NULL, "variable %s has not been declared", $1);
-
-															symt_node *value = (symt_node *)$3;
-															symt_assign_var(var->var, value->cons);
-															symt_print(tab);
-														}
-                | IDENTIFIER '[' int_expr ']' '=' expr	{
-															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-															assertf(var != NULL, "variable %s has not been declared", $1);
-															symt_node *index = (symt_node*)$3;
-															symt_node *value = (symt_node*)$6;
-
-															symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
-															symt_print(tab);
-														}
-                ;
 
 // __________ Declaration and Assignation for variables __________
 
@@ -636,39 +627,53 @@ list_expr 	: expr					{
 									}
 			;
 
-var 		: IDENTIFIER ':' data_type 											{
+var 		:   IDENTIFIER ':' data_type 										{
+																					assertp(is_for == false, "local variable is not valid");
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var == NULL, "variable %s has already been declared", $1);
 
 																					symt_node* node = symt_new();
-																					node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level);
+																					node = symt_insert_tab_var(node, $1, rout_name, $3, 0, 0, NULL, 0, level, q_direction);
+																					symt_cons_t type_n = symt_get_type_data(node->var->type);
+																					if (type_n == CONS_DOUBLE) q_direction += 8; else q_direction += 4;
 																					tab = symt_push(tab, node);
+
+																					qw_write_value_to_var(obj, type_n, node->var->q_direction, node->var->value);
 																					symt_print(tab);
 																				}
 				| IDENTIFIER ':' arr_data_type									{
+																					assertp(is_for == false, "local variable is not valid");
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var == NULL, "variable %s has already been declared", $1);
 
 																					symt_node* node = symt_new();
-																					node = symt_insert_tab_var(node, $1, rout_name,  $3, 1, array_length, NULL, 0, level);
+																					node = symt_insert_tab_var(node, $1, rout_name,  $3, 1, array_length, NULL, 0, level, q_direction);
+																					symt_cons_t type_n = symt_get_type_data(node->var->type);
+																					if (type_n == CONS_DOUBLE) q_direction += 8; else q_direction += 4;
 																					tab = symt_push(tab, node);
+
+																					qw_write_value_to_var(obj, type_n, var->var->q_direction, var->var->value);
 																					symt_print(tab);
 																				}
 				| IDENTIFIER '=' expr											{
+																					assertp(is_for == false, "local variable is not valid");
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
 
 																					symt_node *value = (symt_node *)$3;
 																					symt_assign_var(var->var, value->cons);
+
 																					symt_print(tab);
 																				}
 				| IDENTIFIER '[' expr ']' '=' expr								{
+																					assertp(is_for == false, "local variable is not valid");
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
 																					symt_node *index = (symt_node*)$3;
 																					symt_node *value = (symt_node*)$6;
 
 																					symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
+																					qw_write_value_to_var(obj, symt_get_type_data(var->var->type), var->var->q_direction, var->var->value);
 																					symt_print(tab);
 																				}
 				| IDENTIFIER ':' data_type '=' expr								{
@@ -676,18 +681,31 @@ var 		: IDENTIFIER ':' data_type 											{
 																					assertf(var_without_value == NULL, "variable %s has already been declared", $1);
 
 																					symt_node *result_node = symt_new();
-																					result_node = symt_insert_tab_var(result_node, $1, rout_name, $3, 0, 0, NULL, 0, level);
+																					result_node = symt_insert_tab_var(result_node, $1, rout_name, $3, 0, 0, NULL, 0, level, q_direction);
+																					symt_cons_t type_n = symt_get_type_data(result_node->var->type);
+																					if (type_n == CONS_DOUBLE) q_direction += 8; else q_direction += 4;
 
 																					symt_node *value = (symt_node *)$5;
 																					symt_assign_var(result_node->var, value->cons);
 																					tab = symt_push(tab, result_node);
+																					qw_write_value_to_var(obj, type_n, result_node->var->q_direction, result_node->var->value);
+
+																					if (is_for == true)
+																					{
+																						fprintf(obj, "\n\tR7=R7+4;\t// Restore R7 for loop");
+																						qw_write_begin_loop(obj, label++);
+																					}
+
 																					symt_print(tab);
 																				}
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
+																					assertp(is_for == false, "local variable is not valid");
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var == NULL, "variable %s has already been declared", $1);
 
-																					tab = symt_insert_tab_var(tab, $1, rout_name, $3, 1, array_length, NULL, 0, level);
+																					tab = symt_insert_tab_var(tab, $1, rout_name, $3, 1, array_length, NULL, 0, level, q_direction);
+																					q_direction += 4;
+
 																					var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
 																					assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
@@ -832,7 +850,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertf(result->rout->type == $3, "type does not match")
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level);
+																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level, q_direction);
 																						tab = symt_push(tab, node);
 																						symt_print(tab);
 																					}
@@ -846,7 +864,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertf(result->rout->type == $3, "type does not match")
 																						symt_node* node = symt_new();
-																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level);
+																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level, q_direction);
 																						tab = symt_push(tab, node);
 																						symt_print(tab);
 																					}
@@ -875,7 +893,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																										tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, level++, label);
 																										qw_write_routine(obj, rout_name, label++, false);
 																									} EOL statement RETURN expr EOL END_FUNCTION {
-																										symt_end_block(tab); level--;
+																										symt_end_block(tab, level); level--;
 																										qw_write_close_routine(obj, rout_name, false);
 																										rout_name = NULL;
 																									}
@@ -889,7 +907,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																										qw_write_routine(obj, rout_name, label++, strcmp(rout_name, "main") == 0);
 																									} EOL statement END_PROCEDURE {
 																										qw_write_close_routine(obj, rout_name, strcmp(rout_name, "main") == 0);
-																										symt_end_block(tab); level--;
+																										symt_end_block(tab, level); level--;
 																										rout_name = NULL;
 																									}
 				;
@@ -942,19 +960,19 @@ call_func 		: CALL IDENTIFIER					{
 															{
 																case CONS_INTEGER: case CONS_BOOL:
 																	int_value = (int*)iter->value;
-																	cons = symt_new_cons(iter->type, int_value);
+																	cons = symt_new_cons(iter->type, int_value, 0);
 																	symt_assign_var(iter_p->var, cons);
 																break;
 
 																case CONS_DOUBLE:
 																	double_value = (double*)iter->value;
-																	cons = symt_new_cons(iter->type, double_value);
+																	cons = symt_new_cons(iter->type, double_value, 0);
 																	symt_assign_var(iter_p->var, cons);
 																break;
 
 																case CONS_CHAR: case CONS_STR:
 																	char_value = (char*)iter->value;
-																	cons = symt_new_cons(iter->type, char_value);
+																	cons = symt_new_cons(iter->type, char_value, 0);
 																	symt_assign_var(iter_p->var, cons);
 																break;
 															}
@@ -978,21 +996,32 @@ call_func 		: CALL IDENTIFIER					{
 // __________ Statement __________
 
 statement 		: { $$ = false; } | var EOL statement														 														{ $$ = true; }
-				| { level++; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else						END_IF { symt_end_block(tab); level--; } EOL statement 		{ $$ = true; }
-				| { level++; begin_last_loop=label; qw_write_begin_loop(obj, label++); } BEGIN_WHILE '(' expr ')' { qw_write_condition(obj, label); end_last_loop=label; $<integer_t>$=label++; } EOL statement END_WHILE { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>6); } EOL statement 	{ $$ = true; }
-				| { level++; begin_last_loop=label; qw_write_begin_loop(obj, label++); } BEGIN_FOR '(' var ',' expr ',' var_assign ')' { qw_write_condition(obj, label); end_last_loop=label; $<integer_t>$=label++; } EOL statement END_FOR { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>10); } EOL statement 	{ $$ = true; }
-				| { level++; } call_func EOL statement																													{ level--; $$ = true; }
-				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement     																															{ $$ = true; }
-                | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement 																								{ $$ = true; }
-				| EOL statement   			 																															{
-																																											if ($2 != false) $$ = true;
-																																											else $$ = false;
-																																										}
-				| error EOL { printf(" at expression\n"); } statement																									{ $$ = true; }
+				| { level++; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement 										{
+																																										qw_write_new_label(obj, $<integer_t>6);
+																																									} more_else	END_IF {
+																																										symt_end_block(tab, level); level--;
+																																									} EOL statement { $$ = true; }
+				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); no_store_expr = true; is_for = false; } BEGIN_WHILE '(' expr ')' 		{
+																																										no_store_expr = false;
+																																										qw_write_condition(obj, label);
+																																										end_last_loop=label;
+																																										$<integer_t>$=label++;
+																																									} EOL statement END_WHILE {
+																																										symt_end_block(tab, level); level--;
+																																										qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6);
+																																									} EOL statement { $$ = true; }
+				| { level++; } call_func EOL statement																												{ level--; $$ = true; }
+				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement     																				{ $$ = true; }
+                | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement 																						{ $$ = true; }
+				| EOL statement   			 																														{
+																																										if ($2 != false) $$ = true;
+																																										else $$ = false;
+																																									}
+				| error EOL { printf(" at expression\n"); } statement																								{ $$ = true; }
 				;
 
-more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab); } EOL statement { $$ = true; }
-				| ELSE_IF { symt_end_block(tab); } BEGIN_IF '(' expr ')' { $<integer_t>$=++label; qw_write_condition(obj, label); } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
+more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab, level); } EOL statement { $$ = true; }
+				| ELSE_IF { symt_end_block(tab, level); } BEGIN_IF '(' expr ')' { $<integer_t>$=++label; qw_write_condition(obj, label); } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
 				;
 
 // __________ Main program __________

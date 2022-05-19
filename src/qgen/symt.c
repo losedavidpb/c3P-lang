@@ -94,16 +94,21 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 	return tab;
 }
 
-
-symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level)
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level, int q_direction)
 {
-	symt_node *new_node = symt_insert_var(name, rout_name, type, is_array, array_length, value, is_param, level);
+	symt_node *new_node = symt_insert_var(name, rout_name, type, is_array, array_length, value, is_param, level, q_direction);
 	return symt_push(tab, new_node);
 }
 
 symt_tab *symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value)
 {
-	symt_node *new_node = symt_insert_cons(type, value);
+	symt_node *new_node = symt_insert_cons(type, value, 0);
+	return symt_push(tab, new_node);
+}
+
+symt_tab* symt_insert_tab_cons_q(symt_tab *tab, symt_cons_t type, symt_value_t value, int q_direction)
+{
+	symt_node *new_node = symt_insert_cons(type, value, q_direction);
 	return symt_push(tab, new_node);
 }
 
@@ -113,22 +118,26 @@ symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, sy
 	return symt_push(tab, new_node);
 }
 
-void symt_end_block(symt_tab *tab)
+void symt_end_block(symt_tab *tab, symt_level_t level)
 {
 	assertp(tab != NULL, "table has not been constructed");
 	symt_node *iter = tab, *prev_iter = NULL, *prev_level = NULL;
 
 	while (iter->next_node != NULL)
 	{
-		if (iter->level != iter->next_node->level)
+		if (iter->level == level)
 			prev_level = iter;
 
 		iter = iter->next_node;
 	}
 
 	if (prev_level == NULL) return;
-	symt_delete(prev_level->next_node);
-	prev_level->next_node = NULL;
+
+	if (iter->level > prev_level->level)
+	{
+		symt_delete(iter);
+		prev_level->next_node = NULL;
+	}
 }
 
 void symt_delete(symt_tab *tab)

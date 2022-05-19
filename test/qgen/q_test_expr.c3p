@@ -1,34 +1,13 @@
-y : i32 = 200
-
-proc b_f ()
-	z : i32
-	z = 10 * 20
-endproc
-
-proc a ()
-	z : i32
-	call b_f
-endproc
+z : i32 = 100
+l : i64 = 200
+?x : i32[10]
 
 proc main()
-	call a
-	x : i32 = 0
-	x = x + 20
-	z : i32
-	z = 10
-	x = y - 20
-	x = 10 * 20
-	x = 10 / 20
-	x = 10 ^ 2
-	x = 10 % 20
-	cond : b
-	cond = 2 == 10
-	cond = 2 != 10
-	cond = 2 > 10
-	cond = 2 < 10
-	cond = 2 >= 10
-	cond = 2 <= 10
-	cond = T and T
-	cond = T or T
-	cond = not T
+	?z = z - 10
+	?l = l + 10
+	?x[0] = l * 2
+	?x[1] = l / 2
+	?z = z % 10
+	?l = l^2
+	?x[2] = ((z + 2) * (l / 2)) / (x[0] + 10)
 endproc

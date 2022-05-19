@@ -1,0 +1,17 @@
+proc main()
+	x : i32 = 10
+
+	if (x == 10)
+		x = 10 - 10
+		x = 10
+	endif
+
+	if (x < 10)
+		x = x + 10
+		z : i32
+		z = 0
+		x = z - 10
+	else
+		x = x - 10
+	endif
+endproc
