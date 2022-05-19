@@ -41,6 +41,7 @@ symt_rout *symt_copy_rout(symt_rout *rout)
 	{
 		symt_rout *rout_ = (symt_rout *)(ml_malloc(sizeof(symt_rout)));
 		rout_->name = strcopy(rout->name);
+		rout_->label = rout->label;
 		rout_->type = rout->type;
 		return rout_;
 	}

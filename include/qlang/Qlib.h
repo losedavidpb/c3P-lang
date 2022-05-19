@@ -22,8 +22,9 @@
 #define __abo    -3   // error exit
 
 // For Qlib functions (labels greater than -10)
-#define exit_    -10    // NOTE: deprecated but just for compatibility
-#define new_     -11    // assign and free space at heap
-#define putf_    -12    // show string or integer
-#define pow_	 -13	// pow operation for numbers
-#define mod_	 -14	// mod operation for numbers
+#define exit_    	 	-10     // NOTE: deprecated but just for compatibility
+#define new_     		-11     // assign and free space at heap
+#define putf_int_    	-12     // show string or integer
+#define putf_double_    -13     // show string or double
+#define pow_	 		-14		// pow operation for numbers
+#define mod_	 	 	-15		// mod operation for numbers

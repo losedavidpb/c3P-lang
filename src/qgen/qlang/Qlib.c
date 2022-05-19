@@ -31,9 +31,9 @@ double pow(double num1, double num2)
 	return num1;
 }
 
-/* Routines for Q library
-*****************************
-*/
+// ----------------------------
+// Routines for Q library
+// ----------------------------
 
 BEGINLIB
 
@@ -55,15 +55,28 @@ L new_:
     GT(r);                      // return
 }
 
-// void putf(const unsigned char*, int)
+// void putf_int_(const unsigned char*, int)
 // Input:	R0=return label
 //			R1=direction of the string format
 //			R2=integer value to visualize (optional)
 // Registers would not be modified and the same with format
-L putf_:
+L putf_int_:
 {
 	unsigned char *p=inv_str(&U(R1)); 	// invert: nva. dir. real 1er char
 	printf((char*)p,R2);             	// translate
+    reinv_str(p,&U(R1));   	    		// re-invert
+	GT(R0);                             // return
+}
+
+// void putf_double_(const unsigned char*, double)
+// Input:	R0=return label
+//			R1=direction of the string format
+//			RR1=double value to visualize (optional)
+// Registers would not be modified and the same with format
+L putf_double_:
+{
+	unsigned char *p=inv_str(&U(R1)); 	// invert: nva. dir. real 1er char
+	printf((char*)p,RR1);             	// translate
     reinv_str(p,&U(R1));   	    		// re-invert
 	GT(R0);                             // return
 }

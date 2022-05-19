@@ -1,10 +1,17 @@
 y : i32 = 200
 
+proc b_f ()
+	z : i32
+	z = 10 * 20
+endproc
+
 proc a ()
 	z : i32
+	call b_f
 endproc
 
 proc main()
+	call a
 	x : i32 = 0
 	x = x + 20
 	z : i32

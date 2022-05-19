@@ -36,8 +36,8 @@
 	FILE *obj;						// Object file
 	symt_label_t label = 1;			// Label that will be created
 
-	int begin_last_loop = 0;
-	int end_last_loop = 0;
+	int begin_last_loop = 0;		// Label for the start of a loop
+	int end_last_loop = 0;			// Label for the end of a loop
 
 	int yydebug = 1; 				// Enable this to active debug mode
 	int s_error = 0; 				// Specify if syntax errors were detected
