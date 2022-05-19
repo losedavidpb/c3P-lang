@@ -38,13 +38,13 @@ void qw_write_close_routine(FILE *obj, char *name)
 void qw_write_begin_loop(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
-    fprintf(obj, "\n\tL %d:\n\tR7=R7-4;", label);
+    fprintf(obj, "\n\tL %d:\n\tR7=R7-4; /* Begin Loop */", label);
 }
 
 void qw_write_end_loop(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
-    fprintf(obj, "\n\tL %d:\n\tR7=R7+4;", label);
+    fprintf(obj, "\n\tL %d:\n\tR7=R7+4; /* End Loop */", label);
 }
 
 void qw_write_new_label(FILE *obj, symt_label_t label)
@@ -56,7 +56,7 @@ void qw_write_new_label(FILE *obj, symt_label_t label)
 void qw_write_goto(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
-    fprintf(obj, "\n\tGT(%d);", label);
+    fprintf(obj, "\n\tGT(%d); /* Break o Continue*/", label);
 }
 
 void qw_write_condition(FILE *obj, symt_label_t label)
