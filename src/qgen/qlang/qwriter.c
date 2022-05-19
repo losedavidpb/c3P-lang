@@ -21,18 +21,24 @@ void qw_prepare(FILE *obj)
 	fprintf(obj, "BEGIN");
 }
 
-void qw_write_routine(FILE *obj, char *name, symt_label_t label)
+void qw_write_routine(FILE *obj, char *name, symt_label_t label, bool is_main)
 {
 	assertp(obj != NULL, "object must be defined");
 	assertp(name != NULL, "name must be defined");
-	fprintf(obj, "\nL %d: /* Routine %s */\n\tR6=R7;\n", label, name);
+
+	if (is_main == true)
+		fprintf(obj, "\nL 0: /* Routine main */");
+	else
+		fprintf(obj, "\nL %d: /* Routine %s */", label, name);
 }
 
-void qw_write_close_routine(FILE *obj, char *name)
+void qw_write_close_routine(FILE *obj, char *name, bool is_main)
 {
 	assertp(obj != NULL, "object must be defined");
 	assertp(name != NULL, "name must be defined");
-	fprintf(obj, "\n\tR7=R6;\n\tR6=P(R7+4);\n\tR5=P(R7);\n\tGT(R5); /* End Routine %s */", name);
+
+	if (is_main != true)
+		fprintf(obj, "\n\tGT(R0); /* End Routine %s */", name);
 }
 
 void qw_write_begin_loop(FILE *obj, symt_label_t label)
@@ -57,6 +63,14 @@ void qw_write_goto(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
     fprintf(obj, "\n\tGT(%d); /* Break o Continue*/", label);
+}
+
+void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label)
+{
+    assertp(obj != NULL, "object must be defined");
+	fprintf(obj, "\n\tR0=%d", label);
+    fprintf(obj, "\n\tGT(%d);", rout_label);
+	fprintf(obj, "\nL %d:", label);
 }
 
 void qw_write_condition(FILE *obj, symt_label_t label)
@@ -129,9 +143,10 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, sy
 	}
 }
 
-void qw_close(FILE * obj)
+void qw_close(FILE * obj, symt_label_t label)
 {
 	assertp(obj != NULL, "object must be defined");
+	fprintf(obj, "\nL %d:", label);
 	fprintf(obj, "\n\tGT(-2);\t/* Exit program */\nEND");
 	fclose(obj);
 }

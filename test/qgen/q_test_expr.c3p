@@ -1,5 +1,9 @@
 y : i32 = 200
 
+proc a ()
+	z : i32
+endproc
+
 proc main()
 	x : i32 = 0
 	x = x + 20

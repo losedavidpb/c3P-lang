@@ -2,6 +2,7 @@
 #ifndef Q_WRITER_H
 #define Q_WRITER_H
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "../symt_type.h"
 
@@ -32,10 +33,10 @@ FILE* qw_new(char *filename);
 void qw_prepare(FILE *obj);
 
 /* Write a routine */
-void qw_write_routine(FILE *obj, char *name, symt_label_t label);
+void qw_write_routine(FILE *obj, char *name, symt_label_t label, bool is_main);
 
 /* Write the routine end */
-void qw_write_close_routine(FILE *obj, char *name);
+void qw_write_close_routine(FILE *obj, char *name, bool is_main);
 
 /* Write the beggining of a loop */
 void qw_write_begin_loop(FILE *obj, symt_label_t label);
@@ -49,6 +50,9 @@ void qw_write_new_label(FILE *obj, symt_label_t label);
 /* Write a new goto */
 void qw_write_goto(FILE *obj, symt_label_t label);
 
+/* Write a call statement */
+void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label);
+
 /* Write a new condition */
 void qw_write_condition(FILE *obj, symt_label_t label);
 
@@ -59,6 +63,6 @@ void qw_write_value_to_reg(FILE *obj, symt_label_t num_reg, symt_cons_t type, sy
 void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, symt_label_t label);
 
 /* Close passed object file */
-void qw_close(FILE * obj);
+void qw_close(FILE * obj, symt_label_t label);
 
 #endif	// Q_WRITER_H

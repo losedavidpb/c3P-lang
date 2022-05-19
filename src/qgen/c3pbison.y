@@ -34,7 +34,7 @@
 	extern FILE *yyin;				// Current file for Bison
 
 	FILE *obj;						// Object file
-	symt_label_t label = 0;			// Label that will be created
+	symt_label_t label = 1;			// Label that will be created
 
 	int begin_last_loop = 0;
 	int end_last_loop = 0;
@@ -138,6 +138,7 @@
 %%
 
 // __________ Expression __________
+
 
 expr 			: expr_num						{ $$ = $1; }
 				| expr_char						{ $$ = $1; }
@@ -872,10 +873,10 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																										assertf(result == NULL, "function %s has already been defined", rout_name);
 
 																										tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, level++, label);
-																										qw_write_routine(obj, rout_name, label++);
+																										qw_write_routine(obj, rout_name, label++, false);
 																									} EOL statement RETURN expr EOL END_FUNCTION {
 																										symt_end_block(tab); level--;
-																										qw_write_close_routine(obj, rout_name);
+																										qw_write_close_routine(obj, rout_name, false);
 																										rout_name = NULL;
 																									}
 				;
@@ -885,10 +886,10 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																										assertf(result == NULL, "procedure %s has already been defined", rout_name);
 
 																										tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, level++, label);
-																										qw_write_routine(obj, rout_name, label++);
+																										qw_write_routine(obj, rout_name, label++, strcmp(rout_name, "main") == 0);
 																									} EOL statement END_PROCEDURE {
+																										qw_write_close_routine(obj, rout_name, strcmp(rout_name, "main") == 0);
 																										symt_end_block(tab); level--;
-																										qw_write_close_routine(obj, rout_name);
 																										rout_name = NULL;
 																									}
 				;
@@ -908,6 +909,8 @@ call_func 		: CALL IDENTIFIER					{
 
 														symt_node *params = symt_search_param(tab, $2);
 														assertf(params == NULL, "%s routine does not need parameters", $2);
+
+														qw_write_call(obj, result->rout->label, label++);
 													}
 				| CALL IDENTIFIER list_expr			{
 														symt_node *result = symt_search_by_name(tab, $2, FUNCTION, NULL, 0);
@@ -967,9 +970,10 @@ call_func 		: CALL IDENTIFIER					{
 														}
 
 														assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
+
+														qw_write_call(obj, result->rout->label, label++);
 													}
 				;
-
 
 // __________ Statement __________
 
@@ -1014,7 +1018,7 @@ int main(int argc, char **argv)
 		yyin = fopen(argv[1], "r");
 		yyparse();
 
-		qw_close(obj);
+		qw_close(obj, label);
 		fclose(yyin);
 
 		if (s_error == 0 && l_error == 0)
