@@ -36,6 +36,9 @@
 	FILE *obj;						// Object file
 	symt_label_t label = 0;			// Label that will be created
 
+	int begin_last_loop = 0;
+	int end_last_loop = 0;
+
 	int yydebug = 1; 				// Enable this to active debug mode
 	int s_error = 0; 				// Specify if syntax errors were detected
 
@@ -971,12 +974,12 @@ call_func 		: CALL IDENTIFIER					{
 // __________ Statement __________
 
 statement 		: { $$ = false; } | var EOL statement														 														{ $$ = true; }
-				| { level++; } BEGIN_IF { $<integer_t>$=++label; qw_write_condition(obj, label); } '(' expr ')' EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else	END_IF { symt_end_block(tab); level--; } EOL statement 	{ $$ = true; }
-				| { level++; qw_write_begin_loop(obj, ++label); $<integer_t>$=label; } BEGIN_WHILE '(' expr ')' { $<integer_t>$=++label; qw_write_condition(obj, label); } EOL statement END_WHILE { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>6); } EOL statement { $$ = true; }
-				| { level++; qw_write_begin_loop(obj, ++label); $<integer_t>$=label; } BEGIN_FOR '(' var ',' expr ',' var_assign ')' { $<integer_t>$=++label; qw_write_condition(obj, label); } EOL statement END_FOR { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>6); } EOL statement { $$ = true; }
+				| { level++; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else						END_IF { symt_end_block(tab); level--; } EOL statement 		{ $$ = true; }
+				| { level++; begin_last_loop=label; qw_write_begin_loop(obj, label++); } BEGIN_WHILE '(' expr ')' { qw_write_condition(obj, label); end_last_loop=label; $<integer_t>$=label++; } EOL statement END_WHILE { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>6); } EOL statement 	{ $$ = true; }
+				| { level++; begin_last_loop=label; qw_write_begin_loop(obj, label++); } BEGIN_FOR '(' var ',' expr ',' var_assign ')' { qw_write_condition(obj, label); end_last_loop=label; $<integer_t>$=label++; } EOL statement END_FOR { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>10); } EOL statement 	{ $$ = true; }
 				| { level++; } call_func EOL statement																													{ level--; $$ = true; }
-				| CONTINUE EOL statement     																															{ $$ = true; }
-                | BREAK { qw_write_goto(obj, label); } EOL statement 																									{ $$ = true; }
+				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement     																															{ $$ = true; }
+                | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement 																								{ $$ = true; }
 				| EOL statement   			 																															{
 																																											if ($2 != false) $$ = true;
 																																											else $$ = false;
