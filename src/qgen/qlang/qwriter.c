@@ -25,7 +25,7 @@ void qw_write_routine(FILE *obj, char *name, int label)
 {
 	assertp(obj != NULL, "object must be defined");
 	assertp(name != NULL, "name must be defined");
-	fprintf(obj, "\nL %d: /* Routine %s */\n\tR6=R7;", label, name);
+	fprintf(obj, "\nL %d: /* Routine %s */\n\tR6=R7;\n", label, name);
 }
 
 void qw_write_close_routine(FILE *obj, char *name)
@@ -33,6 +33,36 @@ void qw_write_close_routine(FILE *obj, char *name)
 	assertp(obj != NULL, "object must be defined");
 	assertp(name != NULL, "name must be defined");
 	fprintf(obj, "\n\tR7=R6;\n\tR6=P(R7+4);\n\tR5=P(R7);\n\tGT(R5); /* End Routine %s */", name);
+}
+
+void qw_write_begin_loop(FILE *obj, int label)
+{
+    assertp(obj != NULL, "object must be defined");
+    fprintf(obj, "L %d:\tR7=R7-4;\n", label);
+}
+
+void qw_write_end_loop(FILE *obj, int label)
+{
+    assertp(obj != NULL, "object must be defined");
+    fprintf(obj, "L %d:\tR7=R7+4;\n", label);
+}
+
+void qw_write_new_label(FILE *obj, int label)
+{
+    assertp(obj != NULL, "object must be defined");
+    fprintf(obj, "L %d:\n", label);
+}
+
+void qw_write_goto(FILE *obj, int label)
+{
+    assertp(obj != NULL, "object must be defined");
+    fprintf(obj, "GT(%d);\n", label);
+}
+
+void qw_write_condition(FILE *obj, int label)
+{
+    assertp(obj != NULL, "object must be defined");
+    fprintf(obj, "IF(!R1) GT(%d);\n", label);
 }
 
 void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_t value)
