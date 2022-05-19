@@ -39,7 +39,6 @@ digit           [0-9]
 word            {letter}|{digit}|_
 char_id 		{letter}|_
 identifier      {char_id}{word}+|{letter}
-word_path		{word}|\.
 
 char_type       c
 str_type        str
@@ -52,8 +51,6 @@ comment         \?.*
 %option nodefault
 
 %%
-
-hide                                            { return HIDE; }
 
 i8                  	                		{ return I8_TYPE; }
 i16                                  			{ return I16_TYPE; }

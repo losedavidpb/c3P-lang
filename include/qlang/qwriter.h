@@ -5,6 +5,9 @@
 
 #include "../symt_type.h"
 
+// Type for labels
+typedef int qw_label_t;
+
 /* Available operators for expressions */
 typedef enum qw_op_t
 {
@@ -32,26 +35,31 @@ FILE* qw_new(char *filename);
 void qw_prepare(FILE *obj);
 
 /* Write a routine */
-void qw_write_routine(FILE *obj, char *name, int label);
+void qw_write_routine(FILE *obj, char *name, qw_label_t label);
 
 /* Write the routine end */
 void qw_write_close_routine(FILE *obj, char *name);
 
-void qw_write_begin_loop(FILE *obj, int label);
+/* Write the beggining of a loop */
+void qw_write_begin_loop(FILE *obj, qw_label_t label);
 
-void qw_write_end_loop(FILE *obj, int label);
+/* Write the last lines of a loop */
+void qw_write_end_loop(FILE *obj, qw_label_t label);
 
-void qw_write_new_label(FILE *obj, int label);
+/* Write a new label */
+void qw_write_new_label(FILE *obj, qw_label_t label);
 
-void qw_write_goto(FILE *obj, int label);
+/* Write a new goto */
+void qw_write_goto(FILE *obj, qw_label_t label);
 
-void qw_write_condition(FILE *obj, int label);
+/* Write a new condition */
+void qw_write_condition(FILE *obj, qw_label_t label);
 
 /* Write a value to a register */
-void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_t value);
+void qw_write_value_to_reg(FILE *obj, qw_label_t num_reg, symt_cons_t type, symt_value_t value);
 
 /* Write an expression for two numbers */
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, int next_label);
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, qw_label_t label);
 
 /* Close passed object file */
 void qw_close(FILE * obj);

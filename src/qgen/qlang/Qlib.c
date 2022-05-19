@@ -24,6 +24,7 @@ unsigned char *inv_str(unsigned char *r)
   return p;
 }
 
+/* Pow operation */
 double pow(double num1, double num2)
 {
 	while (num2-- > 0) num1 += num1;

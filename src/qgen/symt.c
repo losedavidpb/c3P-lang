@@ -95,9 +95,9 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 }
 
 
-symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level)
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level)
 {
-	symt_node *new_node = symt_insert_var(name, rout_name, type, is_array, array_length, value, is_hide, is_param, level);
+	symt_node *new_node = symt_insert_var(name, rout_name, type, is_array, array_length, value, is_param, level);
 	return symt_push(tab, new_node);
 }
 
@@ -107,9 +107,9 @@ symt_tab *symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t val
 	return symt_push(tab, new_node);
 }
 
-symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_hide, symt_level_t level)
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level)
 {
-	symt_node *new_node = symt_insert_rout(id, name, type, is_hide, level);
+	symt_node *new_node = symt_insert_rout(id, name, type, level);
 	return symt_push(tab, new_node);
 }
 
@@ -129,43 +129,6 @@ void symt_end_block(symt_tab *tab)
 	if (prev_level == NULL) return;
 	symt_delete(prev_level->next_node);
 	prev_level->next_node = NULL;
-}
-
-symt_tab *symt_merge(symt_tab *src, symt_tab *dest)
-{
-	assertp(src != NULL, "table src has not been constructed");
-	assertp(dest != NULL, "table dest has not been constructed");
-	symt_node *iter = src;
-
-	while (iter != NULL)
-	{
-		if (iter->id == VAR)
-		{
-			if (iter->var->is_hide == false)
-			{
-				dest = symt_insert_tab_var(dest,
-					iter->var->rout_name, iter->var->name, iter->var->type,
-					iter->var->is_array, iter->var->array_length,
-					iter->var->value, iter->var->is_hide,
-					iter->var->is_param, iter->level
-				);
-			}
-		}
-		else if (iter->id == FUNCTION || iter->id == PROCEDURE)
-		{
-			if (iter->rout->is_hide == false)
-			{
-				dest = symt_insert_tab_rout(dest,
-					iter->id, iter->rout->name, iter->rout->type,
-					iter->rout->is_hide, iter->level
-				);
-			}
-		} else dest = symt_push(dest, iter);
-
-		iter = iter->next_node;
-	}
-
-	return dest;
 }
 
 void symt_delete(symt_tab *tab)
@@ -192,8 +155,8 @@ void symt_print(symt_tab *tab)
 				str_type = symt_strget_vartype(node->var->type);
 				rout_name = node->var->rout_name;
 				if (rout_name == NULL) rout_name = "null";
-				message = " name = %s | rout_name = %s | type = %s | is_hide = %d | is_array = %d | array_length = %d | level = %d | is_param = %d";
-				printf(message, node->var->name, rout_name, str_type, node->var->is_hide, node->var->is_array, node->var->array_length, node->level, node->var->is_param);
+				message = " name = %s | rout_name = %s | type = %s | is_array = %d | array_length = %d | level = %d | is_param = %d";
+				printf(message, node->var->name, rout_name, str_type, node->var->is_array, node->var->array_length, node->level, node->var->is_param);
 				symt_printf_value(node);
 			break;
 
@@ -201,8 +164,8 @@ void symt_print(symt_tab *tab)
 				str_type = symt_strget_vartype(node->rout->type);
 				if (str_type == NULL) str_type = "void";
 				if (strcmp(str_type, "undefined") == 0) str_type = "void";
-				message = " name = %s | type = %s | is_hide = %d | level = %d";
-				printf(message, node->rout->name, str_type, node->rout->is_hide, node->level);
+				message = " name = %s | type = %s | level = %d";
+				printf(message, node->rout->name, str_type, node->level);
 			break;
 
 			default: break; // Just to avoid warning

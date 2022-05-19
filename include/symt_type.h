@@ -15,6 +15,9 @@
 // to first element which is defined at stack
 #define SYMT_ROOT_ID -1
 
+// Null value for enumerators
+#define SYMT_NULL -1
+
 /* Optional identifier for symbols used to
    distinguish instances with the same id */
 typedef char * symt_name_t;
@@ -50,7 +53,7 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 #define I8_MAX 127
 #define I16_MIN -32768
 #define I16_MAX 32768
-#define I32_MIN -214.483648
+#define I32_MIN -214483648
 #define I32_MAX 2147483647
 #define I64_MIN -9223372036854775808
 #define I64_MAX 9223372036854775807
@@ -72,12 +75,10 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 /* Type for local and global variables */
 typedef struct symt_var
 {
-    symt_name_t name;
-	symt_name_t rout_name;
+    symt_name_t name, rout_name;
     symt_var_t type;
     symt_value_t value;
-    bool is_hide, is_array;
-	bool is_param;
+    bool is_array, is_param;
     size_t array_length;
 } symt_var;
 
@@ -93,7 +94,6 @@ typedef struct symt_rout
 {
     symt_name_t name;
     symt_var_t type;
-    bool is_hide;
 } symt_rout;
 
 /* Type for a node which is are at a symbol table */
