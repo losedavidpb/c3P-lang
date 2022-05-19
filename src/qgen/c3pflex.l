@@ -40,7 +40,6 @@ word            {letter}|{digit}|_
 char_id 		{letter}|_
 identifier      {char_id}{word}+|{letter}
 word_path		{word}|\.
-path			{word_path}+(\/{word_path}+)*
 
 char_type       c
 str_type        str
@@ -97,8 +96,6 @@ call                                            { return CALL; }
 [():,\[\]{}]                                    { return yytext[0]; }
 [\=\>\<]                                        { return yytext[0]; }
 
-#add                                            { return ADD_LIBRARY; }
-
 \".*\"                                          { yylval.string_t = strcopy(yytext); return STRING; }
 \'.?\'                                          { yylval.char_t = yytext[1]; return CHAR; }
 \-?{digit}+                                     { yylval.integer_t = get_int(strcopy(yytext)); return INTEGER; }
@@ -107,8 +104,6 @@ call                                            { return CALL; }
 "F"                                             { yylval.bool_t = 0; return F; }
 
 {identifier}                                    { yylval.name_t = strcopy(yytext); return IDENTIFIER; }
-
-\<{path}\>               						{yylval.name_t = strcopy(yytext); return PATH_ADD_LIBRARY; }
 
 \n                                              { num_lines++; return EOL; }
 {comment}                                       { /* ignore comments */ }

@@ -19,7 +19,8 @@
 	#include <unistd.h>
 	#include <stdio.h>
 
-	#include "Qlib.h"
+	#include "../../include/qlang/Qlib.h"
+	#include "../../include/qlang/qwriter.h"
 
 	#include "../../include/symt.h"
 	#include "../../include/symt_cons.h"
@@ -35,14 +36,10 @@
 	extern FILE *yyin;				// Current file for Bison
 	FILE *yyin_old;
 
-<<<<<<< HEAD
 	FILE *obj;						// Object file
 	int next_label = 0;				// Next label that will be created
 
-=======
->>>>>>> 225043810916994e03863bdc48739e959eebae7f
 	int sm = 0x12000;
-	int et = 0;
 
 	FILE *obj;
 
@@ -93,7 +90,6 @@
 %token HIDE
 
 %token<name_t> IDENTIFIER
-%token<name_t> PATH_ADD_LIBRARY
 %token<integer_t> INTEGER
 %token<double_t> DOUBLE
 %token<char_t> CHAR
@@ -108,7 +104,6 @@
 %token BEGIN_IF END_IF ELSE_IF
 %token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE CONTINUE BREAK
 %token BEGIN_PROCEDURE END_PROCEDURE BEGIN_FUNCTION END_FUNCTION RETURN CALL
-%token ADD_LIBRARY
 %token AND OR NOT
 
 %token EQUAL "=="
@@ -120,7 +115,7 @@
 
 %type<integer_t> data_type arr_data_type;
 %type<node_t> expr_num expr_char expr_string int_expr expr iden_expr;
-%type<integer_t> statement more_else break_rule;
+%type<integer_t> statement more_else;
 %type<stack> list_expr;
 
 // __________ Precedence __________
@@ -520,112 +515,85 @@ arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
 // __________ Declaration for variables __________
 
 param_declr 	: IDENTIFIER ':' data_type							{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 0, 0, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 0, 0, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I8_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I16_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I32_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' I64_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' F32_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' F64_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' CHAR_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name, $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				| IDENTIFIER ':' BOOL_TYPE '[' ']'					{
-																		//if (is_merging == false || is_merging == true && is_hide == false)
-																		//{
-																			symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-																			assertf(var == NULL, "variable %s has already been declared", $1);
+																		symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+																		assertf(var == NULL, "variable %s has already been declared", $1);
 
-																			symt_node* node = symt_new();
-																			node = symt_insert_tab_var(node, $1, rout_name,	 $3, 1, -1, NULL, 0, true, level);
-																			tab = symt_push(tab, node);
-																			symt_print(tab);
-																		//}
+																		symt_node* node = symt_new();
+																		node = symt_insert_tab_var(node, $1, rout_name,	 $3, 1, -1, NULL, 0, true, level);
+																		tab = symt_push(tab, node);
+																		symt_print(tab);
 																	}
 				;
 
@@ -654,14 +622,14 @@ var_assign      : IDENTIFIER '=' expr								{
 // __________ Declaration and Assignation for variables __________
 
 list_expr 	: expr					{
-											struct Stack stack;
-											symt_node* node = (symt_node*)$1;
-											stack.name = symt_get_name_from_node(node);
-											stack.value = symt_get_value_from_node(node);
-											stack.type = type;
-											stack.next_value = NULL;
-											$$ = &stack;
-										}
+										struct Stack stack;
+										symt_node* node = (symt_node*)$1;
+										stack.name = symt_get_name_from_node(node);
+										stack.value = symt_get_value_from_node(node);
+										stack.type = type;
+										stack.next_value = NULL;
+										$$ = &stack;
+									}
 			| expr ',' list_expr	{
 										Stack *right_stack = (Stack*)$3;
 										Stack* stack = (Stack *)(ml_malloc(sizeof(Stack)));
@@ -675,50 +643,50 @@ list_expr 	: expr					{
 			;
 
 ext_var 		: in_var
-				| HIDE IDENTIFIER ':' data_type										{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, 0);
-																						assertf(var == NULL, "variable %s has already been declared", $2);
+				| IDENTIFIER ':' data_type										{
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, 0);
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, level);
+																						var = symt_insert_var($1, NULL, $3, 0, 0, NULL, 1, false, level);
 																						tab = symt_push(tab, var);
 																						symt_print(tab);
 																					}
-				| HIDE IDENTIFIER ':' arr_data_type									{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, 0);
-																						assertf(var == NULL, "variable %s has already been declared", $2);
+				| IDENTIFIER ':' arr_data_type									{
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, 0);
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						var = symt_insert_var($2, NULL, $4, 1, array_length, NULL, 1, false, level);
+																						var = symt_insert_var($1, NULL, $3, 1, array_length, NULL, 1, false, level);
 																						tab = symt_push(tab, var);
 																						symt_print(tab);
 																					}
-				| HIDE IDENTIFIER ':' data_type '=' expr							{
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, 0);
-																						assertf(var == NULL, "variable %s has already been declared", $2);
+				| IDENTIFIER ':' data_type '=' expr							{
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, 0);
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, level);
+																						var = symt_insert_var($1, NULL, $3, 0, 0, NULL, 1, false, level);
 
-																						symt_node *value = (symt_node *)$6;
+																						symt_node *value = (symt_node *)$5;
 																						symt_assign_var(var->var, value->cons);
 																						tab = symt_push(tab, var);
 																						symt_print(tab);
 																					}
-				| HIDE IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
+				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
 
-																						symt_node *var = symt_search_by_name(tab, $2, VAR, NULL, 0);
-																						assertf(var == NULL, "variable %s has already been declared", $2);
+																						symt_node *var = symt_search_by_name(tab, $1, VAR, NULL, 0);
+																						assertf(var == NULL, "variable %s has already been declared", $1);
 
-																						var = symt_insert_var($2, NULL, $4, 0, 0, NULL, 1, false, 0);
+																						var = symt_insert_var($1, NULL, $3, 0, 0, NULL, 1, false, 0);
 																						tab = symt_push(tab, var);
 
-																						var = symt_search_by_name(tab, $2, VAR, NULL, level);
-																						assertf(var != NULL, "variable %s has not been declared", $2);
+																						var = symt_search_by_name(tab, $1, VAR, NULL, level);
+																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						char *str_type_1 = symt_strget_vartype(var->var->type);
-																						char *str_type_2 = symt_strget_vartype($4);
-																						assertf(var->var->type == $4, "type %s does not match %s at %s variable declaration", str_type_1, str_type_2, $2);
+																						char *str_type_2 = symt_strget_vartype($3);
+																						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", str_type_1, str_type_2, $1);
 
-																						struct Stack *pila = $7;
-																						struct Stack *valores_pila = $7;
+																						struct Stack *pila = $6;
+																						struct Stack *valores_pila = $6;
 																						int *zero = (int *)(ml_malloc(sizeof(int)));
 
 																						switch(value_list_expr_t)
@@ -1035,12 +1003,6 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																												tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, false, level++);
 																												qw_write_routine(obj, rout_name, next_label++);
 																											} EOL statement RETURN expr EOL END_FUNCTION { symt_end_block(tab); level--; qw_write_close_routine(obj, rout_name); rout_name = NULL; }
-				| HIDE BEGIN_FUNCTION IDENTIFIER { rout_name = $3; } ':' data_type '(' declr_params ')'		{
-																												symt_node *result = symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0);
-																												assertf(result == NULL, "function %s has already been defined", $3);
-																												tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $6, true, level++);
-																												qw_write_routine(obj, rout_name, next_label++);
-																											} EOL statement RETURN expr EOL END_FUNCTION { symt_end_block(tab); qw_write_close_routine(obj, rout_name); rout_name = NULL; level--;  }
 				;
 
 proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params ')' 						{
@@ -1049,12 +1011,6 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																												tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, false, level++);
 																												qw_write_routine(obj, rout_name, next_label++);
 																											} EOL statement END_PROCEDURE { symt_end_block(tab); level--; qw_write_close_routine(obj, rout_name); rout_name = NULL; }
-				| HIDE BEGIN_PROCEDURE IDENTIFIER { rout_name = $3; } '(' declr_params ')' 					{
-																												symt_node *result = symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0);
-																												assertf(result == NULL, "procedure %s has already been defined", rout_name);
-																												tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, true, level++);
-																												qw_write_routine(obj, rout_name, next_label++);
-																											} EOL statement END_PROCEDURE { symt_end_block(tab); qw_write_close_routine(obj, rout_name); rout_name = NULL; level--; }
 				;
 
 // __________ Parameters __________
@@ -1146,57 +1102,16 @@ call_func 		: CALL IDENTIFIER					{
 													}
 				;
 
-// __________ Add libraries __________
-
-add_libraries 	: ADD_LIBRARY PATH_ADD_LIBRARY EOL add_libraries			{
-																				/*symt_name_t real_path = symt_add_parse_add_path(current_file, (symt_name_t)$2);
-																				assertf(access(real_path, F_OK) == 0, "file %s does not exist", real_path);
-
-																				if (symt_add_exists(includes, real_path) == false)
-																				{
-																					includes = symt_add_add(includes, real_path);
-																					yyin_old = yyin;
-																					yyin = fopen(real_path, "r");
-																					yyparse(); fclose(yyin);
-																					yyin = yyin_old;
-																					is_hide = false; is_merging = true;
-																					ml_free(real_path);
-																				}
-																				else
-																				{
-																					printf("WARNING: ");
-																				}*/
-																			}
-				| ADD_LIBRARY PATH_ADD_LIBRARY EOL							{
-																				/*symt_name_t real_path = symt_add_parse_add_path(current_file, (symt_name_t)$2);
-																				assertf(access(real_path, F_OK) == 0, "file %s does not exist", real_path);
-
-																				if (symt_add_exists(includes, real_path) == false)
-																				{
-																					includes = symt_add_add(includes, real_path);
-																					yyin_old = yyin;
-																					yyin = fopen(real_path, "r");
-																					yyparse(); fclose(yyin);
-																					yyin = yyin_old;
-																					is_hide = false; is_merging = true;
-																					ml_free(real_path);
-																				}
-																				else
-																				{
-																					printf("WARNING: ");
-																				}*/
-																			}
-				;
-
 
 // __________ Statement __________
 
 statement 		: { $$ = false; } | in_var EOL statement														 														{ $$ = true; }
-				| { level++; } BEGIN_IF '(' expr ')' EOL statement break_rule more_else						END_IF { symt_end_block(tab); level--; } EOL statement 		{ $$ = true; }
-				| { level++; } BEGIN_WHILE '(' expr ')' EOL statement break_rule 							END_WHILE { symt_end_block(tab); level--;} EOL statement 	{ $$ = true; }
-				| { level++; } BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' EOL statement break_rule	END_FOR { symt_end_block(tab); level--; } EOL statement 	{ $$ = true; }
+				| { level++; } BEGIN_IF { $<integer_t>$=++next_label; qw_write_condition(obj, next_label); } '(' expr ')' EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else						END_IF { symt_end_block(tab); level--; } EOL statement 		{ $$ = true; }
+				| { level++; qw_write_begin_loop(obj, ++next_label); $<integer_t>$=next_label; } BEGIN_WHILE '(' expr ')' { $<integer_t>$=++next_label; qw_write_condition(obj, next_label); } EOL statement END_WHILE { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>6); } EOL statement 	{ $$ = true; }
+				| { level++; qw_write_begin_loop(obj, ++next_label); $<integer_t>$=next_label; } BEGIN_FOR '(' in_var ',' expr ',' var_assign ')' { $<integer_t>$=++next_label; qw_write_condition(obj, next_label); } EOL statement END_FOR { symt_end_block(tab); level--; qw_write_end_loop(obj, $<integer_t>6); } EOL statement 	{ $$ = true; }
 				| { level++; } call_func EOL statement																													{ level--; $$ = true; }
 				| CONTINUE EOL statement     																															{ $$ = true; }
+                | BREAK { qw_write_goto(obj, next_label); } EOL statement 																								{ $$ = true; }
 				| EOL statement   			 																															{
 																																											if ($2 != false) $$ = true;
 																																											else $$ = false;
@@ -1204,17 +1119,13 @@ statement 		: { $$ = false; } | in_var EOL statement														 													
 				| error EOL { printf(" at expression\n"); } statement																									{ $$ = true; }
 				;
 
-more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab); } EOL statement break_rule { $$ = true; }
-				| ELSE_IF { symt_end_block(tab); }  BEGIN_IF '(' expr ')' { $<integer_t>$=++et; fprintf(obj, "IF(!R0) GT(%d);\n", et); } EOL statement break_rule { fprintf(obj, "L %d:\tR7=R7+4;\n", $<integer_t>7); } more_else { $$ = true; }
-				;
-
-break_rule 		: { $$ = false; } | BREAK EOL statement { $$ = true;}
+more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab); } EOL statement { $$ = true; }
+				| ELSE_IF { symt_end_block(tab); }  BEGIN_IF '(' expr ')' { $<integer_t>$=++next_label; qw_write_condition(obj, next_label); } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
 				;
 
 // __________ Main program __________
 
 init 			: program
-				| add_libraries program
 				;
 
 program 		: | ext_var program
