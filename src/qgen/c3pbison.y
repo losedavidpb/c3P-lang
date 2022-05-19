@@ -34,7 +34,7 @@
 	extern FILE *yyin;				// Current file for Bison
 
 	FILE *obj;						// Object file
-	qw_label_t label = 0;			// Label that will be created
+	symt_label_t label = 0;			// Label that will be created
 
 	int yydebug = 1; 				// Enable this to active debug mode
 	int s_error = 0; 				// Specify if syntax errors were detected
@@ -686,74 +686,91 @@ var 		: IDENTIFIER ':' data_type 											{
 																					tab = symt_insert_tab_var(tab, $1, rout_name, $3, 1, array_length, NULL, 0, level);
 																					var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
-																					assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration",symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
-																					struct Stack *pila = $6;
-																					struct Stack *valores_pila = $6;
-																					switch(value_list_expr_t){
+																					assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", symt_strget_vartype(var->var->type), symt_strget_vartype($3), $1);
+
+																					struct Stack *pila = $6, *valores_pila = $6;
+
+																					switch(value_list_expr_t)
+																					{
 																						case CONS_INTEGER:;
 																							int *zero_int = (int *)(ml_malloc(sizeof(int)));
-
-																							for(int i = 0; i < array_length; i++){
-																								symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
-																								constate->type = value_list_expr_t;
-																								if (pila) constate->value = pila->value;
-																								else constate->value = (void*)zero_int;
-																								symt_can_assign(var->var->type, constate);
-																								if(pila) pila = pila->next_value;
-																								ml_free(constate);
-																							}
 																							int *valores_int = (int *)(ml_malloc(sizeof(int)*array_length));
-																							for(int i = 0; valores_pila; i++){
+
+																							for (int i = 0; i < array_length; i++)
+																							{
+																								symt_cons* cons = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
+																								cons->type = value_list_expr_t;
+
+																								if (pila) cons->value = pila->value;
+																								else cons->value = (void*)zero_int;
+
+																								symt_can_assign(var->var->type, cons);
+																								if(pila) pila = pila->next_value;
+																								ml_free(cons);
+																							}
+
+																							for(int i = 0; valores_pila; i++)
+																							{
 																								*(valores_int+i) = *((int*)valores_pila->value);
 																								valores_pila = valores_pila->next_value;
 																							}
+
 																							var->var->value = (void*)valores_int;
 																						break;
+
 																						case CONS_DOUBLE:;
 																							double *zero_double = (double *)(ml_malloc(sizeof(double)));
-																							double* value_double = (double*)value_list_expr;
-																							for(int i = 0; i < array_length; i++){
-																								symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
-																								constate->type = value_list_expr_t;
-																								if(pila){
-																									constate->value = pila->value;
-																								}else {
-																									constate->value = (void*)zero_double;
-																								}
-																								symt_can_assign(var->var->type, constate);
-																								if(pila) pila = pila->next_value;
-																								ml_free(constate);
-																							}
 																							double *valores_double = (double *)(ml_malloc(sizeof(double)*array_length));
-																							for(int i = 0; valores_pila; i++){
+
+																							for(int i = 0; i < array_length; i++)
+																							{
+																								symt_cons* cons = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
+																								cons->type = value_list_expr_t;
+
+																								if(pila) cons->value = pila->value;
+																								else cons->value = (void*)zero_double;
+
+																								symt_can_assign(var->var->type, cons);
+																								if (pila) pila = pila->next_value;
+																								ml_free(cons);
+																							}
+
+																							for(int i = 0; valores_pila; i++)
+																							{
 																								*(valores_double+i) = *((double*)valores_pila->value);
 																								valores_pila = valores_pila->next_value;
 																							}
+
 																							var->var->value = (void*)valores_double;
 																						break;
+
 																						case CONS_CHAR:;
 																							char *zero_char = (char *)(ml_malloc(sizeof(char)));
-																							char* value_char = (char*)value_list_expr;
-																							for(int i = 0; i < array_length; i++){
-																								symt_cons* constate = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
-																								constate->type = value_list_expr_t;
-																								if(pila){
-																									constate->value = pila->value;
-																								}else {
-																									constate->value = (void*)zero_char;
-																								}
-																								symt_can_assign(var->var->type, constate);
+																							char *valores_char = (char *)(ml_malloc(sizeof(char) * array_length));
+
+																							for(int i = 0; i < array_length; i++)
+																							{
+																								symt_cons* cons = (symt_cons*)(ml_malloc(sizeof(symt_cons)));
+																								cons->type = value_list_expr_t;
+
+																								if(pila) cons->value = pila->value;
+																								else cons->value = (void*)zero_char;
+
+																								symt_can_assign(var->var->type, cons);
 																								if(pila) pila = pila->next_value;
-																								ml_free(constate);
+																								ml_free(cons);
 																							}
-																							char *valores_char = (char *)(ml_malloc(sizeof(char)*array_length));
-																							for(int i = 0; valores_pila; i++){
+
+																							for(int i = 0; valores_pila; i++)
+																							{
 																								*(valores_char+i) = *((char*)valores_pila->value);
 																								valores_pila = valores_pila->next_value;
 																							}
+
 																							var->var->value = (void*)valores_char;
 																						break;
 																					}
+
 																					symt_print(tab);
 																				}
 				| call_assing
@@ -851,7 +868,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																										symt_node *result = symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0);
 																										assertf(result == NULL, "function %s has already been defined", rout_name);
 
-																										tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, level++);
+																										tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, level++, label);
 																										qw_write_routine(obj, rout_name, label++);
 																									} EOL statement RETURN expr EOL END_FUNCTION {
 																										symt_end_block(tab); level--;
@@ -864,7 +881,7 @@ proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params '
 																										symt_node *result = symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0);
 																										assertf(result == NULL, "procedure %s has already been defined", rout_name);
 
-																										tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, level++);
+																										tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, level++, label);
 																										qw_write_routine(obj, rout_name, label++);
 																									} EOL statement END_PROCEDURE {
 																										symt_end_block(tab); level--;
@@ -917,7 +934,7 @@ call_func 		: CALL IDENTIFIER					{
 
 															switch(iter->type)
 															{
-																case CONS_INTEGER:
+																case CONS_INTEGER: case CONS_BOOL:
 																	int_value = (int*)iter->value;
 																	cons = symt_new_cons(iter->type, int_value);
 																	symt_assign_var(iter_p->var, cons);
@@ -929,21 +946,9 @@ call_func 		: CALL IDENTIFIER					{
 																	symt_assign_var(iter_p->var, cons);
 																break;
 
-																case CONS_CHAR:
+																case CONS_CHAR: case CONS_STR:
 																	char_value = (char*)iter->value;
 																	cons = symt_new_cons(iter->type, char_value);
-																	symt_assign_var(iter_p->var, cons);
-																break;
-
-																case CONS_STR:
-																	char_value = (char*)iter->value;
-																	cons = symt_new_cons(iter->type, char_value);
-																	symt_assign_var(iter_p->var, cons);
-																break;
-
-																case CONS_BOOL:
-																	int_value = (int*)iter->value;
-																	cons = symt_new_cons(iter->type, int_value);
 																	symt_assign_var(iter_p->var, cons);
 																break;
 															}

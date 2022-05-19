@@ -43,7 +43,7 @@ symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_
 symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value);
 
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level);
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level, symt_label_t label);
 
 /* Finish a block statement */
 void symt_end_block(symt_tab *tab);

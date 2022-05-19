@@ -107,9 +107,9 @@ symt_tab *symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t val
 	return symt_push(tab, new_node);
 }
 
-symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level)
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level, symt_label_t label)
 {
-	symt_node *new_node = symt_insert_rout(id, name, type, level);
+	symt_node *new_node = symt_insert_rout(id, name, type, level, label);
 	return symt_push(tab, new_node);
 }
 

@@ -28,6 +28,10 @@ typedef char * symt_name_t;
    specific natural number. */
 typedef int symt_level_t;
 
+/* Type for labels that would be used at routines
+   to know its position at the Q file */
+typedef int symt_label_t;
+
 /* Available symbols for symbol tables which
    which will be used as identifiers */
 typedef enum symt_id_t
@@ -94,6 +98,7 @@ typedef struct symt_rout
 {
     symt_name_t name;
     symt_var_t type;
+	symt_label_t label;
 } symt_rout;
 
 /* Type for a node which is are at a symbol table */

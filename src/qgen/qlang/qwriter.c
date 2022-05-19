@@ -21,7 +21,7 @@ void qw_prepare(FILE *obj)
 	fprintf(obj, "BEGIN");
 }
 
-void qw_write_routine(FILE *obj, char *name, qw_label_t label)
+void qw_write_routine(FILE *obj, char *name, symt_label_t label)
 {
 	assertp(obj != NULL, "object must be defined");
 	assertp(name != NULL, "name must be defined");
@@ -35,31 +35,31 @@ void qw_write_close_routine(FILE *obj, char *name)
 	fprintf(obj, "\n\tR7=R6;\n\tR6=P(R7+4);\n\tR5=P(R7);\n\tGT(R5); /* End Routine %s */", name);
 }
 
-void qw_write_begin_loop(FILE *obj, qw_label_t label)
+void qw_write_begin_loop(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
     fprintf(obj, "\n\tL %d:\n\tR7=R7-4;", label);
 }
 
-void qw_write_end_loop(FILE *obj, qw_label_t label)
+void qw_write_end_loop(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
     fprintf(obj, "\n\tL %d:\n\tR7=R7+4;", label);
 }
 
-void qw_write_new_label(FILE *obj, qw_label_t label)
+void qw_write_new_label(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
     fprintf(obj, "\n\tL %d:", label);
 }
 
-void qw_write_goto(FILE *obj, qw_label_t label)
+void qw_write_goto(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
     fprintf(obj, "\n\tGT(%d);", label);
 }
 
-void qw_write_condition(FILE *obj, qw_label_t label)
+void qw_write_condition(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
     fprintf(obj, "\n\tIF(!R1) GT(%d);", label);
@@ -90,7 +90,7 @@ void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_
 	}
 }
 
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, qw_label_t label)
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, symt_label_t label)
 {
 	assertp(obj != NULL, "object must be defined");
 
