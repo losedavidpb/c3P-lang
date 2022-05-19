@@ -37,6 +37,16 @@ void qw_write_routine(FILE *obj, char *name, int label);
 /* Write the routine end */
 void qw_write_close_routine(FILE *obj, char *name);
 
+void qw_write_begin_loop(FILE *obj, int label);
+
+void qw_write_end_loop(FILE *obj, int label);
+
+void qw_write_new_label(FILE *obj, int label);
+
+void qw_write_goto(FILE *obj, int label);
+
+void qw_write_condition(FILE *obj, int label);
+
 /* Write a value to a register */
 void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_t value);
 
