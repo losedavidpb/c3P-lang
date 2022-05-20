@@ -99,7 +99,7 @@
 %token<type_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
-%token BEGIN_WHILE END_WHILE CONTINUE BREAK
+%token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE CONTINUE BREAK
 %token BEGIN_PROCEDURE END_PROCEDURE BEGIN_FUNCTION END_FUNCTION RETURN CALL
 %token AND OR NOT
 
@@ -208,13 +208,13 @@ iden_expr		: expr '+' expr					{
 													symt_node *num2 = (symt_node*)$3;
 													qw_write_expr(obj, QW_ADD, num1, num2, -1, no_store_expr);
 
-													symt_cons* res_cons = symt_cons_add(type, num1->cons, num2->cons);
+													/*symt_cons* res_cons = symt_cons_add(type, num1->cons, num2->cons);
 													symt_delete(num1); symt_delete(num2);
 
 													symt_node *result = symt_new();
 													result->id = CONSTANT;
 													result->cons = res_cons;
-													$$ = result;
+													$$ = result;*/
 												}
 				| expr '-' expr 				{
 													symt_node *num1 = (symt_node*)$1;
@@ -993,11 +993,31 @@ call_func 		: CALL IDENTIFIER					{
 													}
 				;
 
+// __________ Assignation for variables __________
+
+var_assign      : IDENTIFIER '=' expr					{
+															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+															assertf(var != NULL, "variable %s has not been declared", $1);
+
+															symt_node *value = (symt_node *)$3;
+															symt_assign_var(var->var, value->cons);
+															symt_print(tab);
+														}
+                | IDENTIFIER '[' int_expr ']' '=' expr	{
+															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+															assertf(var != NULL, "variable %s has not been declared", $1);
+															symt_node *index = (symt_node*)$3;
+															symt_node *value = (symt_node*)$6;
+
+															symt_assign_var_at(var->var, value->cons, *((int*)index->cons->value));
+															symt_print(tab);
+														}
+                ;
+
 // __________ Statement __________
 
 statement 		: { $$ = false; } | var EOL statement														 														{ $$ = true; }
-				| { level++; no_store_expr = true; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement 				{
-																																										no_store_expr = false;
+				| { level++; no_store_expr = true; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; no_store_expr = false; } EOL statement 				{
 																																										qw_write_new_label(obj, $<integer_t>6);
 																																									} more_else	END_IF {
 																																										symt_end_block(tab, level); level--;
@@ -1011,6 +1031,15 @@ statement 		: { $$ = false; } | var EOL statement														 														{ 
 																																										symt_end_block(tab, level); level--;
 																																										qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6);
 																																									} EOL statement { $$ = true; }
+				| { level++; } BEGIN_FOR '(' var ',' { begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); } var_assign ',' { no_store_expr = true; } expr ')'		{
+																																										no_store_expr = false;
+																																										qw_write_condition(obj, label);
+																																										end_last_loop=label;
+																																										$<integer_t>$=label++;
+																																									} EOL statement END_FOR {
+																																										symt_end_block(tab, level); level--;
+																																										qw_write_end_loop(obj, $<integer_t>6, $<integer_t>12);
+																																									} EOL statement { $$ = true; }
 				| { level++; } call_func EOL statement																												{ level--; $$ = true; }
 				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement     																				{ $$ = true; }
                 | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement 																						{ $$ = true; }
@@ -1022,7 +1051,7 @@ statement 		: { $$ = false; } | var EOL statement														 														{ 
 				;
 
 more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab, level); } EOL statement { $$ = true; }
-				| ELSE_IF { symt_end_block(tab, level); } BEGIN_IF '(' expr ')' { $<integer_t>$=++label; qw_write_condition(obj, label); } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
+				| ELSE_IF { symt_end_block(tab, level); } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++;  } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
 				;
 
 // __________ Main program __________
