@@ -1,16 +1,21 @@
-/* ---------------------------------------------------------------
+// symt.h -*- C -*-
+//
+// This file is part of the c3P language compiler. This project
+// is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License
+//
+// This project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// If not, see <http://www.gnu.org/licenses/>.
+//
 
-   symt.h        Symbol table for c3P language
-
-   This library provides the definition of a symbol table wich is
-   defined as a stack that stores all the avaiable symbols of c3P
-   programming language.
-
-   Authors      losedavidpb (https://github.com/losedavidpb)
-                HectorMartinAlvarez (https://github.com/HectorMartinAlvarez)
-
-   --------------------------------------------------------------- */
-
+/*
+ *	ISO C99 Standard: Symbol table
+ */
 #ifndef SYMT_H
 #define SYMT_H
 

@@ -7,7 +7,8 @@ echo "c3pq -- Compiler using Q language"
 echo "================================="
 
 for (( i=0; i<${#test_path[*]}; i++ )); do
-	echo " >> Compiling ${test_path[i]} ... "
+	echo -n " >> Compiling ${test_path[i]} ... "
     ./c3pq.exe ${test_path[i]}
 	./IQ.exe "${test_path[i]}.q.c"
+	echo "OK"
 done

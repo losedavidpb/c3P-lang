@@ -29,10 +29,10 @@ clean_start:
 
 install: c3pflex.l c3pbison.y
 	gcc -no-pie -o IQ.exe qlang/IQ.o qlang/Qlib.c
-	bison -d c3pbison.y
+	bison -dv c3pbison.y
 	flex c3pflex.l
-	gcc -g -o c3pq.exe $(include_path)/*.h $(include_path)/qlang/qwriter.h \
-		symt.c lib/*.c qlang/qwriter.c symt/*.c c3pbison.tab.c lex.yy.c -lfl -lm
+	gcc -g -o c3pq.exe $(include_path)/symt_*.h $(include_path)/qwriter.h $(include_path)/memlib.h \
+		$(include_path)/assertb.h $(include_path)/arrcopy.h symt.c lib/*.c symt/*.c c3pbison.tab.c lex.yy.c -lfl -lm
 
 clean:
 	rm -f c3pbison.tab.c 2>/dev/null

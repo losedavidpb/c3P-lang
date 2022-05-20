@@ -1,17 +1,23 @@
+/*// c3pflex.l -*- C -*-
+//
+// This file is part of the c3P language compiler. This project
+// is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License
+//
+// This project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// If not, see <http://www.gnu.org/licenses/>.
+//*/
+
+/*
+ *	ISO C99 Standard: Lexical analyzer for c3p language
+ */
+
 %{
-  /*
-    Lexical analyzer for c3P programming language
-    to be executed with Bison implementation.
-
-    WARNING
-      Since this analyzer was designed to be executed with
-      a Bison program, single execution would throw errors.
-
-    AUTHOR
-      losedavidpb (https://github.com/losedavidpb)
-      HectorMartinAlvarez (https://github.com/HectorMartinAlvarez)
-  */
-
   #include "c3pbison.tab.h"
 
   #include "../../include/arrcopy.h"
@@ -30,7 +36,11 @@
 
   // Show and error message at console
   void showerr(const char *mssg, int cod);
+
+  // Get double value for passed string
   double get_double(const char *str);
+
+  // Get integer value for passed string
   int get_int(const char *str);
 %}
 
@@ -97,10 +107,10 @@ call                                            { return CALL; }
 \'.?\'                                          { yylval.char_t = yytext[1]; return CHAR; }
 \-?{digit}+                                     { yylval.integer_t = get_int(strcopy(yytext)); return INTEGER; }
 \-?{digit}*\.{digit}+                           { yylval.double_t =  get_double(strcopy(yytext)); return DOUBLE; }
-"T"                                             { yylval.bool_t = 1; return T; }
-"F"                                             { yylval.bool_t = 0; return F; }
+"T"                                             { yylval.integer_t = 1; return T; }
+"F"                                             { yylval.integer_t = 0; return F; }
 
-{identifier}                                    { yylval.name_t = strcopy(yytext); return IDENTIFIER; }
+{identifier}                                    { yylval.string_t = strcopy(yytext); return IDENTIFIER; }
 
 \n                                              { num_lines++; return EOL; }
 {comment}                                       { /* ignore comments */ }

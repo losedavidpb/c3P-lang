@@ -1,10 +1,28 @@
-/* Object Q writer for c3P language */
+// qwriter.h -*- C -*-
+//
+// This file is part of the c3P language compiler. This project
+// is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License
+//
+// This project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// If not, see <http://www.gnu.org/licenses/>.
+//
+
+/*
+ *	ISO C99 Standard: Object Q writer for c3P language
+ */
+
 #ifndef Q_WRITER_H
 #define Q_WRITER_H
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "../symt_type.h"
+#include "symt_type.h"
 
 /* Available operators for expressions */
 typedef enum qw_op_t
@@ -57,7 +75,7 @@ void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label);
 void qw_write_condition(FILE *obj, symt_label_t label);
 
 /* Write the declaration of an array */
-int qw_write_array(FILE *obj, symt_cons_t type, int q_direction, symt_value_t value, size_t array_length);
+int qw_write_array(FILE *obj, symt_cons_t type, int q_direction, size_t array_length);
 
 /* Write a value at a position of an array */
 void qw_write_value_to_array(FILE *obj, symt_cons_t type, int ini_q_direction, symt_value_t value, size_t pos);
@@ -75,7 +93,7 @@ void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_
 void qw_write_reg_to_var(FILE *obj, int num_reg, symt_cons_t type, int q_direction);
 
 /* Write an expression for two numbers */
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, symt_label_t label, bool no_store_expr);
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label);
 
 /* Close passed object file */
 void qw_close(FILE * obj, symt_label_t label);

@@ -23,6 +23,6 @@ proc main()
 	call showln str(x)
 	x = call mean l
 
-	call show "x = "
+	?call show "x = "
 	call showln str(x)
 endproc
