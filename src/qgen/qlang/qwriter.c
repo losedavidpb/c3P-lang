@@ -94,7 +94,7 @@ void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label)
 void qw_write_condition(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
-    fprintf(obj, "\n\tIF(!R1) GT(%d);\t// Jump if condition is not true", label);
+	fprintf(obj, "\n\tIF(!R1) GT(%d);\t// Jump if condition is not true", label);
 }
 
 void qw_write_value_to_var(FILE *obj, symt_cons_t type, int q_direction, symt_value_t value)
@@ -242,17 +242,17 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, sy
 			switch(sign)
 			{
 				// Comparison
-				case QW_LESS: fprintf(obj, "\n\tRR%d=RR%d<RR%d;\t// Less operation", 1, 1, 2); 					break;
-				case QW_GREATER: fprintf(obj, "\n\tRR%d=RR%d>RR%d;\t// Greater operation", 1, 1, 2); 				break;
-				case QW_LESS_THAN: fprintf(obj, "\n\tRR%d=RR%d<=RR%d;\t// Less than operation", 1, 1, 2); 			break;
-				case QW_GREATER_THAN: fprintf(obj, "\n\tRR%d=RR%d>=RR%d;\t// Greater than operation", 1, 1, 2);    break;
-				case QW_EQUAL: fprintf(obj, "\n\tRR%d=RR%d==RR%d;\t// Equal operation", 1, 1, 2); 					break;
-				case QW_NOT_EQUAL: fprintf(obj, "\n\tRr%d=RR%d!=RR%d;\t// Not equal operation", 1, 1, 2); 			break;
+				case QW_LESS: fprintf(obj, "\n\tR%d=RR%d<RR%d;\t// Less operation", 1, 1, 2); 					break;
+				case QW_GREATER: fprintf(obj, "\n\tR%d=RR%d>RR%d;\t// Greater operation", 1, 1, 2); 				break;
+				case QW_LESS_THAN: fprintf(obj, "\n\tR%d=RR%d<=RR%d;\t// Less than operation", 1, 1, 2); 			break;
+				case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=RR%d>=RR%d;\t// Greater than operation", 1, 1, 2);    break;
+				case QW_EQUAL: fprintf(obj, "\n\tR%d=RR%d==RR%d;\t// Equal operation", 1, 1, 2); 					break;
+				case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not equal operation", 1, 1, 2); 			break;
 
 				// Logical
-				case QW_AND: fprintf(obj, "\n\tRR%d=RR%d!=R%d;\t// And operation", 1, 1, 2); 			break;
-				case QW_OR: fprintf(obj, "\n\tRR%d=RR%d!=RR%d;\t// Or operation", 1, 1, 2); 			break;
-				case QW_NOT: fprintf(obj, "\n\tRR%d=RR%d!=RR%d;\t// Not operation", 1, 1, 2); 			break;
+				case QW_AND: fprintf(obj, "\n\tR%d=RR%d!=R%d;\t// And operation", 1, 1, 2); 			break;
+				case QW_OR: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Or operation", 1, 1, 2); 			break;
+				case QW_NOT: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not operation", 1, 1, 2); 			break;
 
 				// Arithmetic
 				case QW_ADD: fprintf(obj, "\n\tRR%d=RR%d+RR%d;\t// Add operation", 1, 1, 2); 			break;
