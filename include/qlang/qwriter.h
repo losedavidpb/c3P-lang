@@ -56,6 +56,12 @@ void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label);
 /* Write a new condition */
 void qw_write_condition(FILE *obj, symt_label_t label);
 
+/* Write the declaration of an array */
+int qw_write_array(FILE *obj, symt_cons_t type, int q_direction, symt_value_t value, size_t array_length);
+
+/* Write a value at a position of an array */
+void qw_write_value_to_array(FILE *obj, symt_cons_t type, int ini_q_direction, symt_value_t value, size_t pos);
+
 /* Write a value to a variable stored at memory  */
 void qw_write_value_to_var(FILE *obj, symt_cons_t type, int q_direction, symt_value_t value);
 

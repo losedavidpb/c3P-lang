@@ -229,8 +229,8 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, sy
 				case QW_MULT: fprintf(obj, "\n\tR%d=R%d*R%d;\t// Mult operation", 1, 1, 2); 			break;
 				case QW_DIV: fprintf(obj, "\n\tR%d=R%d/R%d;\t// Div operation", 1, 1, 2); 			break;
 				case QW_POW: case QW_MOD:
-					fprintf(obj, "\n\tR0=%d;", label);
-					fprintf(obj, "\n\tR3=%d", 0);
+					fprintf(obj, "\n\tR0=%d;\t// Set return label", label);
+					fprintf(obj, "\n\tR3=%d;\t// Set operation for integers", 0);
 					if (sign == QW_POW) fprintf(obj, "\n\tGT(pow_);\t// Pow operation");
 					else fprintf(obj, "\n\tGT(mod_);\t// Mod operation");
 					fprintf(obj, "\nL %d:", label);
@@ -260,8 +260,8 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_node *num1, symt_node *num2, sy
 				case QW_MULT: fprintf(obj, "\n\tRR%d=RR%d*RR%d;\t// Mult operation", 1, 1, 2); 			break;
 				case QW_DIV: fprintf(obj, "\n\tRR%d=RR%d/RR%d;\t// Div operation", 1, 1, 2); 			break;
 				case QW_POW: case QW_MOD:
-					fprintf(obj, "\n\tR0=%d;", label);
-					fprintf(obj, "\n\tR3=%d", 1);
+					fprintf(obj, "\n\tR0=%d;\t// Set return label", label);
+					fprintf(obj, "\n\tR3=%d;\t// Set operation for integers", 1);
 					if (sign == QW_POW) fprintf(obj, "\n\tGT(pow_);\t// Pow operation");
 					else fprintf(obj, "\n\tGT(mod_);\t// Mod operation");
 					fprintf(obj, "\nL %d:", label);
