@@ -17,5 +17,9 @@ proc main()
 
 	while (y < 10.1)
 		y = y + 1.1
+
+		while (z < 10.0)
+			break
+		endwhile
 	endwhile
 endproc

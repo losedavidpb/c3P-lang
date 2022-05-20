@@ -50,12 +50,13 @@
 
 	FILE *obj;						// Object file for Q code
 	int q_direction = 0x11fea;		// Memory direction to save variables
-	int num_reg = 1;				// Current register used to store a value
+	int num_reg = 2;				// Current register used to store a value
 	symt_label_t label = 1;			// Label that will be created at Q file
 	int begin_last_loop = 0;		// Label for the start of a loop
 	int end_last_loop = 0;			// Label for the end of a loop
 	int q_direction_var;			// Direction for variable that would be stored
 	bool is_var;
+	bool is_expr;
 
 	symt_level_t level = 0;			// Current level of symbol table
 	symt_tab *tab; 					// Symbol table
@@ -120,55 +121,73 @@ expr 			: expr_num	{ $$ = $1; }   | expr_char	{ $$ = $1; }
 				| '(' expr ')' { $$ = $2; }
 				;
 
-int_expr 		: '(' int_expr ')' 				{ $$ = $2; }
+int_expr 		: '(' int_expr ')' 				{ is_expr = false; $$ = $2; }
 				| INTEGER 						{
-													type = CONS_INTEGER;
+													type = CONS_INTEGER; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
-													qw_write_value_to_reg(obj, num_reg++, CONS_INTEGER, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
+													if (num_reg > 1) num_reg--;
 												}
 				;
 
 expr_num 		: T 							{
-													type = CONS_BOOL; int true_val = 1;
+													type = CONS_BOOL; int true_val = 1; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &true_val);
-													qw_write_value_to_reg(obj, num_reg++, CONS_INTEGER, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
+													if (num_reg > 1) num_reg--;
 												}
 				| F 							{
-													type = CONS_BOOL; int false_val = 0;
+													type = CONS_BOOL; int false_val = 0; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &false_val);
-													qw_write_value_to_reg(obj, num_reg++, CONS_INTEGER, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
+													if (num_reg > 1) num_reg--;
 												}
 				| DOUBLE 						{
-													type = CONS_DOUBLE;
+													type = CONS_DOUBLE; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_DOUBLE, &$1);
-													qw_write_value_to_reg(obj, num_reg++, CONS_DOUBLE, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_DOUBLE, $$->cons->value);
+													if (num_reg > 1) num_reg--;
 												}
 				| INTEGER 						{
-													type = CONS_INTEGER;
+													type = CONS_INTEGER; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
-													qw_write_value_to_reg(obj, num_reg++, CONS_INTEGER, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
+													if (num_reg > 1) num_reg--;
 												}
 				;
 
 expr_char       : CHAR                          {
-													type = CONS_CHAR;
+													type = CONS_CHAR; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_CHAR, &$1);
-													qw_write_value_to_reg(obj, num_reg++, CONS_CHAR, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_CHAR, $$->cons->value);
+													if (num_reg > 1) num_reg--;
                                                 }
 				;
 
 expr_string 	: STRING		 				{
-													type = CONS_STR;
+													type = CONS_STR; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_STR, $1);
-													qw_write_value_to_reg(obj, num_reg++, CONS_STR, $$->cons->value);
+													qw_write_value_to_reg(obj, num_reg, CONS_STR, $$->cons->value);
+													if (num_reg > 1) num_reg--;
 												}
 				;
 
 iden_expr		: expr '+' expr					{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													num_reg = 2;
 													qw_write_expr(obj, QW_ADD, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -179,10 +198,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '-' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_SUB, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -193,10 +223,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '*' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_MULT, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -207,10 +248,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '/' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_DIV, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -221,10 +273,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '%' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_MOD, type, label++);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -235,10 +298,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '^' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_POW, type, label++);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -249,10 +323,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '<' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_LESS, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -263,10 +348,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '>' expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_GREATER, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -277,10 +373,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr EQUAL expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_EQUAL, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -291,10 +398,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr NOTEQUAL expr 			{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_NOT_EQUAL, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -305,10 +423,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr LESSEQUAL expr 			{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_LESS_THAN, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -319,10 +448,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr MOREEQUAL expr 			{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_GREATER_THAN, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -333,10 +473,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr AND expr 				{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_expr(obj, QW_AND, type, -1);
 
@@ -348,10 +499,21 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr OR expr 					{
-													if ($1->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $1->cons->type, $1->cons->q_direction);
-													if ($3->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $3->cons->type, $3->cons->q_direction);
+													is_expr = true;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($1->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if ($3->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_expr(obj, QW_OR, type, -1);
 
@@ -363,9 +525,15 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| NOT expr 						{
-													if ($2->cons->q_direction != 0) qw_write_var_to_reg(obj, num_reg++, $2->cons->type, $2->cons->q_direction);
+													is_expr = false;
 
-													if (num_reg > 1) num_reg = 1;
+													if ($2->cons->q_direction != 0)
+													{
+														qw_write_var_to_reg(obj, num_reg, $2->cons->type, $2->cons->q_direction);
+														if (num_reg > 1) num_reg--;
+													}
+
+													if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_expr(obj, QW_NOT, type, -1);
 
@@ -377,7 +545,9 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| IDENTIFIER '[' int_expr ']'	{
-													if (num_reg > 1) num_reg = 1;
+													is_expr = false;
+
+													if (num_reg > 1) num_reg = 2;
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
@@ -401,6 +571,8 @@ iden_expr		: expr '+' expr					{
 													}
 												}
 				| IDENTIFIER					{
+													is_expr = false;
+
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
@@ -511,7 +683,7 @@ list_expr 	: expr					{ $$ = symt_new_stack_elem(symt_get_name_from_node($1), sy
 			;
 
 var 		:   IDENTIFIER ':' data_type 										{
-																					num_reg = 1; q_direction_var = 0; type = symt_get_type_data($3);
+																					num_reg = 2; q_direction_var = 0; type = symt_get_type_data($3);
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var == NULL, "variable %s has already been declared", $1);
 
@@ -522,7 +694,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					tab = symt_push(tab, node);
 																				}
 				| IDENTIFIER ':' arr_data_type									{
-																					num_reg = 1; q_direction_var = 0; type = symt_get_type_data($3);
+																					num_reg = 2; q_direction_var = 0; type = symt_get_type_data($3);
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var == NULL, "variable %s has already been declared", $1);
 
@@ -532,16 +704,18 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					tab = symt_push(tab, node);
 																				}
 				| IDENTIFIER '=' expr											{
-																					num_reg = 1; q_direction_var = 0;
+																					q_direction_var = 0;
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					type = symt_get_type_data(var->var->type);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
 
+																					num_reg = is_expr == true? 1 : 2;
 																					symt_assign_var(var->var, $3->cons);
 																					qw_write_reg_to_var(obj, num_reg, $3->cons->type, var->var->q_direction);
+																					num_reg = 2;
 																				}
 				| IDENTIFIER '[' expr ']' '=' expr								{
-																					num_reg = 1; q_direction_var = 0;
+																					num_reg = 2; q_direction_var = 0;
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					type = symt_get_type_data(var->var->type);
 																					assertf(var != NULL, "variable %s has not been declared", $1);
@@ -550,7 +724,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					qw_write_value_to_var(obj, $6->cons->type, var->var->q_direction, var->var->value);
 																				}
 				| IDENTIFIER ':' data_type '=' expr								{
-																					num_reg = 1; q_direction_var = 0; type = symt_get_type_data($3);
+																					num_reg = 2; q_direction_var = 0; type = symt_get_type_data($3);
 																					assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
 
 																					if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
@@ -563,7 +737,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 				| IDENTIFIER ':' arr_data_type '=' '{' list_expr '}'			{
 																					// ...........
 
-																					num_reg = 1; q_direction_var = 0;
+																					num_reg = 2; q_direction_var = 0;
 																					assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
 
 																					if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
@@ -855,10 +1029,10 @@ var_assign      : IDENTIFIER '=' expr					{
 
 // __________ Statement __________
 
-statement 		: { $$ = false; is_var = true; } | var {is_var  = false; } EOL statement { $$ = true; }
-				| { level++; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else	END_IF { symt_end_block(tab, level); level--; } EOL statement { $$ = true; }
-				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); } BEGIN_WHILE '(' expr ')' { qw_write_condition(obj, label); end_last_loop=label; $<integer_t>$=label++; } EOL statement END_WHILE { symt_end_block(tab, level); level--; qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6); } EOL statement { $$ = true; }
-				| { level++; is_var = true; } BEGIN_FOR '(' var ',' { is_var = false; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); } var_assign ',' expr ')'	{ qw_write_condition(obj, label); end_last_loop=label; $<integer_t>$=label++; } EOL statement END_FOR { symt_end_block(tab, level); level--; qw_write_end_loop(obj, $<integer_t>6, $<integer_t>11); } EOL statement { $$ = true; }
+statement 		: { $$ = false; is_var = true; } | var { is_var = false; } EOL statement { $$ = true; }
+				| { level++; is_var = false; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); num_reg = 2; $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else	END_IF { symt_end_block(tab, level); level--; } EOL statement { $$ = true; }
+				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); is_var = false; } BEGIN_WHILE '(' expr ')' { qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_WHILE { symt_end_block(tab, level); level--; qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6); } EOL statement { $$ = true; }
+				| { level++; is_var = true; } BEGIN_FOR '(' var ',' { is_var = false; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++); } var_assign ',' expr ')'	{ qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_FOR { symt_end_block(tab, level); level--; qw_write_end_loop(obj, $<integer_t>6, $<integer_t>11); } EOL statement { $$ = true; }
 				| { level++; } call_func EOL statement	{ level--; $$ = true; }
 				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement { $$ = true; }
                 | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement { $$ = true; }
