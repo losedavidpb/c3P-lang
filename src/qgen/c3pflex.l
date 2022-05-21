@@ -99,6 +99,8 @@ func                                            { return BEGIN_FUNCTION; }
 endfunc                                         { return END_FUNCTION; }
 ret                                             { return RETURN; }
 call                                            { return CALL; }
+show                                            { return SHOW; }
+showln                                          { return SHOWLN; }
 
 [():,\[\]{}]                                    { return yytext[0]; }
 [\=\>\<]                                        { return yytext[0]; }

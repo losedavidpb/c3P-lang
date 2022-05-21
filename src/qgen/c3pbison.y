@@ -49,7 +49,7 @@
 	void yyerror(const char *s);
 
 	FILE *obj;						// Object file for Q code
-	int q_direction = 0x11fea;		// Memory direction to save variables
+	int q_direction = 0x11fda;		// Memory direction to save variables
 	int num_reg = 2;				// Current register used to store a value
 	symt_label_t label = 1;			// Label that will be created at Q file
 	int begin_last_loop = 0;		// Label for the start of a loop
@@ -91,6 +91,7 @@
 %token BEGIN_IF END_IF ELSE_IF
 %token BEGIN_FOR END_FOR BEGIN_WHILE END_WHILE CONTINUE BREAK
 %token BEGIN_PROCEDURE END_PROCEDURE BEGIN_FUNCTION END_FUNCTION RETURN CALL
+%token SHOW SHOWLN
 %token AND OR NOT
 
 %token EQUAL "=="
@@ -151,6 +152,7 @@ expr_num 		: T 							{
 				| INTEGER 						{
 													type = CONS_INTEGER; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
+
 													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
 													if (num_reg > 1) num_reg--;
 												}
@@ -845,6 +847,23 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
 																						symt_print(tab);
+
+																						int size = 0;
+																						symt_cons_t tipo;
+																						if(result->id == FUNCTION){
+																							tipo = symt_get_type_data(result->rout->type);
+																							switch(tipo){
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																									size = 4;
+																								break;
+																								case CONS_DOUBLE:
+																									size = 8;
+																								break;
+																							}
+																						}
+
+																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
+																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
 																					}
 				| 	IDENTIFIER  '='  CALL IDENTIFIER list_expr						{
 																						symt_node *result = symt_search_by_name(tab, $4, FUNCTION, NULL, 0);
@@ -859,6 +878,68 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
 																						symt_print(tab);
+
+																						symt_stack* iter = $5;
+																						symt_node *iter_p = params;
+																						bool no_more_params = false;
+
+																						while (true)
+																						{
+																							if (iter_p->id != VAR) { no_more_params = true; break; }
+																							if (strcmp(iter_p->var->rout_name, $4) != 0) { no_more_params = true; break; }
+																							if (iter == NULL) break;
+
+																							symt_cons_t cons_t = symt_get_type_data(iter_p->var->type);
+																							assertp(iter->type == cons_t, "type does not match");
+
+																							switch(iter->type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL:;
+																									int *int_value = (int*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, int_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+
+																								case CONS_DOUBLE:;
+																									double *double_value = (double*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, double_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+
+																								case CONS_CHAR: case CONS_STR:;
+																									char *char_value = (char*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, char_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+																							}
+
+																							if (iter_p->var->is_array == true)
+																							{
+																								symt_node *aux = symt_search_by_name(tab, iter->name, VAR, NULL, level);
+																								iter_p->var->array_length = aux->var->array_length;
+																							}
+
+																							iter = iter->next;
+																							iter_p = iter_p->next_node;
+																						}
+
+																						assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
+																						int size = 0;
+																						symt_cons_t tipo;
+																						if(result->id == FUNCTION){
+																							tipo = symt_get_type_data(result->rout->type);
+																							switch(tipo){
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																									size = 4;
+																								break;
+																								case CONS_DOUBLE:
+																									size = 8;
+																								break;
+																							}
+																						}
+
+																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
+																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
 																					}
 				| 	IDENTIFIER '[' expr ']' '='  CALL IDENTIFIER					{
 																						symt_node *result = symt_search_by_name(tab, $7, FUNCTION, NULL, 0);
@@ -873,6 +954,25 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
 																						symt_print(tab);
+
+																						// Incomplete
+
+																						int size = 0;
+																						symt_cons_t tipo;
+																						if(result->id == FUNCTION){
+																							tipo = symt_get_type_data(result->rout->type);
+																							switch(tipo){
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																									size = 4;
+																								break;
+																								case CONS_DOUBLE:
+																									size = 8;
+																								break;
+																							}
+																						}
+
+																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
+																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
 																					}
 				| 	IDENTIFIER ':' data_type '=' CALL IDENTIFIER					{
 																						symt_node *result = symt_search_by_name(tab, $6, FUNCTION, NULL, 0);
@@ -887,6 +987,23 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level, q_direction);
 																						tab = symt_push(tab, node);
 																						symt_print(tab);
+
+																						int size = 0;
+																						symt_cons_t tipo;
+																						if(result->id == FUNCTION){
+																							tipo = symt_get_type_data(result->rout->type);
+																							switch(tipo){
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																									size = 4;
+																								break;
+																								case CONS_DOUBLE:
+																									size = 8;
+																								break;
+																							}
+																						}
+
+																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
+																						qw_write_reg_to_var(obj, 3, tipo, q_direction);
 																					}
 				| 	IDENTIFIER ':' data_type '=' CALL IDENTIFIER list_expr			{
 																						symt_node *result = symt_search_by_name(tab, $6, FUNCTION, NULL, 0);
@@ -901,6 +1018,68 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level, q_direction);
 																						tab = symt_push(tab, node);
 																						symt_print(tab);
+
+																						symt_stack* iter = $7;
+																						symt_node *iter_p = params;
+																						bool no_more_params = false;
+
+																						while (true)
+																						{
+																							if (iter_p->id != VAR) { no_more_params = true; break; }
+																							if (strcmp(iter_p->var->rout_name, $6) != 0) { no_more_params = true; break; }
+																							if (iter == NULL) break;
+
+																							symt_cons_t cons_t = symt_get_type_data(iter_p->var->type);
+																							assertp(iter->type == cons_t, "type does not match");
+
+																							switch(iter->type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL:;
+																									int *int_value = (int*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, int_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+
+																								case CONS_DOUBLE:;
+																									double *double_value = (double*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, double_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+
+																								case CONS_CHAR: case CONS_STR:;
+																									char *char_value = (char*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, char_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+																							}
+
+																							if (iter_p->var->is_array == true)
+																							{
+																								symt_node *aux = symt_search_by_name(tab, iter->name, VAR, NULL, level);
+																								iter_p->var->array_length = aux->var->array_length;
+																							}
+
+																							iter = iter->next;
+																							iter_p = iter_p->next_node;
+																						}
+
+																						assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
+																						int size = 0;
+																						symt_cons_t tipo;
+																						if(result->id == FUNCTION){
+																							tipo = symt_get_type_data(result->rout->type);
+																							switch(tipo){
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																									size = 4;
+																								break;
+																								case CONS_DOUBLE:
+																									size = 8;
+																								break;
+																							}
+																						}
+
+																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
+																						qw_write_reg_to_var(obj, 3, tipo, q_direction);
 																					}
 				| 	IDENTIFIER '[' expr ']' '='  CALL IDENTIFIER list_expr			{
 																						symt_node *result = symt_search_by_name(tab, $7, FUNCTION, NULL, 0);
@@ -915,6 +1094,68 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
 																						symt_print(tab);
+
+																						symt_stack* iter = $8;
+																						symt_node *iter_p = params;
+																						bool no_more_params = false;
+
+																						while (true)
+																						{
+																							if (iter_p->id != VAR) { no_more_params = true; break; }
+																							if (strcmp(iter_p->var->rout_name, $7) != 0) { no_more_params = true; break; }
+																							if (iter == NULL) break;
+
+																							symt_cons_t cons_t = symt_get_type_data(iter_p->var->type);
+																							assertp(iter->type == cons_t, "type does not match");
+
+																							switch(iter->type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL:;
+																									int *int_value = (int*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, int_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+
+																								case CONS_DOUBLE:;
+																									double *double_value = (double*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, double_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+
+																								case CONS_CHAR: case CONS_STR:;
+																									char *char_value = (char*)iter->value;
+																									symt_assign_var(iter_p->var, symt_new_cons(iter->type, char_value, 0));
+																									qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
+																								break;
+																							}
+
+																							if (iter_p->var->is_array == true)
+																							{
+																								symt_node *aux = symt_search_by_name(tab, iter->name, VAR, NULL, level);
+																								iter_p->var->array_length = aux->var->array_length;
+																							}
+
+																							iter = iter->next;
+																							iter_p = iter_p->next_node;
+																						}
+
+																						assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
+																						int size = 0;
+																						symt_cons_t tipo;
+																						if(result->id == FUNCTION){
+																							tipo = symt_get_type_data(result->rout->type);
+																							switch(tipo){
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																									size = 4;
+																								break;
+																								case CONS_DOUBLE:
+																									size = 8;
+																								break;
+																							}
+																						}
+
+																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
+																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
 																					}
 				;
 
@@ -925,8 +1166,43 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 																										tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, level++, label);
 																										qw_write_routine(obj, rout_name, label++, false);
 																									} EOL statement RETURN expr EOL END_FUNCTION {
+																										num_reg=2;
 																										symt_end_block(tab, level); level--;
-																										qw_write_close_routine(obj, rout_name, false);
+
+																										symt_node* retorno = (symt_node*)$13;
+
+																										symt_cons_t tipo = symt_get_type_data($5);
+																										assertf(tipo == retorno->cons->type, "function %s returned type does not match", $2);
+
+																										int size=0;
+																										switch(tipo){
+																											case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+																												size = 4;
+																											break;
+																											case CONS_DOUBLE:
+																												size = 8;
+																											break;
+																										}
+
+																										fprintf(obj, "\n\tR6=R6+4;\t");
+
+																										if(retorno->cons->q_direction != 0){
+																											qw_write_var_to_reg(obj, 0, retorno->cons->type, retorno->cons->q_direction);
+																										}else{
+																											if(retorno->cons->type == CONS_DOUBLE){
+																												fprintf(obj, "\n\tRR0=RR2;\t");
+																											}else {
+																												fprintf(obj, "\n\tR0=R2;\t");
+																											}
+																										}
+
+																										if(retorno->cons->type == CONS_DOUBLE){
+																											fprintf(obj, "\n\tD(R6)=RR0;\t");
+																										}else {
+																											fprintf(obj, "\n\tI(R6)=R0;\t");
+																										}
+
+																										qw_write_close_routine_function(obj, rout_name, size);
 																										rout_name = NULL;
 																									}
 				;
@@ -974,25 +1250,29 @@ call_func 		: CALL IDENTIFIER					{
 														{
 															if (iter_p->id != VAR) { no_more_params = true; break; }
 															if (strcmp(iter_p->var->rout_name, $2) != 0) { no_more_params = true; break; }
-															if (iter != NULL) break;
+															if (iter == NULL) break;
 
-															assertp(iter->type == symt_get_type_data(iter_p->var->type), "type does not match");
+															symt_cons_t cons_t = symt_get_type_data(iter_p->var->type);
+															assertp(iter->type == cons_t, "type does not match");
 
 															switch(iter->type)
 															{
 																case CONS_INTEGER: case CONS_BOOL:;
 																	int *int_value = (int*)iter->value;
 																	symt_assign_var(iter_p->var, symt_new_cons(iter->type, int_value, 0));
+																	qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
 																break;
 
 																case CONS_DOUBLE:;
 																	double *double_value = (double*)iter->value;
 																	symt_assign_var(iter_p->var, symt_new_cons(iter->type, double_value, 0));
+																	qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
 																break;
 
 																case CONS_CHAR: case CONS_STR:;
 																	char *char_value = (char*)iter->value;
 																	symt_assign_var(iter_p->var, symt_new_cons(iter->type, char_value, 0));
+																	qw_write_value_to_var(obj, cons_t, iter_p->var->q_direction, iter_p->var->value);
 																break;
 															}
 
@@ -1008,6 +1288,14 @@ call_func 		: CALL IDENTIFIER					{
 
 														assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
 														qw_write_call(obj, result->rout->label, label++);
+													}
+				| CALL SHOW expr					{
+														symt_node* var = (symt_node*)$3;
+														qw_write_show(obj, label++, symt_get_type_data(var->cons->type), var->cons->q_direction, var->cons->value, false);
+													}
+				| CALL SHOWLN expr					{
+														symt_node* var = (symt_node*)$3;
+														qw_write_show(obj, label++, symt_get_type_data(var->cons->type), var->cons->q_direction, var->cons->value, true);
 													}
 				;
 
