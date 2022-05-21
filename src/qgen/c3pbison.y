@@ -49,7 +49,7 @@
 	void yyerror(const char *s);
 
 	FILE *obj;						// Object file for Q code
-	int q_direction = 0x11fda;		// Memory direction to save variables
+	int q_direction = 0x11fd6;		// Memory direction to save variables
 	int num_reg = 2;				// Current register used to store a value
 	symt_label_t label = 1;			// Label that will be created at Q file
 	int begin_last_loop = 0;		// Label for the start of a loop
@@ -1244,8 +1244,8 @@ call_func 		: CALL IDENTIFIER					{
 														assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
 														qw_write_call(obj, result->rout->label, label++);
 													}
-				| CALL SHOW expr					{ qw_write_show(obj, label++, symt_get_type_data($3->cons->type), $3->cons->q_direction, $3->cons->value, false); }
-				| CALL SHOWLN expr					{ qw_write_show(obj, label++, symt_get_type_data($3->cons->type), $3->cons->q_direction, $3->cons->value, true); }
+				| CALL SHOW expr					{ qw_write_show(obj, label++, $3->cons->type, $3->cons->q_direction, $3->cons->value, false); }
+				| CALL SHOWLN expr					{ qw_write_show(obj, label++, $3->cons->type, $3->cons->q_direction, $3->cons->value, true); }
 				;
 
 // __________ Assignation for variables __________
