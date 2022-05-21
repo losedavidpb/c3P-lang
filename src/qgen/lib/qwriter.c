@@ -43,12 +43,12 @@ void qw_prepare(FILE *obj)
 	fprintf(obj, "\n/**************** Start static data ****************/\nSTAT(0)");
 	fprintf(obj, "\n\tSTR(0x11ff6,\"%%d\");\t// For integer format at show");
 	fprintf(obj, "\n\tSTR(0x11ff2,\"%%f\");\t// For double format at show");
-	fprintf(obj, "\n\tSTR(0x11ff0,\"%%c\");\t// For characer format at show");
-	fprintf(obj, "\n\tSTR(0x11fee,\"%%s\");\t// For string format at show");
-    fprintf(obj, "\n\tSTR(0x11fea,\"%%d\\n\");\t// For integer format at showln");
-	fprintf(obj, "\n\tSTR(0x11fe6,\"%%f\\n\");\t// For double format at showln");
-	fprintf(obj, "\n\tSTR(0x11fe2,\"%%c\\n\");\t// For characer format at showln");
-	fprintf(obj, "\n\tSTR(0x11fde,\"%%s\\n\");\t// For string format at showln");
+	fprintf(obj, "\n\tSTR(0x11fee,\"%%c\");\t// For characer format at show");
+	fprintf(obj, "\n\tSTR(0x11fea,\"%%s\");\t// For string format at show");
+    fprintf(obj, "\n\tSTR(0x11fe6,\"%%d\\n\");\t// For integer format at show");
+	fprintf(obj, "\n\tSTR(0x11fe2,\"%%f\\n\");\t// For double format at show");
+	fprintf(obj, "\n\tSTR(0x11fde,\"%%c\\n\");\t// For characer format at show");
+	fprintf(obj, "\n\tSTR(0x11fda,\"%%s\\n\");\t// For string format at show");
 	fprintf(obj, "\n/**************** End static data ****************/");
 	fprintf(obj, "\n/**************** Start code ****************/\nCODE(0)");
 }
@@ -174,50 +174,53 @@ void qw_write_condition(FILE *obj, symt_label_t label)
 void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direction, symt_value_t value, bool show_ln)
 {
     assertp(obj != NULL, "object must be defined");
-
     switch(type)
     {
         case CONS_INTEGER: case CONS_BOOL:
-            if(show_ln) fprintf(obj, "\n\tR1=0x11fea;\t");
-            else fprintf(obj, "\n\tR1=0x11ff6;\t");
-
-            fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
+            if(show_ln){
+                fprintf(obj, "\n\tR1=0x11fe6;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11ff6;\t");
+            }
+            if(q_direction != 0){
+                fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
+            }else{
+                fprintf(obj, "\n\tR2=%d;\t", *(int*)value);
+            }
             fprintf(obj, "\n\tR0=%d;\t", label);
             fprintf(obj, "\n\tGT(putf_int_);\t");
             fprintf(obj, "\nL %d:\t", label++);
 		break;
-
         case CONS_CHAR:
-            if(show_ln) fprintf(obj, "\n\tR1=0x11fe2;\t");
-            else fprintf(obj, "\n\tR1=0x11ff0;\t");
-
-            fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
+            if(show_ln){
+                fprintf(obj, "\n\tR1=0x11fde;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11fee;\t");
+            }
+            if(q_direction != 0){
+                fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
+            }else{
+                fprintf(obj, "\n\tR2=%d;\t", *(char*)value);
+            }
             fprintf(obj, "\n\tR0=%d;\t", label);
             fprintf(obj, "\n\tGT(putf_int_);\t");
             fprintf(obj, "\nL %d:\t", label++);
         break;
-
 		case CONS_DOUBLE:
-            if(show_ln) fprintf(obj, "\n\tR1=0x11fe6;\t");
-            else fprintf(obj, "\n\tR1=0x11ff2;\t");
-
-			fprintf(obj, "\n\tR1=0x11ff2;\t");
-            fprintf(obj, "\n\tRR1=D(0x%055d);\t", q_direction);
+            if(show_ln){
+                fprintf(obj, "\n\tR1=0x11fe2;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11ff2;\t");
+            }
+            if(q_direction != 0){
+                fprintf(obj, "\n\tRR1=D(0x%05x);\t", q_direction);
+            }else{
+                fprintf(obj, "\n\tRR1=%f;\t", *(double*)value);
+            }
             fprintf(obj, "\n\tR0=%d;\t", label);
             fprintf(obj, "\n\tGT(putf_double_);\t");
             fprintf(obj, "\nL %d:\t", label++);
 		break;
-
-        case CONS_STR:
-			if(show_ln) fprintf(obj, "\n\tR1=0x11fde;\t");
-            else fprintf(obj, "\n\tR1=0x11fee;\t");
-
-            /*fprintf(obj, "\n\tR2=I(0x%05x);\t// Store value to variable", q_direction);
-            fprintf(obj, "\n\tR0=%d;\t// Store value to variable", label);
-            fprintf(obj, "\n\tGT(putf_int_);\t// Store value to variable");
-            fprintf(obj, "\n\tL %d:\t// Store value to variable", label);
-            */
-        break;
     }
 }
 
