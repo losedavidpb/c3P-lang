@@ -102,7 +102,7 @@ void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_
 void qw_write_reg_to_var(FILE *obj, int num_reg, symt_cons_t type, int q_direction);
 
 /* Write an expression for two numbers */
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label);
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label, int num_reg_1, int num_reg_2);
 
 /* Close passed object file */
 void qw_close(FILE * obj, symt_label_t label);

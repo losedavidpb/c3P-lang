@@ -1,6 +1,6 @@
 // qwriter.c -*- C -*-
 //
-// This file is part of the c3P language compiler. This project
+// This file is part of the c3p language compiler. This project
 // is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License
 //
@@ -201,7 +201,7 @@ void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direct
         break;
 
 		case CONS_DOUBLE:
-            if(show_ln) fprintf(obj, "\n\tR1=0x11fe2;\t// Set double format");
+            if(show_ln) fprintf(obj, "\n\tR1=0x11fe22;\t// Set double format");
             else fprintf(obj, "\n\tR1=0x11ff2;\t// Set double format with EOL");
 
             if(q_direction != 0) fprintf(obj, "\n\tRR1=D(0x%05x);\t// Set value to print", q_direction);
@@ -274,7 +274,7 @@ void qw_write_var_to_reg(FILE *obj, symt_label_t num_reg, symt_cons_t type, int 
 		break;
 
 		case CONS_DOUBLE:
-			assertf(num_reg >= 0 && num_reg <= 3, "%d is not a valid register", num_reg);
+			assertf(num_reg >= 0 && num_reg <= 4, "%d is not a valid register", num_reg);
 			fprintf(obj, "\n\tRR%d=D(0x%05x);\t// Load variable to register", num_reg, q_direction);
 		break;
 
@@ -299,7 +299,7 @@ void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_
 
 		case CONS_DOUBLE:
 			value_double = *(double*)value;
-			assertf(num_reg >= 0 && num_reg <= 3, "%d is not a valid register", num_reg);
+			assertf(num_reg >= 0 && num_reg <= 4, "%d is not a valid register", num_reg);
 			fprintf(obj, "\n\tRR%d=%f;\t// Set value to register", num_reg, value_double);
 		break;
 
@@ -325,7 +325,7 @@ void qw_write_reg_to_var(FILE *obj, int num_reg, symt_cons_t type, int q_directi
 	}
 }
 
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label)
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label, int num_reg_1, int num_reg_2)
 {
 	assertp(obj != NULL, "object must be defined");
 
@@ -334,23 +334,23 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label
 		switch(sign)
 		{
 			// Comparison
-			case QW_LESS: fprintf(obj, "\n\tR%d=R%d<R%d;\t// Less operation", 1, 1, 2); 					break;
-			case QW_GREATER: fprintf(obj, "\n\tR%d=R%d>R%d;\t// Greater operation", 1, 1, 2); 				break;
-			case QW_LESS_THAN: fprintf(obj, "\n\tR%d=R%d<=R%d;\t// Less than operation", 1, 1, 2); 			break;
-			case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=R%d>=R%d;\t// Greater than operation", 1, 1, 2);    break;
-			case QW_EQUAL: fprintf(obj, "\n\tR%d=R%d==R%d;\t// Equal operation", 1, 1, 2); 					break;
-			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Not equal operation", 1, 1, 2); 			break;
+			case QW_LESS: fprintf(obj, "\n\tR%d=R%d<R%d;\t// Less operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_GREATER: fprintf(obj, "\n\tR%d=R%d>R%d;\t// Greater operation", 1, num_reg_1, num_reg_2); 				break;
+			case QW_LESS_THAN: fprintf(obj, "\n\tR%d=R%d<=R%d;\t// Less than operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=R%d>=R%d;\t// Greater than operation", 1, num_reg_1, num_reg_2);    break;
+			case QW_EQUAL: fprintf(obj, "\n\tR%d=R%d==R%d;\t// Equal operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Not equal operation", 1, num_reg_1, num_reg_2); 			break;
 
 			// Logical
-			case QW_AND: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// And operation", 1, 1, 2); 			break;
-			case QW_OR: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Or operation", 1, 1, 2); 			break;
-			case QW_NOT: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Not operation", 1, 1, 2); 			break;
+			case QW_AND: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// And operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_OR: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Or operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_NOT: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Not operation", 1, num_reg_1, num_reg_2); 			break;
 
 			// Arithmetic
-			case QW_ADD: fprintf(obj, "\n\tR%d=R%d+R%d;\t// Add operation", 1, 1, 2); 			break;
-			case QW_SUB: fprintf(obj, "\n\tR%d=R%d-R%d;\t// Sub operation", 1, 1, 2); 			break;
-			case QW_MULT: fprintf(obj, "\n\tR%d=R%d*R%d;\t// Mult operation", 1, 1, 2); 			break;
-			case QW_DIV: fprintf(obj, "\n\tR%d=R%d/R%d;\t// Div operation", 1, 1, 2); 			break;
+			case QW_ADD: fprintf(obj, "\n\tR%d=R%d+R%d;\t// Add operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_SUB: fprintf(obj, "\n\tR%d=R%d-R%d;\t// Sub operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_MULT: fprintf(obj, "\n\tR%d=R%d*R%d;\t// Mult operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_DIV: fprintf(obj, "\n\tR%d=R%d/R%d;\t// Div operation", 1, num_reg_1, num_reg_2); 			break;
 			case QW_POW: case QW_MOD:
 				fprintf(obj, "\n\tR0=%d;\t// Set return label", label);
 				fprintf(obj, "\n\tR3=%d;\t// Set operation for integers", 0);
@@ -365,23 +365,23 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label
 		switch(sign)
 		{
 			// Comparison
-			case QW_LESS: fprintf(obj, "\n\tR%d=RR%d<RR%d;\t// Less operation", 1, 1, 2); 					break;
-			case QW_GREATER: fprintf(obj, "\n\tR%d=RR%d>RR%d;\t// Greater operation", 1, 1, 2); 				break;
-			case QW_LESS_THAN: fprintf(obj, "\n\tR%d=RR%d<=RR%d;\t// Less than operation", 1, 1, 2); 			break;
-			case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=RR%d>=RR%d;\t// Greater than operation", 1, 1, 2);    break;
-			case QW_EQUAL: fprintf(obj, "\n\tR%d=RR%d==RR%d;\t// Equal operation", 1, 1, 2); 					break;
-			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not equal operation", 1, 1, 2); 			break;
+			case QW_LESS: fprintf(obj, "\n\tR%d=RR%d<RR%d;\t// Less operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_GREATER: fprintf(obj, "\n\tR%d=RR%d>RR%d;\t// Greater operation", 1, num_reg_1, num_reg_2); 				break;
+			case QW_LESS_THAN: fprintf(obj, "\n\tR%d=RR%d<=RR%d;\t// Less than operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=RR%d>=RR%d;\t// Greater than operation", 1, num_reg_1, num_reg_2);    break;
+			case QW_EQUAL: fprintf(obj, "\n\tR%d=RR%d==RR%d;\t// Equal operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not equal operation", 1, num_reg_1, num_reg_2); 			break;
 
 			// Logical
-			case QW_AND: fprintf(obj, "\n\tR%d=RR%d!=R%d;\t// And operation", 1, 1, 2); 			break;
-			case QW_OR: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Or operation", 1, 1, 2); 			break;
-			case QW_NOT: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not operation", 1, 1, 2); 			break;
+			case QW_AND: fprintf(obj, "\n\tR%d=RR%d!=R%d;\t// And operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_OR: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Or operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_NOT: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not operation", 1, num_reg_1, num_reg_2); 			break;
 
 			// Arithmetic
-			case QW_ADD: fprintf(obj, "\n\tRR%d=RR%d+RR%d;\t// Add operation", 1, 1, 2); 			break;
-			case QW_SUB: fprintf(obj, "\n\tRR%d=RR%d-RR%d;\t// Sub operation", 1, 1, 2); 			break;
-			case QW_MULT: fprintf(obj, "\n\tRR%d=RR%d*RR%d;\t// Mult operation", 1, 1, 2); 			break;
-			case QW_DIV: fprintf(obj, "\n\tRR%d=RR%d/RR%d;\t// Div operation", 1, 1, 2); 			break;
+			case QW_ADD: fprintf(obj, "\n\tRR%d=RR%d+RR%d;\t// Add operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_SUB: fprintf(obj, "\n\tRR%d=RR%d-RR%d;\t// Sub operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_MULT: fprintf(obj, "\n\tRR%d=RR%d*RR%d;\t// Mult operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_DIV: fprintf(obj, "\n\tRR%d=RR%d/RR%d;\t// Div operation", 1, num_reg_1, num_reg_2); 			break;
 			case QW_POW: case QW_MOD:
 				fprintf(obj, "\n\tR0=%d;\t// Set return label", label);
 				fprintf(obj, "\n\tR3=%d;\t// Set operation for integers", 1);
