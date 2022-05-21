@@ -1,15 +1,17 @@
 z : i32 = 10
 l : i64 = 20
 n : i32
-?x : i32[10]
+x : i32[10]
 
 proc main()
 	?n = 10
 	?z = z - 10
 	?l = 10 + l
+	call show l
 	l = l + 10 + l
-	?x[0] = l * 2
-	?x[1] = l / 2
+	call show l
+	x[0] = l * 2
+	x[1] = l / 2
 	?z = z % 10
 	?l = l + 2
 endproc

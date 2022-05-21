@@ -55,8 +55,9 @@
 	int begin_last_loop = 0;		// Label for the start of a loop
 	int end_last_loop = 0;			// Label for the end of a loop
 	int q_direction_var;			// Direction for variable that would be stored
-	bool is_var;
-	bool is_expr;
+	bool is_var;					// Check if current token is variable
+	bool is_expr;					// Check if current line is an expression
+	size_t section_label = 0;		// Section label for STAT and CODE
 
 	symt_level_t level = 0;			// Current level of symbol table
 	symt_tab *tab; 					// Symbol table
@@ -125,6 +126,7 @@ expr 			: expr_num	{ $$ = $1; }   | expr_char	{ $$ = $1; }
 int_expr 		: '(' int_expr ')' 				{ is_expr = false; $$ = $2; }
 				| INTEGER 						{
 													type = CONS_INTEGER; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
 													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
 													if (num_reg > 1) num_reg--;
@@ -133,26 +135,29 @@ int_expr 		: '(' int_expr ')' 				{ is_expr = false; $$ = $2; }
 
 expr_num 		: T 							{
 													type = CONS_BOOL; int true_val = 1; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &true_val);
 													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
 													if (num_reg > 1) num_reg--;
 												}
 				| F 							{
 													type = CONS_BOOL; int false_val = 0; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &false_val);
 													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
 													if (num_reg > 1) num_reg--;
 												}
 				| DOUBLE 						{
 													type = CONS_DOUBLE; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_DOUBLE, &$1);
 													qw_write_value_to_reg(obj, num_reg, CONS_DOUBLE, $$->cons->value);
 													if (num_reg > 1) num_reg--;
 												}
 				| INTEGER 						{
 													type = CONS_INTEGER; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
-
 													qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
 													if (num_reg > 1) num_reg--;
 												}
@@ -160,6 +165,7 @@ expr_num 		: T 							{
 
 expr_char       : CHAR                          {
 													type = CONS_CHAR; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_CHAR, &$1);
 													qw_write_value_to_reg(obj, num_reg, CONS_CHAR, $$->cons->value);
 													if (num_reg > 1) num_reg--;
@@ -168,6 +174,7 @@ expr_char       : CHAR                          {
 
 expr_string 	: STRING		 				{
 													type = CONS_STR; is_expr = false;
+													if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_STR, $1);
 													qw_write_value_to_reg(obj, num_reg, CONS_STR, $$->cons->value);
 													if (num_reg > 1) num_reg--;
@@ -175,8 +182,6 @@ expr_string 	: STRING		 				{
 				;
 
 iden_expr		: expr '+' expr					{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -189,7 +194,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													num_reg = 2;
+													is_expr = true; num_reg = 2;
 													qw_write_expr(obj, QW_ADD, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -200,8 +205,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '-' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -214,7 +217,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_SUB, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -225,8 +228,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '*' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -239,7 +240,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_MULT, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -250,8 +251,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '/' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -264,7 +263,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_DIV, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -275,8 +274,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '%' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -289,7 +286,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_MOD, type, label++);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -300,8 +297,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '^' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -314,7 +309,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_POW, type, label++);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -325,8 +320,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '<' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -339,7 +332,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_LESS, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -350,8 +343,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr '>' expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -364,7 +355,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_GREATER, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -375,8 +366,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr EQUAL expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -389,7 +378,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_EQUAL, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -400,8 +389,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr NOTEQUAL expr 			{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -414,7 +401,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_NOT_EQUAL, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -425,8 +412,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr LESSEQUAL expr 			{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -439,7 +424,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_LESS_THAN, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -450,8 +435,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr MOREEQUAL expr 			{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -464,7 +447,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_expr(obj, QW_GREATER_THAN, type, -1);
 
 													$$ = symt_new(); $$->id = CONSTANT;
@@ -475,8 +458,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr AND expr 				{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -489,7 +470,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_expr(obj, QW_AND, type, -1);
 
@@ -501,8 +482,6 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| expr OR expr 					{
-													is_expr = true;
-
 													if ($1->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
@@ -515,7 +494,7 @@ iden_expr		: expr '+' expr					{
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = true; if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_expr(obj, QW_OR, type, -1);
 
@@ -527,15 +506,13 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| NOT expr 						{
-													is_expr = false;
-
 													if ($2->cons->q_direction != 0)
 													{
 														qw_write_var_to_reg(obj, num_reg, $2->cons->type, $2->cons->q_direction);
 														if (num_reg > 1) num_reg--;
 													}
 
-													if (num_reg > 1) num_reg = 2;
+													is_expr = false; if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_expr(obj, QW_NOT, type, -1);
 
@@ -547,9 +524,7 @@ iden_expr		: expr '+' expr					{
 														qw_write_reg_to_var(obj, 1, type, q_direction_var);
 												}
 				| IDENTIFIER '[' int_expr ']'	{
-													is_expr = false;
-
-													if (num_reg > 1) num_reg = 2;
+													is_expr = false; if (num_reg > 1) num_reg = 2;
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
@@ -574,7 +549,6 @@ iden_expr		: expr '+' expr					{
 												}
 				| IDENTIFIER					{
 													is_expr = false;
-
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
@@ -699,10 +673,11 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					num_reg = 2; q_direction_var = 0; type = symt_get_type_data($3);
 																					symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 																					assertf(var == NULL, "variable %s has already been declared", $1);
+																					if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 																					symt_node* node = symt_new();
 																					node = symt_insert_tab_var(node, $1, rout_name, $3, 1, array_length, NULL, 0, level, q_direction);
-																					//q_direction = qw_write_array(obj, symt_get_type_data($3), q_direction, node->var->array_length);
+																					q_direction = qw_write_array(obj, symt_get_type_data($3), q_direction, node->var->array_length, ++section_label);
 																					tab = symt_push(tab, node);
 																				}
 				| IDENTIFIER '=' expr											{
@@ -723,7 +698,7 @@ var 		:   IDENTIFIER ':' data_type 										{
 																					assertf(var != NULL, "variable %s has not been declared", $1);
 
 																					symt_assign_var_at(var->var, $6->cons, *((int*)$3->cons->value));
-																					qw_write_value_to_var(obj, $6->cons->type, var->var->q_direction, var->var->value);
+																					qw_write_reg_to_array(obj, num_reg, $6->cons->type, var->var->q_direction, *((int*)$3->cons->value));
 																				}
 				| IDENTIFIER ':' data_type '=' expr								{
 																					num_reg = 2; q_direction_var = 0; type = symt_get_type_data($3);
@@ -846,24 +821,21 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
-																						symt_print(tab);
-
 																						int size = 0;
-																						symt_cons_t tipo;
-																						if(result->id == FUNCTION){
-																							tipo = symt_get_type_data(result->rout->type);
-																							switch(tipo){
-																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																									size = 4;
-																								break;
-																								case CONS_DOUBLE:
-																									size = 8;
-																								break;
+
+																						if(result->id == FUNCTION)
+																						{
+																							type = symt_get_type_data(result->rout->type);
+
+																							switch(type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																								case CONS_DOUBLE: size = 8; break;
 																							}
 																						}
 
-																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
-																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
+																						qw_write_call_return(obj, result->rout->label, label++, size, type);
+																						qw_write_reg_to_var(obj, 3, type, var->var->q_direction);
 																					}
 				| 	IDENTIFIER  '='  CALL IDENTIFIER list_expr						{
 																						symt_node *result = symt_search_by_name(tab, $4, FUNCTION, NULL, 0);
@@ -877,7 +849,6 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
-																						symt_print(tab);
 
 																						symt_stack* iter = $5;
 																						symt_node *iter_p = params;
@@ -925,21 +896,20 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
 																						int size = 0;
-																						symt_cons_t tipo;
-																						if(result->id == FUNCTION){
-																							tipo = symt_get_type_data(result->rout->type);
-																							switch(tipo){
-																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																									size = 4;
-																								break;
-																								case CONS_DOUBLE:
-																									size = 8;
-																								break;
+
+																						if(result->id == FUNCTION)
+																						{
+																							type = symt_get_type_data(result->rout->type);
+
+																							switch(type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																								case CONS_DOUBLE: size = 8; break;
 																							}
 																						}
 
-																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
-																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
+																						qw_write_call_return(obj, result->rout->label, label++, size, type);
+																						qw_write_reg_to_var(obj, 3, type, var->var->q_direction);
 																					}
 				| 	IDENTIFIER '[' expr ']' '='  CALL IDENTIFIER					{
 																						symt_node *result = symt_search_by_name(tab, $7, FUNCTION, NULL, 0);
@@ -953,26 +923,24 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						assertf(var != NULL, "variable %s has not been declared", $1);
 
 																						assertf(result->rout->type == var->var->type, "type does not match");
-																						symt_print(tab);
 
 																						// Incomplete
 
 																						int size = 0;
-																						symt_cons_t tipo;
-																						if(result->id == FUNCTION){
-																							tipo = symt_get_type_data(result->rout->type);
-																							switch(tipo){
-																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																									size = 4;
-																								break;
-																								case CONS_DOUBLE:
-																									size = 8;
-																								break;
+
+																						if(result->id == FUNCTION)
+																						{
+																							type = symt_get_type_data(result->rout->type);
+
+																							switch(type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																								case CONS_DOUBLE: size = 8; break;
 																							}
 																						}
 
-																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
-																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
+																						qw_write_call_return(obj, result->rout->label, label++, size, type);
+																						qw_write_reg_to_var(obj, 3, type, var->var->q_direction);
 																					}
 				| 	IDENTIFIER ':' data_type '=' CALL IDENTIFIER					{
 																						symt_node *result = symt_search_by_name(tab, $6, FUNCTION, NULL, 0);
@@ -986,24 +954,21 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						symt_node* node = symt_new();
 																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level, q_direction);
 																						tab = symt_push(tab, node);
-																						symt_print(tab);
 
 																						int size = 0;
-																						symt_cons_t tipo;
+
 																						if(result->id == FUNCTION){
-																							tipo = symt_get_type_data(result->rout->type);
-																							switch(tipo){
-																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																									size = 4;
-																								break;
-																								case CONS_DOUBLE:
-																									size = 8;
-																								break;
+																							type = symt_get_type_data(result->rout->type);
+
+																							switch(type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																								case CONS_DOUBLE: size = 8; break;
 																							}
 																						}
 
-																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
-																						qw_write_reg_to_var(obj, 3, tipo, q_direction);
+																						qw_write_call_return(obj, result->rout->label, label++, size, type);
+																						qw_write_reg_to_var(obj, 3, type, q_direction);
 																					}
 				| 	IDENTIFIER ':' data_type '=' CALL IDENTIFIER list_expr			{
 																						symt_node *result = symt_search_by_name(tab, $6, FUNCTION, NULL, 0);
@@ -1017,7 +982,6 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 																						symt_node* node = symt_new();
 																						node = symt_insert_tab_var(node, $1, rout_name,  $3, 0, 0, NULL, 0, level, q_direction);
 																						tab = symt_push(tab, node);
-																						symt_print(tab);
 
 																						symt_stack* iter = $7;
 																						symt_node *iter_p = params;
@@ -1065,21 +1029,20 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
 																						int size = 0;
-																						symt_cons_t tipo;
-																						if(result->id == FUNCTION){
-																							tipo = symt_get_type_data(result->rout->type);
-																							switch(tipo){
-																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																									size = 4;
-																								break;
-																								case CONS_DOUBLE:
-																									size = 8;
-																								break;
+
+																						if(result->id == FUNCTION)
+																						{
+																							type = symt_get_type_data(result->rout->type);
+
+																							switch(type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																								case CONS_DOUBLE: size = 8; break;
 																							}
 																						}
 
-																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
-																						qw_write_reg_to_var(obj, 3, tipo, q_direction);
+																						qw_write_call_return(obj, result->rout->label, label++, size, type);
+																						qw_write_reg_to_var(obj, 3, type, q_direction);
 																					}
 				| 	IDENTIFIER '[' expr ']' '='  CALL IDENTIFIER list_expr			{
 																						symt_node *result = symt_search_by_name(tab, $7, FUNCTION, NULL, 0);
@@ -1141,21 +1104,20 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 
 																						assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
 																						int size = 0;
-																						symt_cons_t tipo;
-																						if(result->id == FUNCTION){
-																							tipo = symt_get_type_data(result->rout->type);
-																							switch(tipo){
-																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																									size = 4;
-																								break;
-																								case CONS_DOUBLE:
-																									size = 8;
-																								break;
+
+																						if(result->id == FUNCTION)
+																						{
+																							type = symt_get_type_data(result->rout->type);
+
+																							switch(type)
+																							{
+																								case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																								case CONS_DOUBLE: size = 8; break;
 																							}
 																						}
 
-																						qw_write_call_return(obj, result->rout->label, label++, size, tipo);
-																						qw_write_reg_to_var(obj, 3, tipo, var->var->q_direction);
+																						qw_write_call_return(obj, result->rout->label, label++, size, type);
+																						qw_write_reg_to_var(obj, 3, type, var->var->q_direction);
 																					}
 				;
 
@@ -1164,43 +1126,36 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER									{
 func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' declr_params ')' 	{
 																										assertf(symt_search_by_name(tab, rout_name, FUNCTION, NULL, 0) == NULL, "function %s has already been defined", rout_name);
 																										tab = symt_insert_tab_rout(tab, FUNCTION, rout_name, $5, level++, label);
-																										qw_write_routine(obj, rout_name, label++, false);
+																										qw_write_routine(obj, rout_name, label++, false, -1);
 																									} EOL statement RETURN expr EOL END_FUNCTION {
-																										num_reg=2;
+																										num_reg = 2;
 																										symt_end_block(tab, level); level--;
+																										type = symt_get_type_data($5);
+																										assertf(type == $13->cons->type, "function %s returned type does not match", $2);
+																										int size = 0;
 
-																										symt_node* retorno = (symt_node*)$13;
-
-																										symt_cons_t tipo = symt_get_type_data($5);
-																										assertf(tipo == retorno->cons->type, "function %s returned type does not match", $2);
-
-																										int size=0;
-																										switch(tipo){
-																											case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
-																												size = 4;
-																											break;
-																											case CONS_DOUBLE:
-																												size = 8;
-																											break;
+																										switch(type)
+																										{
+																											case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR: size = 4; break;
+																											case CONS_DOUBLE: size = 8; break;
 																										}
 
 																										fprintf(obj, "\n\tR6=R6+4;\t");
 
-																										if(retorno->cons->q_direction != 0){
-																											qw_write_var_to_reg(obj, 0, retorno->cons->type, retorno->cons->q_direction);
-																										}else{
-																											if(retorno->cons->type == CONS_DOUBLE){
+																										if($13->cons->q_direction != 0)
+																											qw_write_var_to_reg(obj, 0, $13->cons->type, $13->cons->q_direction);
+																										else
+																										{
+																											if($13->cons->type == CONS_DOUBLE)
 																												fprintf(obj, "\n\tRR0=RR2;\t");
-																											}else {
+																											else
 																												fprintf(obj, "\n\tR0=R2;\t");
-																											}
 																										}
 
-																										if(retorno->cons->type == CONS_DOUBLE){
+																										if($13->cons->type == CONS_DOUBLE)
 																											fprintf(obj, "\n\tD(R6)=RR0;\t");
-																										}else {
+																										else
 																											fprintf(obj, "\n\tI(R6)=R0;\t");
-																										}
 
 																										qw_write_close_routine_function(obj, rout_name, size);
 																										rout_name = NULL;
@@ -1210,7 +1165,7 @@ func_declr 		: BEGIN_FUNCTION IDENTIFIER { rout_name = $2; } ':' data_type '(' d
 proc_declr 		: BEGIN_PROCEDURE IDENTIFIER { rout_name = $2; } '(' declr_params ')' 				{
 																										assertf(symt_search_by_name(tab, rout_name, PROCEDURE, NULL, 0) == NULL, "procedure %s has already been defined", rout_name);
 																										tab = symt_insert_tab_rout(tab, PROCEDURE, rout_name, VOID, level++, label);
-																										qw_write_routine(obj, rout_name, label++, strcmp(rout_name, "main") == 0);
+																										qw_write_routine(obj, rout_name, label++, strcmp(rout_name, "main") == 0, q_direction);
 																									} EOL statement END_PROCEDURE {
 																										qw_write_close_routine(obj, rout_name, strcmp(rout_name, "main") == 0);
 																										symt_end_block(tab, level); level--;
@@ -1289,14 +1244,8 @@ call_func 		: CALL IDENTIFIER					{
 														assertp(iter == NULL && no_more_params == true, "invalid number of parameters");
 														qw_write_call(obj, result->rout->label, label++);
 													}
-				| CALL SHOW expr					{
-														symt_node* var = (symt_node*)$3;
-														qw_write_show(obj, label++, symt_get_type_data(var->cons->type), var->cons->q_direction, var->cons->value, false);
-													}
-				| CALL SHOWLN expr					{
-														symt_node* var = (symt_node*)$3;
-														qw_write_show(obj, label++, symt_get_type_data(var->cons->type), var->cons->q_direction, var->cons->value, true);
-													}
+				| CALL SHOW expr					{ qw_write_show(obj, label++, symt_get_type_data($3->cons->type), $3->cons->q_direction, $3->cons->value, false); }
+				| CALL SHOWLN expr					{ qw_write_show(obj, label++, symt_get_type_data($3->cons->type), $3->cons->q_direction, $3->cons->value, true); }
 				;
 
 // __________ Assignation for variables __________

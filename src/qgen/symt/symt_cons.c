@@ -30,9 +30,9 @@
 symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value, int q_direction)
 {
 	symt_cons *constant = (symt_cons *)(ml_malloc(sizeof(symt_cons)));
-	constant->type = type;
 	constant->value = symt_copy_value(value, type, 0);
 	constant->q_direction = q_direction;
+	constant->type = type;
 	return constant;
 }
 
