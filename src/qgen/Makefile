@@ -1,17 +1,17 @@
-############################################################################
-#                                                                          #
-#                       Makefile for c3P with Q language                   #
-#                                                                          #
-############################################################################
-
-# DESCRIPTION
-# 	This makefile was designed to compile with Q language
+# Makefile
 #
-# SYNTAX
-#	make -s src=<<SOURCE_FILE>>
+# This file is part of the c3P language compiler. This project
+# is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License
 #
-# AUTHOR
-#	losedavidpb (https://github.com/losedavidpb)
+# This project is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# If not, see <http://www.gnu.org/licenses/>.
+#
 
 test_path=../../test/symtab
 include_path=../../include

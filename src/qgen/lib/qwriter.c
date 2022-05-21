@@ -177,48 +177,38 @@ void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direct
     switch(type)
     {
         case CONS_INTEGER: case CONS_BOOL:
-            if(show_ln){
-                fprintf(obj, "\n\tR1=0x11fe6;\t");
-            }else {
-                fprintf(obj, "\n\tR1=0x11ff6;\t");
-            }
-            if(q_direction != 0){
-                fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
-            }else{
-                fprintf(obj, "\n\tR2=%d;\t", *(int*)value);
-            }
-            fprintf(obj, "\n\tR0=%d;\t", label);
-            fprintf(obj, "\n\tGT(putf_int_);\t");
+            if(show_ln) fprintf(obj, "\n\tR1=0x11fe6;\t// Set integer format");
+            else fprintf(obj, "\n\tR1=0x11ff6;\t// Set integer format with EOL");
+
+            if(q_direction != 0) fprintf(obj, "\n\tR2=I(0x%05x);\t// Set value to print", q_direction);
+            else fprintf(obj, "\n\tR2=%d;\t// Set value to print", *(int*)value);
+
+            fprintf(obj, "\n\tR0=%d;\t// Set next label after print", label);
+            fprintf(obj, "\n\tGT(putf_int_);\t// Execute print");
             fprintf(obj, "\nL %d:\t", label++);
 		break;
+
         case CONS_CHAR:
-            if(show_ln){
-                fprintf(obj, "\n\tR1=0x11fde;\t");
-            }else {
-                fprintf(obj, "\n\tR1=0x11fee;\t");
-            }
-            if(q_direction != 0){
-                fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
-            }else{
-                fprintf(obj, "\n\tR2=%d;\t", *(char*)value);
-            }
-            fprintf(obj, "\n\tR0=%d;\t", label);
-            fprintf(obj, "\n\tGT(putf_int_);\t");
+            if(show_ln) fprintf(obj, "\n\tR1=0x11fde;\t// Set char format");
+            else fprintf(obj, "\n\tR1=0x11fee;\t// Set char format with EOL");
+
+            if(q_direction != 0) fprintf(obj, "\n\tR2=I(0x%05x);\t// Set value to print", q_direction);
+            else fprintf(obj, "\n\tR2=%d;\t// Set value to print", *(char*)value);
+
+            fprintf(obj, "\n\tR0=%d;\t// Set next label after print", label);
+            fprintf(obj, "\n\tGT(putf_int_);\t// Execute print");
             fprintf(obj, "\nL %d:\t", label++);
         break;
+
 		case CONS_DOUBLE:
-            if(show_ln){
-                fprintf(obj, "\n\tR1=0x11fe2;\t");
-            }else {
-                fprintf(obj, "\n\tR1=0x11ff2;\t");
-            }
-            if(q_direction != 0){
-                fprintf(obj, "\n\tRR1=D(0x%05x);\t", q_direction);
-            }else{
-                fprintf(obj, "\n\tRR1=%f;\t", *(double*)value);
-            }
-            fprintf(obj, "\n\tR0=%d;\t", label);
-            fprintf(obj, "\n\tGT(putf_double_);\t");
+            if(show_ln) fprintf(obj, "\n\tR1=0x11fe2;\t// Set double format");
+            else fprintf(obj, "\n\tR1=0x11ff2;\t// Set double format with EOL");
+
+            if(q_direction != 0) fprintf(obj, "\n\tRR1=D(0x%05x);\t// Set value to print", q_direction);
+            else fprintf(obj, "\n\tRR1=%f;\t// Set value to print", *(double*)value);
+
+            fprintf(obj, "\n\tR0=%d;\t// Set next label after print", label);
+            fprintf(obj, "\n\tGT(putf_double_);\t// Execute print");
             fprintf(obj, "\nL %d:\t", label++);
 		break;
     }
@@ -241,7 +231,7 @@ void qw_write_reg_to_array(FILE *obj, int num_reg, symt_cons_t type, int ini_q_d
 {
 	assertp(obj != NULL, "object must be defined");
 	size_t incr_mem = type != CONS_DOUBLE? 4 : 8;
-	size_t mem_array = ini_q_direction + (incr_mem * pos);
+	size_t mem_array = ini_q_direction - (incr_mem * pos);
 
 	qw_write_reg_to_var(obj, num_reg, type, mem_array);
 }
