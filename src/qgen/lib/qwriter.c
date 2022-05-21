@@ -45,6 +45,10 @@ void qw_prepare(FILE *obj)
 	fprintf(obj, "\n\tSTR(0x11ff2,\"%%f\");\t// For double format at show");
 	fprintf(obj, "\n\tSTR(0x11ff0,\"%%c\");\t// For characer format at show");
 	fprintf(obj, "\n\tSTR(0x11fee,\"%%s\");\t// For string format at show");
+    fprintf(obj, "\n\tSTR(0x11fea,\"%%d\\n\");\t// For integer format at show");
+	fprintf(obj, "\n\tSTR(0x11fe6,\"%%f\\n\");\t// For double format at show");
+	fprintf(obj, "\n\tSTR(0x11fe2,\"%%c\\n\");\t// For characer format at show");
+	fprintf(obj, "\n\tSTR(0x11fde,\"%%s\\n\");\t// For string format at show");
 	fprintf(obj, "\n/**************** End static data ****************/");
 	fprintf(obj, "\n/**************** Start code ****************/\nCODE(0)");
 }
@@ -56,7 +60,7 @@ void qw_write_routine(FILE *obj, char *name, symt_label_t label, bool is_main)
 
 	if (is_main == true)
 	{
-		fprintf(obj, "\nL 0: /* Routine main */");
+		fprintf(obj, "\nL 0: R7=0x10ff6;/* Routine main */");
 		fprintf(obj, "\n\tR6=R7;\t// Move current direction at R6");
 	}
 	else
@@ -74,6 +78,17 @@ void qw_write_close_routine(FILE *obj, char *name, bool is_main)
 		fprintf(obj, "\n\tR0=I(R6);\t// Get the next label for last call");
 		fprintf(obj, "\n\tGT(R0);\n/* End Routine %s */", name);
 	}
+}
+
+void qw_write_close_routine_function(FILE *obj, char *name, int size)
+{
+	assertp(obj != NULL, "object must be defined");
+	assertp(name != NULL, "name must be defined");
+
+	fprintf(obj, "\n\tR6=R6+%d;\t// Update R6 with previous call direction", size);
+	fprintf(obj, "\n\tR0=I(R6);\t// Get the next label for last call");
+	fprintf(obj, "\n\tR6=R6-%d;", size);
+	fprintf(obj, "\n\tGT(R0);\n/* End Routine %s */", name);
 }
 
 void qw_write_begin_loop(FILE *obj, symt_label_t label)
@@ -110,10 +125,97 @@ void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label)
 	fprintf(obj, "\nL %d:", label);
 }
 
+void qw_write_call_return(FILE *obj, symt_label_t rout_label, symt_label_t label, int size, symt_cons_t type)
+{
+    assertp(obj != NULL, "object must be defined");
+
+	fprintf(obj, "\n\tI(R6)=%d;\t// Store current label at memory", label);
+	fprintf(obj, "\n\tR6=R6-%d;\t// Update R6 for future calls", size);
+	if(size > 0){
+		switch(type)
+		{
+			case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+				fprintf(obj, "\n\tI(R6)=%d;\t", 0);
+			break;
+			case CONS_DOUBLE:
+				fprintf(obj, "\n\tD(R6)=%lf;\t", 0.0);
+			break;
+		}
+		fprintf(obj, "\n\tR6=R6-4;\t");
+	}
+	fprintf(obj, "\n\tGT(%d);\t// Jump to the call routine", rout_label);
+	switch(type)
+	{
+		case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+			fprintf(obj, "\nL %d:\n\tR3=I(R6);", label);
+		break;
+
+		case CONS_DOUBLE:
+			fprintf(obj, "\nL %d:\n\tRR3=D(R6);", label);
+		break;
+
+		//case CONS_STR: break;
+	}
+}
+
 void qw_write_condition(FILE *obj, symt_label_t label)
 {
     assertp(obj != NULL, "object must be defined");
 	fprintf(obj, "\n\tIF(!R1) GT(%d);\t// Jump if condition is not true", label);
+}
+
+void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direction, symt_value_t value, bool ln)
+{
+    assertp(obj != NULL, "object must be defined");
+    switch(type)
+    {
+        case CONS_INTEGER: case CONS_BOOL:
+            if(ln){
+                fprintf(obj, "\n\tR1=0x11fea;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11ff6;\t");
+            }
+            fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
+            fprintf(obj, "\n\tR0=%d;\t", label);
+            fprintf(obj, "\n\tGT(putf_int_);\t");
+            fprintf(obj, "\nL %d:\t", label++);
+		break;
+        case CONS_CHAR:
+            if(ln){
+                fprintf(obj, "\n\tR1=0x11fe2;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11ff0;\t");
+            }
+            fprintf(obj, "\n\tR2=I(0x%05x);\t", q_direction);
+            fprintf(obj, "\n\tR0=%d;\t", label);
+            fprintf(obj, "\n\tGT(putf_int_);\t");
+            fprintf(obj, "\nL %d:\t", label++);
+        break;
+		case CONS_DOUBLE:
+            if(ln){
+                fprintf(obj, "\n\tR1=0x11fe6;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11ff2;\t");
+            }
+			fprintf(obj, "\n\tR1=0x11ff2;\t");
+            fprintf(obj, "\n\tRR1=D(0x%055d);\t", q_direction);
+            fprintf(obj, "\n\tR0=%d;\t", label);
+            fprintf(obj, "\n\tGT(putf_double_);\t");
+            fprintf(obj, "\nL %d:\t", label++);
+		break;
+        case CONS_STR: 
+			if(ln){
+                fprintf(obj, "\n\tR1=0x11fde;\t");
+            }else {
+                fprintf(obj, "\n\tR1=0x11fee;\t");
+            }
+            /*fprintf(obj, "\n\tR2=I(0x%05x);\t// Store value to variable", q_direction);
+            fprintf(obj, "\n\tR0=%d;\t// Store value to variable", label);
+            fprintf(obj, "\n\tGT(putf_int_);\t// Store value to variable");
+            fprintf(obj, "\n\tL %d:\t// Store value to variable", label);
+            */
+        break;
+    }
 }
 
 void qw_write_value_to_var(FILE *obj, symt_cons_t type, int q_direction, symt_value_t value)
