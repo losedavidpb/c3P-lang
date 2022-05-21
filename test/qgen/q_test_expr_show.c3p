@@ -9,23 +9,40 @@ proc main()
 	d : b
 
 	x1 : i8 = 10
+	call show x1
 	x2 : i16 = 20
+	call show x2
 	x3 : i32 = 30
+	call show x3
 	x4 : i64 = 40
+	call show x4
 	x5 : f32 = 50.0
+	call show x5
 	x6 : f64 = 60.0
+	call show x6
 	x7 : c = 'A'
+	call show x7
 	x8 : b = T
+	call show x8
 	x9 : b = F
+	call show x9
 
 	z0 = 10
+	call show z0
 	z1 = 20
+	call show z1
 	z2 = 30
+	call show z2
 	z3 = 40
+	call show z3
 	z4 = 50.0
+	call show z4
 	z5 = 60.0
+	call show z5
 	z6 = 'C'
+	call show z6
 	d = T
+	call show d
 
 	rx1 : i8[10]
 	rx2 : i16[10]
@@ -37,32 +54,59 @@ proc main()
 	rx8 : b[10]
 
 	y1 : i8 = 10
+	call showln y1
 
 	x1 = 10
-	y1 = x2
+	call showln x1
+	y1 = x1
+	call showln y1
 	x1 = x1 + y1
+	call showln x1
 	y1 = -1 * x1
+	call showln y1
 	x1 = x1 + x1 + y1 / 2
+	call showln x1
 	z4 = z4 + 20.0
+	call showln z4
 	z2 = 10^5 + 10
+	call showln z2
 	z4 = z4 % 2.0
+	call showln z4
 	d = z1 == 10
+	call showln d
 	d = d and d
+	call showln d
 	d = d and not d
+	call showln d
 	d = d or (x1 >= 10) and (y1 < 20)
+	call showln d
 	d = (x1 > 50) or (y1 != 10)
+	call showln d
 	d = not d
+	call showln d
 
 	rx1[0] = 10
+	call showln rx1[0]
 	rx1[1] = x1 + y1
+	call showln rx1[1]
 	rx1[2] = x1 + x1 + y1 / 2
+	call showln rx1[2]
 	rx4[3] = z3 + 20
+	call showln rx4[3]
 	rx4[4] = 10^5 + 10
+	call showln rx4[4]
 	rx4[5] = z3 % 2
+	call showln rx4[5]
 	rx8[6] = z1 == 10
+	call showln rx8[6]
 	rx8[7] = d and d
+	call showln rx8[7]
 	rx8[2] = d and not d
+	call showln rx8[2]
 	rx8[1] = d or (x1 >= 10) and (y1 < 20)
+	call showln rx8[1]
 	rx8[4] = (x1 > 50) or (y1 != 10)
+	call showln rx8[4]
 	rx8[2] = not d
+	call showln rx8[2]
 endproc

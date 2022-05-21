@@ -5,6 +5,9 @@ proc main()
 		if (x < 10)
 			x = 10 - 10
 		else
+			if (x == 10)
+				x = 20
+			endif
 			x = 20 - x
 		endif
 		x = 10

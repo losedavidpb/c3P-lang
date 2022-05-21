@@ -342,15 +342,15 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label
 			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Not equal operation", 1, num_reg_1, num_reg_2); 			break;
 
 			// Logical
-			case QW_AND: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// And operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_OR: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Or operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_NOT: fprintf(obj, "\n\tR%d=R%d!=R%d;\t// Not operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_AND: fprintf(obj, "\n\tR%d=R%d&&R%d;\t// And operation", 1, num_reg_1, num_reg_2); 						break;
+			case QW_OR: fprintf(obj, "\n\tR%d=R%d||R%d;\t// Or operation", 1, num_reg_1, num_reg_2); 						break;
+			case QW_NOT: fprintf(obj, "\n\tR%d=!R%d;\t// Not operation", 1, num_reg_1); 									break;
 
 			// Arithmetic
-			case QW_ADD: fprintf(obj, "\n\tR%d=R%d+R%d;\t// Add operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_SUB: fprintf(obj, "\n\tR%d=R%d-R%d;\t// Sub operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_MULT: fprintf(obj, "\n\tR%d=R%d*R%d;\t// Mult operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_DIV: fprintf(obj, "\n\tR%d=R%d/R%d;\t// Div operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_ADD: fprintf(obj, "\n\tR%d=R%d+R%d;\t// Add operation", 1, num_reg_1, num_reg_2); 						break;
+			case QW_SUB: fprintf(obj, "\n\tR%d=R%d-R%d;\t// Sub operation", 1, num_reg_1, num_reg_2); 						break;
+			case QW_MULT: fprintf(obj, "\n\tR%d=R%d*R%d;\t// Mult operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_DIV: fprintf(obj, "\n\tR%d=R%d/R%d;\t// Div operation", 1, num_reg_1, num_reg_2); 						break;
 			case QW_POW: case QW_MOD:
 				fprintf(obj, "\n\tR0=%d;\t// Set return label", label);
 				fprintf(obj, "\n\tR3=%d;\t// Set operation for integers", 0);
@@ -366,22 +366,22 @@ void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label
 		{
 			// Comparison
 			case QW_LESS: fprintf(obj, "\n\tR%d=RR%d<RR%d;\t// Less operation", 1, num_reg_1, num_reg_2); 					break;
-			case QW_GREATER: fprintf(obj, "\n\tR%d=RR%d>RR%d;\t// Greater operation", 1, num_reg_1, num_reg_2); 				break;
-			case QW_LESS_THAN: fprintf(obj, "\n\tR%d=RR%d<=RR%d;\t// Less than operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=RR%d>=RR%d;\t// Greater than operation", 1, num_reg_1, num_reg_2);    break;
-			case QW_EQUAL: fprintf(obj, "\n\tR%d=RR%d==RR%d;\t// Equal operation", 1, num_reg_1, num_reg_2); 					break;
-			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not equal operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_GREATER: fprintf(obj, "\n\tR%d=RR%d>RR%d;\t// Greater operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_LESS_THAN: fprintf(obj, "\n\tR%d=RR%d<=RR%d;\t// Less than operation", 1, num_reg_1, num_reg_2); 		break;
+			case QW_GREATER_THAN: fprintf(obj, "\n\tR%d=RR%d>=RR%d;\t// Greater than operation", 1, num_reg_1, num_reg_2);  break;
+			case QW_EQUAL: fprintf(obj, "\n\tR%d=RR%d==RR%d;\t// Equal operation", 1, num_reg_1, num_reg_2); 				break;
+			case QW_NOT_EQUAL: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not equal operation", 1, num_reg_1, num_reg_2); 		break;
 
 			// Logical
-			case QW_AND: fprintf(obj, "\n\tR%d=RR%d!=R%d;\t// And operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_OR: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Or operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_NOT: fprintf(obj, "\n\tR%d=RR%d!=RR%d;\t// Not operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_AND: fprintf(obj, "\n\tR%d=RR%d&&R%d;\t// And operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_OR: fprintf(obj, "\n\tR%d=RR%d||RR%d;\t// Or operation", 1, num_reg_1, num_reg_2); 						break;
+			case QW_NOT: fprintf(obj, "\n\tR%d=!RR%d;\t// Not operation", 1, num_reg_1); 									break;
 
 			// Arithmetic
-			case QW_ADD: fprintf(obj, "\n\tRR%d=RR%d+RR%d;\t// Add operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_SUB: fprintf(obj, "\n\tRR%d=RR%d-RR%d;\t// Sub operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_MULT: fprintf(obj, "\n\tRR%d=RR%d*RR%d;\t// Mult operation", 1, num_reg_1, num_reg_2); 			break;
-			case QW_DIV: fprintf(obj, "\n\tRR%d=RR%d/RR%d;\t// Div operation", 1, num_reg_1, num_reg_2); 			break;
+			case QW_ADD: fprintf(obj, "\n\tRR%d=RR%d+RR%d;\t// Add operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_SUB: fprintf(obj, "\n\tRR%d=RR%d-RR%d;\t// Sub operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_MULT: fprintf(obj, "\n\tRR%d=RR%d*RR%d;\t// Mult operation", 1, num_reg_1, num_reg_2); 					break;
+			case QW_DIV: fprintf(obj, "\n\tRR%d=RR%d/RR%d;\t// Div operation", 1, num_reg_1, num_reg_2); 					break;
 			case QW_POW: case QW_MOD:
 				fprintf(obj, "\n\tR0=%d;\t// Set return label", label);
 				fprintf(obj, "\n\tR3=%d;\t// Set operation for integers", 1);

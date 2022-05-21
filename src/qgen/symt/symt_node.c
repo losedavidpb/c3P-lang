@@ -144,6 +144,7 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 		switch (type)
 		{
 			case CONS_INTEGER: copy_value = intcopy((int *)value, num_elems + 1); 		break;
+			case CONS_BOOL: copy_value = boolcopy((bool *)value, num_elems + 1); 		break;
 			case CONS_DOUBLE: copy_value = doublecopy((double *)value, num_elems + 1); 	break;
 			case CONS_CHAR: copy_value = strcopy((char *)value);						break;
 			case CONS_STR: copy_value = strcopy((char *)value);							break;
@@ -157,7 +158,7 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 	{
 		switch(type)
 		{
-			case CONS_INTEGER:
+			case CONS_INTEGER: case CONS_BOOL:
 				int_val = (int*)(ml_malloc(num_elems * sizeof(int)));
 				for (int i = 0; i < num_elems; i++) *(int_val + i) = 0;
 				copy_value = int_val;

@@ -53,6 +53,13 @@ symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type,
 	{
 		n_var->value = (bool*)(ml_malloc(sizeof(bool)));
 		bool value_bool = symt_to_bool(*((int*)value));
+		if (value_bool != 0 && value_bool != 1) value_bool = false;
+		n_var->value = &value_bool;
+	}
+	else
+	{
+		n_var->value = (bool*)(ml_malloc(sizeof(bool)));
+		bool value_bool = 0;
 		n_var->value = &value_bool;
 	}
 
