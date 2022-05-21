@@ -56,6 +56,8 @@ void qw_write_routine(FILE *obj, char *name, symt_label_t label, bool is_main);
 /* Write the routine end */
 void qw_write_close_routine(FILE *obj, char *name, bool is_main);
 
+void qw_write_close_routine_function(FILE *obj, char *name, int size);
+
 /* Write the beggining of a loop */
 void qw_write_begin_loop(FILE *obj, symt_label_t label);
 
@@ -71,8 +73,12 @@ void qw_write_goto(FILE *obj, symt_label_t label);
 /* Write a call statement */
 void qw_write_call(FILE *obj, symt_label_t rout_label, symt_label_t label);
 
+void qw_write_call_return(FILE *obj, symt_label_t rout_label, symt_label_t label, int size, symt_cons_t type);
+
 /* Write a new condition */
 void qw_write_condition(FILE *obj, symt_label_t label);
+
+void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direction, symt_value_t value, bool ln);
 
 /* Write the declaration of an array */
 int qw_write_array(FILE *obj, symt_cons_t type, int q_direction, size_t array_length);
