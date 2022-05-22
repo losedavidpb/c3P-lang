@@ -1,4 +1,4 @@
-? q_test_while.c3p
+? q_test_str.c3p
 ?
 ? This file is part of the c3P language compiler. This project
 ? is free software; you can redistribute it and/or modify it under
@@ -14,40 +14,29 @@
 
 ? ---------------------------------------------
 ? Description
-?	Test while loops with additional statements
-?	such as if-else, continue, break, etc
+?	Test string variables with manual functions
+?	such as strcat (same as C)
 ? ---------------------------------------------
 
+func strcat : str(str1 : str, str2 : str)
+	len1 : i32 = call arrlen str1
+	len2 : i32 = call arrlen str2
+	str_val : str[len1 + len2]
+
+	for (i : i32 = 0, i = i + 1, i < len1)
+		str_val[i] = str1[i]
+	endfor
+
+	for (i : i32 = 0, i = i + 1, i < len2)
+		str_val[i + len1] = str2[i]
+	endfor
+
+	ret str_val
+endfunc
+
 proc main()
-	x : i32 = 0
-	m : i32 = 10
-	y : f32 = 0.1
-	z : f32 = 10.1
-
-	while (x < 10)
-		x = x + 1
-	endwhile
-
-	while (x >= 10)
-		m = m - 1
-		if (m < 5)
-			break
-		endif
-	endwhile
-
-	while (y < 10.1)
-		y = y + 1.1
-
-		while (z < 10.0)
-			break
-		endwhile
-
-		if (x == 0)
-			continue
-		endif
-
-		for (i : i32 = 0, i = i + 1, i < 10)
-			wl : b = T
-		endfor
-	endwhile
+	str1 : str = "Hello"
+	str2 : str = ", world!!"
+	str_val : str = call strcat str1 str2
+	call showln str_val
 endproc

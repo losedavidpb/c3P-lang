@@ -1,112 +1,122 @@
+? q_test_expr_show.c3p
+?
+? This file is part of the c3P language compiler. This project
+? is free software; you can redistribute it and/or modify it under
+? the terms of the GNU General Public License
+?
+? This project is distributed in the hope that it will be useful,
+? but WITHOUT ANY WARRANTY; without even the implied warranty of
+? MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+? GNU General Public License for more details.
+?
+? You should have received a copy of the GNU General Public License
+? If not, see <http://www.gnu.org/licenses/>.
+
+? ---------------------------------------------
+? Description
+?	Test show and showln special methods
+?	with all available data types
+? ---------------------------------------------
+
+proc show_your_name(name : str)
+	call show "My name is "
+	call showln name
+endproc
+
+func show_your_name_and_count_len(name : str)
+	call show_your_name name
+	ret arrlen name
+endfunc
+
 proc main()
-	z0 : i8
-	z1 : i16
-	z2 : i32
-	z3 : i64
-	z4 : f32
-	z5 : f64
-	z6 : c
-	d : b
-
-	x1 : i8 = 10
-	call show x1
-	x2 : i16 = 20
-	call show x2
-	x3 : i32 = 30
-	call show x3
-	x4 : i64 = 40
-	call show x4
-	x5 : f32 = 50.0
-	call show x5
-	x6 : f64 = 60.0
-	call show x6
-	x7 : c = 'A'
-	call show x7
-	x8 : b = T
+	x8 : i8 = 8
 	call show x8
-	x9 : b = F
-	call show x9
+	call showln x8
 
-	z0 = 10
-	call show z0
-	z1 = 20
-	call show z1
-	z2 = 30
-	call show z2
-	z3 = 40
-	call show z3
-	z4 = 50.0
-	call show z4
-	z5 = 60.0
-	call show z5
-	z6 = 'C'
-	call show z6
-	d = T
-	call show d
+	x16 : i16 = 16
+	call show x16
+	call showln x16
 
-	rx1 : i8[10]
-	rx2 : i16[10]
-	rx3 : i32[10]
-	rx4 : i64[10]
-	rx5 : f32[10]
-	rx6 : f64[10]
-	rx7 : c[10]
-	rx8 : b[10]
+	x32 : i32 = 32
+	call show x32
+	call showln x32
 
-	y1 : i8 = 10
-	call showln y1
+	x64 : i64 = 64
+	call show x64
+	call showln x64
 
-	x1 = 10
-	call showln x1
-	y1 = x1
-	call showln y1
-	x1 = x1 + y1
-	call showln x1
-	y1 = -1 * x1
-	call showln y1
-	x1 = x1 + x1 + y1 / 2
-	call showln x1
-	z4 = z4 + 20.0
-	call showln z4
-	z2 = 10^5 + 10
-	call showln z2
-	z4 = z4 % 2.0
-	call showln z4
-	d = z1 == 10
-	call showln d
-	d = d and d
-	call showln d
-	d = d and not d
-	call showln d
-	d = d or (x1 >= 10) and (y1 < 20)
-	call showln d
-	d = (x1 > 50) or (y1 != 10)
-	call showln d
-	d = not d
-	call showln d
+	xx32 : f32 = 32.0
+	call show xx32
+	call showln xx32
 
-	rx1[0] = 10
-	call showln rx1[0]
-	rx1[1] = x1 + y1
-	call showln rx1[1]
-	rx1[2] = x1 + x1 + y1 / 2
-	call showln rx1[2]
-	rx4[3] = z3 + 20
-	call showln rx4[3]
-	rx4[4] = 10^5 + 10
-	call showln rx4[4]
-	rx4[5] = z3 % 2
-	call showln rx4[5]
-	rx8[6] = z1 == 10
-	call showln rx8[6]
-	rx8[7] = d and d
-	call showln rx8[7]
-	rx8[2] = d and not d
-	call showln rx8[2]
-	rx8[1] = d or (x1 >= 10) and (y1 < 20)
-	call showln rx8[1]
-	rx8[4] = (x1 > 50) or (y1 != 10)
-	call showln rx8[4]
-	rx8[2] = not d
-	call showln rx8[2]
+	xx64 : f64 = 64.0
+	call show xx64
+	call showln xx64
+
+	xc : c = 'a'
+	call show xc
+	call showln xc
+
+	xb : b = T
+	call show xb
+	call showln xb
+
+	len : i32 = 10
+	rx8 : i8[len]
+	rx16 : i16[len]
+	rx32 : i32[len]
+	rx64 : i64[len]
+	rxx32 : f32[len]
+	rxx64 : f64[len]
+	rc : c[len]
+	rb : b[len]
+
+	for (i : i32 = 0, i = i + 1, i < 10)
+		rx8[i] = i + 8
+		call show rx8[i]
+		call showln rx8[i]
+
+		rx16[i] = i + 16
+		call show rx16[i]
+		call showln rx16[i]
+
+		rx32[i] = i + 32
+		call show rx32[i]
+		call showln rx32[i]
+
+		rx64[i] = i + 64
+		call show rx64[i]
+		call showln rx64[i]
+
+		rxx32[i] = i + 32.0
+		call show rxx32[i]
+		call showln rxx32[i]
+
+		rxx64[i] = i + 64.0
+		call show rxx64[i]
+		call showln rxx64[i]
+
+		rc[i] = 'A' + 1
+		call show rc[i]
+		call showln rc[i]
+
+		if (i % 2 == 0)
+			rb[i] = T
+		else
+			rb[i] = F
+		endif
+
+		call show rb[i]
+		call showln rb[i]
+	endfor
+
+	str_val : str = "Hello, world!"
+	call show str_val
+	call showln str_val
+
+	call show_your_name "David"
+	call show_your_name "Héctor"
+
+	len1 : i32 = call show_your_name_and_count_len "David"
+	len2 : i32 = call show_your_name_and_count_len "Héctor"
 endproc
