@@ -3,32 +3,33 @@ INSTALL GUIDE FOR C3P Compiler
 
 0. Introducction
 
-This guide explains how to prepare and install the c3p
-compiler on your machine in order to be able to compile
-c3p source files. Since this compiler is just a prototype,
-this file won't be useful until the repository includes
-a Makefile at the same path of this file.
+This guide explains how to prepare and install the c3p compiler
+on your machine in order to be able to compile c3p source files.
+Since this compiler is just a prototype, this file won't be useful
+until the repository includes a Makefile at the same path of this file.
+Besides, this compiler would only be supported at Linux machines or WSL
+terminals, since Makefile uses Linux commands.
 
 1. Requirements
 
 Before the installation of the c3p compiler, you may need to
-check that Make and GNU C Compiler are installed at your OS.
-Please note that the compiler needs these tools to be prepared.
+check that Make, GNU C Compiler, Flex, and Bison are installed
+at your machine. Note that the compiler needs these tools.
 
 2. Installation
 
 To generate the compiler, please execute "make -s" at the working
 directory on which you have downloaded this repository. In order
 to know if the installation was a sucess, check that an executable
-called "c3pc.exe" or "c3pc" has been created. It is important to
-notice that you can move this executable at any location of your
-machine, but take into account that PATH global variable must be
-modified in order to execute the compiler with just its name.
+called "c3pc" has been created. It is important to notice that you
+can move this executable at any location of your machine, but take
+into account that PATH global variable must be modified in order to
+execute the compiler with just its name.
 
 3. Compilation
 
 Now that you have the c3p compiler prepared, you can compile a c3p
-file executing the command "c3pc.exe <C3P_FILE>" for Windows machines,
-or "c3pc <C3P_FILE>" for Linux machines. If everything was ok, you should
-see at the current working directory an executable with the name of your
-c3p file, so just execute it if you want to check your program.
+file executing the command "c3pc <C3P_FILE>". If everything was ok,
+you should see at the current working directory an executable with
+the name of your c3p file, so just execute it if you want to check
+your program.

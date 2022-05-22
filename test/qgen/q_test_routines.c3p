@@ -18,9 +18,17 @@
 ?	such as fibonacci method
 ? ---------------------------------------------
 
-proc show_error(message : str)
+proc show_str(str_val : c[])
+	len : i32 = call arrlen str_val
+
+	for (i : i32 = 0, i = i + 1, i < len)
+		call show str_val[i]
+	endfor
+endproc
+
+proc show_error(message : c[])
 	call show "[ERROR] "
-	call showln message
+	call show_str message
 endproc
 
 func sum_i32 : i32[](x : i32[], y : i32[])
@@ -36,7 +44,8 @@ func sum_i32 : i32[](x : i32[], y : i32[])
 
 		ret result
 	else
-		call show_error "arrays must have same length"
+		message : c[28] = { 'a', 'r', 'r', 'a', 'y', 's', ' ', 'm', 'u', 's', 't', ' ', 'h', 'a', 'v', 'e', ' ', 's', 'a', 'm', 'e', ' ', 'l', 'e', 'n', 'g', 't', 'h' }
+		call show_error message
 		ret x
 	endif
 endfunc

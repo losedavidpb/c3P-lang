@@ -25,6 +25,12 @@ proc main()
 	z : f32 = 10.1
 
 	while (x < 10)
+		w : i32
+		x = x + 1
+	endwhile
+
+	while (x < 10)
+		w : i32
 		x = x + 1
 	endwhile
 

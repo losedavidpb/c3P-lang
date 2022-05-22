@@ -22,6 +22,10 @@ src/symtab/*.c3p
 # in order to apply this line
 *.exe
 
+# Special executables
+c3pc
+iq
+
 # Visual Studio Code =======
 .vscode
 

@@ -121,9 +121,8 @@
 
 // __________ Expression __________
 
-expr 			: expr_num	{ $$ = $1; }   | expr_char	{ $$ = $1; }
-				| expr_string { $$ = $1; } | iden_expr	{ $$ = $1; }
-				| '(' expr ')' { $$ = $2; }
+expr 			: expr_num	{ $$ = $1; } | expr_char	{ $$ = $1; }
+				| iden_expr	{ $$ = $1; } | '(' expr ')' { $$ = $2; }
 				;
 
 int_expr 		: '(' int_expr ')' 				{ is_expr = false; $$ = $2; }
@@ -644,8 +643,7 @@ iden_expr		: expr '+' expr					{
 data_type 		: I8_TYPE { $$ = I8; }   | I16_TYPE { $$ = I16; }
 				| I32_TYPE { $$ = I32; } | I64_TYPE { $$ = I64; }
 				| F32_TYPE { $$ = F32; } | F64_TYPE { $$ = F64; }
-				| CHAR_TYPE { $$ = C; }  | STR_TYPE { $$ = STR; }
-				| BOOL_TYPE { $$ = B; }
+				| CHAR_TYPE { $$ = C; }  | BOOL_TYPE { $$ = B; }
 				;
 
 arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
@@ -1500,6 +1498,8 @@ call_func 		: CALL IDENTIFIER					{
 													}
 				| CALL SHOW expr					{ qw_write_show(obj, label++, $3->cons->type, $3->cons->q_direction, $3->cons->value, false); }
 				| CALL SHOWLN expr					{ qw_write_show(obj, label++, $3->cons->type, $3->cons->q_direction, $3->cons->value, true); }
+				| CALL SHOW expr_string				{ qw_write_show(obj, label++, $3->cons->type, $3->cons->q_direction, $3->cons->value, false); }
+				| CALL SHOWLN expr_string			{ qw_write_show(obj, label++, $3->cons->type, $3->cons->q_direction, $3->cons->value, true); }
 				;
 
 // __________ Assignation for variables __________
@@ -1522,8 +1522,8 @@ var_assign      : IDENTIFIER '=' expr					{
 
 statement 		: { $$ = false; is_var = true; } | var { is_var = false; } EOL statement { $$ = true; }
 				| { level++; is_var = false; } BEGIN_IF '(' expr ')' { qw_write_condition(obj, label); num_reg = 2; $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else	END_IF { symt_end_block(tab, level); level--; } EOL statement { $$ = true; }
-				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_direction); is_var = false; } BEGIN_WHILE '(' expr ')' { qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_WHILE { symt_end_block(tab, level); level--; qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6); } EOL statement { $$ = true; }
-				| { level++; is_var = true; } BEGIN_FOR '(' var ',' { is_var = false; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_direction); } var_assign ',' expr ')'	{ qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_FOR { symt_end_block(tab, level); level--; qw_write_end_loop(obj, $<integer_t>6, $<integer_t>11); } EOL statement { $$ = true; }
+				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_direction); is_var = false; } BEGIN_WHILE '(' expr ')' { qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_WHILE { level--; symt_end_block(tab, level); qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6); } EOL statement { $$ = true; }
+				| { level++; is_var = true; } BEGIN_FOR '(' var ',' { is_var = false; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_direction); } var_assign ',' expr ')'	{ qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_FOR {  level--; symt_end_block(tab, level); qw_write_end_loop(obj, $<integer_t>6, $<integer_t>11); } EOL statement { $$ = true; }
 				| { level++; llamada=true; } call_func EOL statement	{ level--; $$ = true; }
 				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement { $$ = true; }
                 | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement { $$ = true; }

@@ -500,7 +500,6 @@ proc main()
 	xx64 : f64
 	xc : c
 	xb : b
-	str_val : str
 
 	x8 = 8
 	x16 = 16
@@ -510,7 +509,6 @@ proc main()
 	xx64 = 64.0
 	xc = 'a'
 	xb = T
-	str_val = "Hello, world!"
 
 	ax8 : i8 = 8
 	ax16 : i16 = 16
@@ -520,7 +518,6 @@ proc main()
 	axx64 : f64 = 64.0
 	axc : c = 'a'
 	axb : b = T
-	a_str_val : str = "Hello, world!"
 
 	call test_i8 x8
 	call test_i16 x16

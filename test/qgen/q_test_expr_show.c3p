@@ -18,12 +18,20 @@
 ?	with all available data types
 ? ---------------------------------------------
 
-proc show_your_name(name : str)
-	call show "My name is "
-	call showln name
+proc show_str(str_val : c[])
+	len : i32 = call arrlen str_val
+
+	for (i : i32 = 0, i = i + 1, i < len)
+		call show str_val[i]
+	endfor
 endproc
 
-func show_your_name_and_count_len(name : str)
+proc show_your_name(name : c[])
+	call show "My name is "
+	call show_str name
+endproc
+
+func show_your_name_and_count_len(name : c[])
 	call show_your_name name
 	ret arrlen name
 endfunc
@@ -110,13 +118,14 @@ proc main()
 		call showln rb[i]
 	endfor
 
-	str_val : str = "Hello, world!"
-	call show str_val
-	call showln str_val
+	call show "Hello, world!"
+	call showln "Hello, world!"
 
-	call show_your_name "David"
-	call show_your_name "Héctor"
+	name_1 : c[5] = {'D','a','v','i','d'}
+	name_2 : c[6] = {'H','é','c','t','o','r'}
+	call show_your_name name_1
+	call show_your_name name_2
 
-	len1 : i32 = call show_your_name_and_count_len "David"
-	len2 : i32 = call show_your_name_and_count_len "Héctor"
+	len1 : i32 = call show_your_name_and_count_len name_1
+	len2 : i32 = call show_your_name_and_count_len name_2
 endproc
