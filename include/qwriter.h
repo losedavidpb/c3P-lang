@@ -51,16 +51,16 @@ FILE* qw_new(char *filename);
 void qw_prepare(FILE *obj);
 
 /* Write a routine */
-void qw_write_routine(FILE *obj, char *name, symt_label_t label, bool is_main, int q_direction);
+void qw_write_routine(FILE *obj, char *name, symt_label_t label, bool is_main, int q_direction, bool global);
 
 /* Write the routine end */
 void qw_write_close_routine(FILE *obj, char *name, bool is_main);
 
 /* Write the rotuine using size */
-void qw_write_close_routine_function(FILE *obj, char *name, int size);
+void qw_write_close_routine_function(FILE *obj, char *name, int size, symt_cons_t type, int q_direction);
 
 /* Write the beggining of a loop */
-void qw_write_begin_loop(FILE *obj, symt_label_t label);
+void qw_write_begin_loop(FILE *obj, symt_label_t label, int q_direction);
 
 /* Write the last lines of a loop */
 void qw_write_end_loop(FILE *obj, symt_label_t label, symt_label_t next_label);
@@ -86,6 +86,20 @@ void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direct
 /* Write the declaration of an array */
 int qw_write_array(FILE *obj, symt_cons_t type, int q_direction, size_t array_length, size_t section_label);
 
+void qw_write_array_to_reg(FILE *obj, int num_reg, symt_cons_t type, int ini_q_direction, size_t pos);
+
+void qw_write_int_to_var(FILE *obj, int q_direction, int value);
+
+void qw_write_value_to_R5_pos(FILE *obj, symt_cons_t type, symt_value_t value);
+
+void qw_write_reg_to_R5_pos(FILE *obj, symt_cons_t type);
+
+void qw_write_R5_to_reg(FILE *obj, symt_cons_t type, int num_reg);
+
+void qw_write_save_R5_before_call(FILE *obj);
+
+void qw_write_restore_R5_after_call(FILE *obj);
+
 /* Write a value at a position of an array */
 void qw_write_reg_to_array(FILE *obj, int num_reg, symt_cons_t type, int ini_q_direction, size_t pos);
 
@@ -102,7 +116,7 @@ void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_
 void qw_write_reg_to_var(FILE *obj, int num_reg, symt_cons_t type, int q_direction);
 
 /* Write an expression for two numbers */
-void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label, int num_reg_1, int num_reg_2);
+void qw_write_expr(FILE *obj, qw_op_t sign, symt_cons_t type, symt_label_t label);
 
 /* Close passed object file */
 void qw_close(FILE * obj, symt_label_t label);
