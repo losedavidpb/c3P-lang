@@ -1,6 +1,7 @@
 CAMBIOS REALIZADOS:
 
 - Se ha eliminado la importación de librerías
+- Se ha eliminado el tipo de dato str pero no la constante para show y showln
 - No existe el switch
 
 ADVERTENCIAS:

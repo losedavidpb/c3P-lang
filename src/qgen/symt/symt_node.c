@@ -135,6 +135,7 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 {
 	symt_value_t copy_value = NULL;
 	int *int_val = NULL;
+	bool *bool_val = NULL;
 	double *double_val = NULL;
 	char *char_val = NULL;
 	char _char_val_;
@@ -146,7 +147,7 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 			case CONS_INTEGER: copy_value = intcopy((int *)value, num_elems + 1); 		break;
 			case CONS_BOOL: copy_value = boolcopy((bool *)value, num_elems + 1); 		break;
 			case CONS_DOUBLE: copy_value = doublecopy((double *)value, num_elems + 1); 	break;
-			case CONS_CHAR: copy_value = strcopy((char *)value);						break;
+			case CONS_CHAR: copy_value = (char*)intcopy((int *)value, num_elems + 1);	break;
 			case CONS_STR: copy_value = strcopy((char *)value);							break;
 			default: break;
 		}
@@ -156,12 +157,20 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 	}
 	else
 	{
+		if (num_elems == 0) num_elems = 1;
+
 		switch(type)
 		{
-			case CONS_INTEGER: case CONS_BOOL:
+			case CONS_INTEGER:
 				int_val = (int*)(ml_malloc(num_elems * sizeof(int)));
 				for (int i = 0; i < num_elems; i++) *(int_val + i) = 0;
 				copy_value = int_val;
+			break;
+
+			case CONS_BOOL:
+				bool_val = (bool*)(ml_malloc(num_elems * sizeof(bool)));
+				for (int i = 0; i < num_elems; i++) *(bool_val + i) = 0;
+				copy_value = bool_val;
 			break;
 
 			case CONS_DOUBLE:

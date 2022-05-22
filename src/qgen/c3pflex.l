@@ -51,7 +51,6 @@ char_id 		{letter}|_
 identifier      {char_id}{word}+|{letter}
 
 char_type       c
-str_type        str
 bool_type       b
 
 comment         \?.*
@@ -69,7 +68,6 @@ i64                                				{ return I64_TYPE; }
 f32												{ return F32_TYPE; }
 f64												{ return F64_TYPE; }
 {char_type}                                     { return CHAR_TYPE; }
-{str_type}                                      { return STR_TYPE; }
 {bool_type}                                     { return BOOL_TYPE; }
 
 if                                              { return BEGIN_IF; }
@@ -93,7 +91,7 @@ break                                           { return BREAK; }
 >=                                              { return MOREEQUAL; }
 "<="                                            { return LESSEQUAL; }
 
-arrlength										{ return ARRLENGTH; }
+arrlen											{ return ARRLENGTH; }
 proc                                            { return BEGIN_PROCEDURE; }
 endproc                                         { return END_PROCEDURE; }
 func                                            { return BEGIN_FUNCTION; }

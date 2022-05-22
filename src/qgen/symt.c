@@ -101,7 +101,7 @@ symt_tab *symt_push(symt_tab *tab, symt_node *node)
 
 	if (iter->id == SYMT_ROOT_ID)
 	{
-		symt_delete(iter);
+		//symt_delete(iter);
 		node->next_node = NULL;
 		return node;
 	}

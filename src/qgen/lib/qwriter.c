@@ -106,7 +106,7 @@ void qw_write_close_routine_function(FILE *obj, char *name, int size, symt_cons_
 		fprintf(obj, "\n\tD(R6)=RR2;\t// Save returned value");
 	else
 		fprintf(obj, "\n\tI(R6)=R2;\t// Save returned value");
-    
+
 	fprintf(obj, "\n\tGT(R0);\n/* End Routine %s */", name);
 }
 
@@ -271,7 +271,6 @@ void qw_write_array_to_reg(FILE *obj, int num_reg, symt_cons_t type, int ini_q_d
 void qw_write_int_to_var(FILE *obj, int q_direction, int value)
 {
 	assertp(obj != NULL, "object must be defined");
-
 	fprintf(obj, "\n\tI(0x%05x)=%d;\t// Store value to variable", q_direction, value);
 }
 
@@ -280,14 +279,21 @@ void qw_write_value_to_R5_pos(FILE *obj, symt_cons_t type, symt_value_t value)
 	assertp(obj != NULL, "object must be defined");
 
 	int value_int;
+	char value_char;
 	double value_double;
 
 	switch(type)
 	{
-		case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+		case CONS_INTEGER: case CONS_BOOL:
 			value_int = *(int*)value;
             fprintf(obj, "\n\tR5=R5-4;\t// Update R5 value");
 			fprintf(obj, "\n\tI(R5)=%d;\t// Store value to variable", value_int);
+		break;
+
+		case CONS_CHAR:
+			value_char = *(char*)value;
+            fprintf(obj, "\n\tR5=R5-4;\t// Update R5 value");
+			fprintf(obj, "\n\tI(R5)=%d;\t// Store value to variable", value_char);
 		break;
 
 		case CONS_DOUBLE:
@@ -351,13 +357,19 @@ void qw_write_value_to_var(FILE *obj, symt_cons_t type, int q_direction, symt_va
 	assertp(obj != NULL, "object must be defined");
 
 	int value_int;
+	char value_char;
 	double value_double;
 
 	switch(type)
 	{
-		case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+		case CONS_INTEGER: case CONS_BOOL:
 			value_int = *(int*)value;
 			fprintf(obj, "\n\tI(0x%05x)=%d;\t// Store value to variable", q_direction, value_int);
+		break;
+
+		case CONS_CHAR:
+			value_char = *(char*)value;
+			fprintf(obj, "\n\tI(0x%05x)=%d;\t// Store value to variable", q_direction, value_char);
 		break;
 
 		case CONS_DOUBLE:
@@ -397,14 +409,21 @@ void qw_write_value_to_reg(FILE *obj, int num_reg, symt_cons_t type, symt_value_
 	assertp(obj != NULL, "object must be defined");
 
 	int value_int;
+	char value_char;
 	double value_double;
 
 	switch(type)
 	{
-		case CONS_INTEGER: case CONS_BOOL: case CONS_CHAR:
+		case CONS_INTEGER: case CONS_BOOL:
 			value_int = *(int*)value;
 			assertf(num_reg >= 0 && num_reg <= 7, "%d is not a valid register", num_reg);
 			fprintf(obj, "\n\tR%d=%d;\t// Set value to register", num_reg, value_int);
+		break;
+
+		case CONS_CHAR:
+			value_char = *(char*)value;
+			assertf(num_reg >= 0 && num_reg <= 7, "%d is not a valid register", num_reg);
+			fprintf(obj, "\n\tR%d=%d;\t// Set value to register", num_reg, value_char);
 		break;
 
 		case CONS_DOUBLE:
@@ -430,8 +449,6 @@ void qw_write_reg_to_var(FILE *obj, int num_reg, symt_cons_t type, int q_directi
 		case CONS_DOUBLE:
 			fprintf(obj, "\n\tD(0x%05x)=RR%d;\t// Store result register at variable", q_direction, num_reg);
 		break;
-
-		//case CONS_STR: break;
 	}
 }
 

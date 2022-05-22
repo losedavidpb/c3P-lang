@@ -299,7 +299,7 @@ symt_cons *symt_cons_gt(symt_cons* num1, symt_cons* num2)
 	assertp(num2 != NULL, "first operand has not be defined");
 	assertf(num1->type == num2->type, "type %s does not match %s for first operand", symt_strget_constype(num1->type), symt_strget_constype(num2->type));
 
-	symt_cons *result = symt_new_cons(CONS_INTEGER, NULL, 0);
+	symt_cons *result = symt_new_cons(CONS_BOOL, NULL, 0);
 
 	int value1_int, value2_int, value_int, value_double, value_char;
 	double value1_double, value2_double;
@@ -338,7 +338,7 @@ symt_cons *symt_cons_lt(symt_cons* num1, symt_cons* num2)
 	assertp(num2 != NULL, "first operand has not be defined");
 	assertf(num1->type == num2->type, "type %s does not match %s for first operand", symt_strget_constype(num1->type), symt_strget_constype(num2->type));
 
-	symt_cons *result = symt_new_cons(CONS_INTEGER, NULL, 0);
+	symt_cons *result = symt_new_cons(CONS_BOOL, NULL, 0);
 
 	int value1_int, value2_int, value_int, value_double, value_char;
 	double value1_double, value2_double;
@@ -377,7 +377,7 @@ symt_cons *symt_cons_eq(symt_cons* num1, symt_cons* num2)
 	assertp(num2 != NULL, "first operand has not be defined");
 	assertf(num1->type == num2->type, "type %s does not match %s for first operand", symt_strget_constype(num1->type), symt_strget_constype(num2->type));
 
-	symt_cons *result = symt_new_cons(CONS_INTEGER, NULL, 0);
+	symt_cons *result = symt_new_cons(CONS_BOOL, NULL, 0);
 
 	int value1_int, value2_int, value_int, value_double, value_char;
 	double value1_double, value2_double;
@@ -416,7 +416,7 @@ symt_cons *symt_cons_neq(symt_cons* num1, symt_cons* num2)
 	assertp(num2 != NULL, "first operand has not be defined");
 	assertf(num1->type == num2->type, "type %s does not match %s for first operand", symt_strget_constype(num1->type), symt_strget_constype(num2->type));
 
-	symt_cons *result = symt_new_cons(CONS_INTEGER, NULL, 0);
+	symt_cons *result = symt_new_cons(CONS_BOOL, NULL, 0);
 
 	int value1_int, value2_int, value_int, value_double, value_char;
 	double value1_double, value2_double;
@@ -455,7 +455,7 @@ symt_cons *symt_cons_leq(symt_cons* num1, symt_cons* num2)
 	assertp(num2 != NULL, "first operand has not be defined");
 	assertf(num1->type == num2->type, "type %s does not match %s for first operand", symt_strget_constype(num1->type), symt_strget_constype(num2->type));
 
-	symt_cons *result = symt_new_cons(CONS_INTEGER, NULL, 0);
+	symt_cons *result = symt_new_cons(CONS_BOOL, NULL, 0);
 
 	int value1_int, value2_int, value_int, value_double, value_char;
 	double value1_double, value2_double;
@@ -494,7 +494,7 @@ symt_cons *symt_cons_geq(symt_cons* num1, symt_cons* num2)
 	assertp(num2 != NULL, "first operand has not be defined");
 	assertf(num1->type == num2->type, "type %s does not match %s for first operand", symt_strget_constype(num1->type), symt_strget_constype(num2->type));
 
-	symt_cons *result = symt_new_cons(CONS_INTEGER, NULL, 0);
+	symt_cons *result = symt_new_cons(CONS_BOOL, NULL, 0);
 
 	int value1_int, value2_int, value_int, value_double, value_char;
 	double value1_double, value2_double;

@@ -28,8 +28,9 @@
 #define symt_strget_constype(type)					\
 	(type == CONS_INTEGER? "integer" :				\
 	(type == CONS_DOUBLE? "double" :				\
+	(type == CONS_BOOL? "bool" :					\
 	(type == CONS_STR? "string" :					\
-	(type == CONS_CHAR? "char" : "undefined"))))
+	(type == CONS_CHAR? "char" : "undefined")))))
 
 /* Create a new constant symbol */
 symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value, int q_direction);

@@ -40,7 +40,11 @@ bool *boolcopy(bool *src, size_t num_elems)
     assertf(num_elems > 0, "%lu is not valid for num_elems", (unsigned long)num_elems);
 
     bool* dest = (bool *)(ml_malloc(num_elems * sizeof(bool)));
-    for (int i = 0; i < num_elems; i++) *(dest + i) = *(src + i);
+    for (int i = 0; i < num_elems; i++)
+	{
+		if (*(src + i) >= 1) *(src + i) = true;
+		*(dest + i) = *(src + i);
+	}
     return dest;
 }
 
@@ -73,6 +77,7 @@ char *strcopy(char *src)
     if (strlen(src) == 0)
 	{
 		char *dest = (char*)(ml_malloc(sizeof(char)));
+		for (int i = 0; i < strlen(src); i++) *(dest + i) = 0;
 		return dest;
 	}
 

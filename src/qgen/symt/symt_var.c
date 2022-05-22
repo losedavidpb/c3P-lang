@@ -33,7 +33,7 @@ symt_cons_t symt_get_type_data(symt_var_t type)
 		case I8: case I16: case I32: case I64: return CONS_INTEGER; break;
 		case F32: case F64: return CONS_DOUBLE; 					break;
 		case C: return CONS_CHAR;									break;
-		case B: return CONS_INTEGER;								break;
+		case B: return CONS_BOOL;									break;
 		case STR: return CONS_STR;									break;
 		default: return (symt_cons_t)SYMT_ROOT_ID;					break;
 	}
@@ -47,8 +47,16 @@ symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type,
 	n_var->type = type;
 	n_var->q_direction = q_direction;
 
+	symt_cons_t type_n = symt_get_type_data(type);
+	n_var->value = symt_copy_value(value, type_n, array_length);
+
+	/*
 	if (type != B)
+	{
+		if (array_length == 0) array_length += 1;
 		n_var->value = symt_copy_value(value, symt_get_type_data(type), array_length);
+		array_length--;
+	}
 	else if (value != NULL)
 	{
 		n_var->value = (bool*)(ml_malloc(sizeof(bool)));
@@ -61,7 +69,7 @@ symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type,
 		n_var->value = (bool*)(ml_malloc(sizeof(bool)));
 		bool value_bool = 0;
 		n_var->value = &value_bool;
-	}
+	}*/
 
 	n_var->is_array = is_array;
 	n_var->array_length = array_length;

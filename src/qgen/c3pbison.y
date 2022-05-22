@@ -89,7 +89,7 @@
 
 %token<integer_t> I8_TYPE I16_TYPE I32_TYPE I64_TYPE
 %token<integer_t> F32_TYPE F64_TYPE
-%token<integer_t> CHAR_TYPE STR_TYPE
+%token<integer_t> CHAR_TYPE
 %token<integer_t> BOOL_TYPE
 
 %token BEGIN_IF END_IF ELSE_IF
@@ -129,50 +129,35 @@ int_expr 		: '(' int_expr ')' 				{ is_expr = false; $$ = $2; }
 				| INTEGER 						{
 													type = CONS_INTEGER; is_expr = false;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
-													//qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
-													//qw_write_value_to_R5_pos(obj, CONS_INTEGER, value);
 												}
 				;
 
 expr_num 		: T 							{
 													type = CONS_BOOL; int true_val = 1; is_expr = false;
-													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &true_val);
-													//qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
+													$$ = symt_insert_tab_cons(symt_new(), CONS_BOOL, &true_val);
 													if(!llamada) qw_write_value_to_R5_pos(obj, CONS_INTEGER, $$->cons->value);
 												}
 				| F 							{
 													type = CONS_BOOL; int false_val = 0; is_expr = false;
-													//if (num_reg == 1) num_reg = 2;
-													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &false_val);
-													//qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
+													$$ = symt_insert_tab_cons(symt_new(), CONS_BOOL, &false_val);
 													if(!llamada) qw_write_value_to_R5_pos(obj, CONS_INTEGER, $$->cons->value);
-													//if (num_reg > 1) num_reg--;
 												}
 				| DOUBLE 						{
 													type = CONS_DOUBLE; is_expr = false;
-													//if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_DOUBLE, &$1);
-													//qw_write_value_to_reg(obj, num_reg, CONS_DOUBLE, $$->cons->value);
 													if(!llamada) qw_write_value_to_R5_pos(obj, CONS_DOUBLE, $$->cons->value);
-													//if (num_reg > 1) num_reg--;
 												}
 				| INTEGER 						{
 													type = CONS_INTEGER; is_expr = false;
-													//if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &$1);
-													//qw_write_value_to_reg(obj, num_reg, CONS_INTEGER, $$->cons->value);
 													if(!llamada) qw_write_value_to_R5_pos(obj, CONS_INTEGER, $$->cons->value);
-													//if (num_reg > 1) num_reg--;
 												}
 				;
 
 expr_char       : CHAR                          {
 													type = CONS_CHAR; is_expr = false;
-													//if (num_reg == 1) num_reg = 2;
 													$$ = symt_insert_tab_cons(symt_new(), CONS_CHAR, &$1);
-													//qw_write_value_to_reg(obj, num_reg, CONS_CHAR, $$->cons->value);
-													qw_write_value_to_R5_pos(obj, CONS_INTEGER, $$->cons->value);
-													//if (num_reg > 1) num_reg--;
+													qw_write_value_to_R5_pos(obj, CONS_CHAR, $$->cons->value);
                                                 }
 				;
 
@@ -186,20 +171,6 @@ expr_string 	: STRING		 				{
 				;
 
 iden_expr		: expr '+' expr					{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													is_expr = true; num_reg = 2;*/
-
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -209,25 +180,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_add(type, $1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr '-' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
-
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -237,24 +191,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_sub(type, $1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr '*' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -266,19 +204,6 @@ iden_expr		: expr '+' expr					{
 													symt_delete_node($1); symt_delete_node($3);
 												}
 				| expr '/' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -288,24 +213,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_div(type, $1->cons, $3->cons);
 													symt_delete_node($1); symt_delete_node($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr '%' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -315,24 +224,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_mod(type, $1->cons, $3->cons);
 													symt_delete_node($1); symt_delete_node($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr '^' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -342,24 +235,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_pow(type, $1->cons, $3->cons);
 													symt_delete_node($1); symt_delete_node($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr '<' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -369,24 +246,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_lt($1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr '>' expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -396,24 +257,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_gt($1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr EQUAL expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -423,24 +268,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_eq($1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr NOTEQUAL expr 			{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -450,24 +279,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_neq($1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr LESSEQUAL expr 			{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -477,24 +290,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_leq($1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr MOREEQUAL expr 			{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
 
@@ -504,24 +301,8 @@ iden_expr		: expr '+' expr					{
 													$$ = symt_new(); $$->id = CONSTANT;
 													$$->cons = symt_cons_geq($1->cons, $3->cons);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr AND expr 				{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
@@ -530,26 +311,10 @@ iden_expr		: expr '+' expr					{
 													qw_write_reg_to_R5_pos(obj, type);
 
 													int result = *((int*)$1->cons->value) && *((int*)$3->cons->value);
-													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &result);
+													$$ = symt_insert_tab_cons(symt_new(), CONS_BOOL, &result);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| expr OR expr 					{
-													/*if ($1->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $1->cons->type, $1->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}
-
-													if ($3->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $3->cons->type, $3->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = true; if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_R5_to_reg(obj, $1->cons->type, 2);
 													qw_write_R5_to_reg(obj, $3->cons->type, 1);
@@ -558,20 +323,10 @@ iden_expr		: expr '+' expr					{
 													qw_write_reg_to_R5_pos(obj, type);
 
 													int result = *((int*)$1->cons->value) || *((int*)$3->cons->value);
-													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &result);
+													$$ = symt_insert_tab_cons(symt_new(), CONS_BOOL, &result);
 													symt_delete($1); symt_delete($3);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| NOT expr 						{
-													/*if ($2->cons->q_direction != 0)
-													{
-														qw_write_var_to_reg(obj, num_reg, $2->cons->type, $2->cons->q_direction);
-														if (num_reg > 1) num_reg--;
-													}*/
-
-													//is_expr = false; if (num_reg > 1) num_reg = 2;
 													assertf(type != CONS_CHAR, "char types does not support logic operation");
 													qw_write_R5_to_reg(obj, $2->cons->type, 1);
 
@@ -579,14 +334,10 @@ iden_expr		: expr '+' expr					{
 													qw_write_reg_to_R5_pos(obj, type);
 
 													int result = !(*((int*)$2->cons->value));
-													$$ = symt_insert_tab_cons(symt_new(), CONS_INTEGER, &result);
+													$$ = symt_insert_tab_cons(symt_new(), CONS_BOOL, &result);
 													symt_delete($2);
-
-													/*if (q_direction_var != 0 && is_var == true)
-														qw_write_reg_to_var(obj, 1, type, q_direction_var);*/
 												}
 				| IDENTIFIER '[' int_expr ']'	{
-													//is_expr = false; if (num_reg > 1) num_reg = 2;
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
@@ -622,7 +373,6 @@ iden_expr		: expr '+' expr					{
 													}
 												}
 				| IDENTIFIER					{
-													//is_expr = false;
 													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
 													assertf(var != NULL, "variable %s has not been declared", $1);
@@ -684,7 +434,6 @@ arr_data_type 	: I8_TYPE '[' int_expr ']'    	{
 
 param_declr 	: IDENTIFIER ':' data_type			{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, false, 0, NULL, true, level, q_direction);
@@ -692,7 +441,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' I8_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var( symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -700,7 +448,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' I16_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -708,7 +455,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' I32_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -716,7 +462,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' I64_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -724,7 +469,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' F32_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -732,7 +476,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' F64_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -740,7 +483,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' CHAR_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -748,7 +490,6 @@ param_declr 	: IDENTIFIER ':' data_type			{
 													}
 				| IDENTIFIER ':' BOOL_TYPE '[' ']'	{
 														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
-
 														if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
 														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 1, 0, NULL, true, level, q_direction);
@@ -769,9 +510,11 @@ var 		:   IDENTIFIER ':' data_type 										{
 
 																					if (symt_get_type_data($3) == CONS_DOUBLE) q_direction -= 8; else q_direction -= 4;
 
-																					symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, 0, 0, NULL, 0, level, q_direction);
+																					symt_node* node = symt_new();
+
+																					node = symt_insert_tab_var(node, $1, rout_name, $3, 0, 0, NULL, 0, level, q_direction);
 																					symt_cons_t t = symt_get_type_data($3);
-																					qw_write_value_to_var(obj, t,  node->var->q_direction, node->var->value);
+																					qw_write_value_to_var(obj, t, node->var->q_direction, node->var->value);
 
 																					if (symt_get_type_data($3) == CONS_DOUBLE) fprintf(obj, "\n\tR5=R5-8;\t// Update R5 value"); else fprintf(obj, "\n\tR5=R5-4;\t// Update R5 value AAAAAAAAAAAAAAAAAAa");
 
@@ -1515,7 +1258,7 @@ int main(int argc, char **argv)
 		fclose(yyin);
 
 		ml_free(object_f);
-		symt_delete(tab);
+		//symt_delete(tab);
 	}
 
 	return 0;
