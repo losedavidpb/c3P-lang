@@ -93,6 +93,7 @@ break                                           { return BREAK; }
 >=                                              { return MOREEQUAL; }
 "<="                                            { return LESSEQUAL; }
 
+arrlength										{ return ARRLENGTH; }
 proc                                            { return BEGIN_PROCEDURE; }
 endproc                                         { return END_PROCEDURE; }
 func                                            { return BEGIN_FUNCTION; }
