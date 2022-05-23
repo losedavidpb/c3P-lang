@@ -28,19 +28,19 @@ typedef unsigned long natural_t;
 
 /* Copy passed array of integers into a new one.
    Null would be returned whether passed parameters are not valid */
-int *intcopy(int *src, natural_t num_elems);
+int *intcopy(int *src, size_t num_elems);
 
 /* Copy passed array of bools into a new one
    Null would be returned whether passed parameters are not valid */
-bool *boolcopy(bool *src, natural_t num_elems);
+bool *boolcopy(bool *src, size_t num_elems);
 
 /* Copy passed array of floats into a new one
    Null would be returned whether passed parameters are not valid */
-float *floatcopy(float *src, natural_t num_elems);
+float *floatcopy(float *src, size_t num_elems);
 
 /* Copy passed array of doubles into a new one
    Null would be returned whether passed parameters are not valid */
-double *doublecopy(double *src, natural_t num_elems);
+double *doublecopy(double *src, size_t num_elems);
 
 /* Copy passed string into a new one
    Null would be returned whether passed parameters are not valid */
