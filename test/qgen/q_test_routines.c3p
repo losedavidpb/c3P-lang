@@ -18,75 +18,33 @@
 ?	such as fibonacci method
 ? ---------------------------------------------
 
-proc show_str(str_val : c[])
-	len : i32 = call arrlen str_val
 
-	for (i : i32 = 0, i = i + 1, i < len)
-		call show str_val[i]
-	endfor
-endproc
+func equal : i32(x : i32, y : i32)
 
-proc show_error(message : c[])
-	call show "[ERROR] "
-	call show_str message
-endproc
+	result : i32 = 0
 
-func sum_i32 : i32[](x : i32[], y : i32[])
-	len1 : i32 = call arrlen x
-	len2 : i32 = call arrlen y
+	if (x == y)
 
-	if (len1 == len2)
-		result : i32[len1]
+		result = 1
 
-		for (i : i32 = 0, i = i + 1, i < len1)
-			result[i] = x[i] + y[i]
+		message : c[8] = { '[', 'E', 'Q', 'U', 'A', 'L', 'S', ']' }
+		for(i : i32 = -1, i = i + 1, i < 8)
+			call show message[i]
 		endfor
 
-		ret result
-	else
-		message : c[28] = { 'a', 'r', 'r', 'a', 'y', 's', ' ', 'm', 'u', 's', 't', ' ', 'h', 'a', 'v', 'e', ' ', 's', 'a', 'm', 'e', ' ', 'l', 'e', 'n', 'g', 't', 'h' }
-		call show_error message
-		ret x
+		call showln ' '
+
 	endif
+
+    ret result
 endfunc
 
-func sun_i32 : i32[](x : i32[], y : i32[])
-	len1 : i32 = call arrlen x
-	len2 : i32 = call arrlen y
-
-	if (len1 == len2)
-		result : i32[len1]
-
-		for (i : i32 = 0, i = i + 1, i < len1)
-			result[i] = x[i] - y[i]
-		endfor
-
-		ret result
-	else
-		call show_error "arrays must have same length"
-		ret x
-	endif
-endfunc
-
-func fibonacci : i32(n : i32)
-    if (n > 1)
-        f1 : i32 = call fibonacci n - 1
-        f2 : i32 = call fibonacci n - 2
-        ret f1 + f2
-    endif
-
-    ret n
-endfunc
 
 proc main()
-	len : i32 = 10
-	x : i32[len]
-	y : i32[len]
+	x : i32 = 5
+	y : i32 = 5
 
-	z : i32[len] = call sum_i32 x y
-	z = call sub_i32 x y
+	z : i32 = call equal x, y
 
-	l : i32 = call fibonacci 10
-	call show "f(10)="
-	call showln l
 endproc
+
