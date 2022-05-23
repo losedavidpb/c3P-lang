@@ -13,8 +13,8 @@ x : i32 = 10
 y : i32 = 20
 z : i32 = x + y
 z = z + x * 2 / 10
-zstr : str = call str z
-call show "z = " + zstr
+call show "z = "
+call showln z
 
 ? Declaración de expresiones incorrecta
 if (x == y) if (y != 10)
@@ -53,42 +53,6 @@ else
 endif
 \end{verbatim}
 
-\subsection{Sentencia switch}
-
-En \textbf{c3P} se puede utilizar la sentencia «switch» para controlar el flujo de un programa.
-
-\begin{verbatim}
-switch (test)
-    caso1:
-      si igual a caso1...
-    caso2:
-      si igual a caso2...
-    ...
-    def:
-      declaración por defecto
-endswitch
-\end{verbatim}
-
-La sentencia «switch» compara «test» con cada uno de los casos, hasta encontrar un que sea igual a test. Entonces, se ejecutan las sentencias que siguen al caso exitoso.
-
-\begin{verbatim}
-switch (x)
-    0:
-      call show "x es 0"
-      break
-    1:
-      call show "x es 1"
-      break
-    def:
-      call show "x es otro valor"
-      break
-endswitch
-\end{verbatim}
-
-Hay que tener en cuenta que el uso de la sentencia break es importante
-declararlo en cada caso del switch, porque puede que se ejecuten de
-forma equivocada el resto de casos siguientes.
-
 \subsection{Sentencia while}
 La declaración «while» es un bucle en el que en cada iteración se comprueba una condición,
 que si se satisface, se repite la ejecución del bucle hasta que no se cumpla el criterio
@@ -98,7 +62,7 @@ de parada. A continuación se muestra un ejemplo:
 counter : i32 = 0
 
 while (counter < 10)
-  call show str(counter)
+  call show counter
   counter = counter + 1
 endwhile
 \end{verbatim}
@@ -112,62 +76,27 @@ la variable tras la iteración. Cada parte del «for» está separado por comas,
 paréntesis, y el cuerpo del bucle termina en «endfor».
 
 \begin{verbatim}
-for (x : i32 = 0, x < 10, x = x + 1)
-  str_x : str = call str x
-  call show str_x
+for (x : i32 = 0, x = x + 1, x < 10)
+  call show x
 endfor
-\end{verbatim}
-
-\subsection{Sentencia readonly}
-
-La sentencia readonly establece que una vez se le asigne un valor a una variable este valor nunca podrá ser modificado. En el caso de asignar un valor a una variable esta tomará por defecto 0.
-
-\begin{verbatim}
-readonly x : i32 = 5
-readonly y : i32 = 10
-\end{verbatim}
-
-\subsection{Sentencia hide}
-
-El acceso privado se puede declarar en \textbf{c3P} en funciones, procedimientos,
-o variables globales (fuera de funciones/procedimientos), pero nunca en variables
-locales. Con este modificador de acceso, las componentes que lo tengan no podrán
-ser accesibles al importar el fichero desde otro fichero fuente
-
-\begin{verbatim}
-hide x : i32 = 1
-
-hide func y(x : i32)
-    ret x * 2
-endfunc
-
-proc show_x()
-    x_str : str = call str x
-    call showln x_str
-endproc
 \end{verbatim}
 
 \subsection{Bloques}
 \subsubsection{Sentencia break}
 
-La declaración break se utiliza para terminar la ejecución de un bucle
-o de una estructura tipo switch. Cabe destacar que esta sentencia afecta
-al bucle o switch más interno en el que esté dentro.
+La declaración break se utiliza para terminar la ejecución de un bucle.
+Cabe destacar que esta sentencia afecta al bucle más interno en el que esté dentro.
 A continuación se muestra un ejemplO:
 
 \begin{verbatim}
-for (x : i32 = 1, x <= 10, x = x + 1)
+for (x : i32 = 1, x = x + 1, x <= 10)
     if (x == 8)
       break
     else
-      x_str : str = call str x
-      call show x_str
+      call show x
     endif
 endfor
 \end{verbatim}
-
-Si pone una sentencia «break» dentro de un bucle o sentencia switch» que a su vez está dentro de un bucle o sentencia «switch»,
-el «break» sólo termina el bucle o sentencia «switch» más interno.
 
 \subsubsection{Sentencia continue}
 
@@ -178,7 +107,7 @@ declaración sólo afecta al bucle más interno en el que esté dentro.
 \begin{verbatim}
 suma : i32 = 0
 
-for (x : i32 = 0, x < 100, x++)
+for (x : i32 = 0, x = x + 1, x < 100)
     if (x % 2 == 0)
       continue
     else
@@ -198,8 +127,9 @@ función un valor, pero jamás se puede usar en un procedimiento.
 \begin{verbatim}
 func cumsum : i32(x : i32[])
     value : i32 = 0
+    len : i32 = call arrlen x
 
-    for (i : i32 = 0, i < x.L, i = i + 1)
+    for (i : i32 = 0, i = i + 1, i < len)
         value = value + x[i]
     endfor
 

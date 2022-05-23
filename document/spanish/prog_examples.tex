@@ -20,17 +20,14 @@ proc main()
     endfor
 
     age_mean = age_mean / total_ages
-    age_str_mean = call str age_mean
     call show "La edad media es:
-    call showln age_str_mean
+    call showln age_mean
 endproc
 \end{verbatim}
 
 \subsection{fibonacci.c3p}
 
 \begin{verbatim}
-#add <c3p/base>
-
 func fibonacci(n : i32)
     if (n > 1)
         f1 : i32 = call fibonacci n - 1
@@ -46,17 +43,13 @@ proc main()
     n20 : i32 = call fibonacci 20
     n30 : i32 = call fibonacci 30
     n40 : i32 = call fibonacci 40
-    n10_str : str = call str n10
-    n20_str : str = call str n20
-    n30_str : str = call str n30
-    n40_str : str = call str n40
     call show "fib(10) = "
-    call showln n10_str
-    call show "fib(20) = " + n20_str
-    call showln n20_str
-    call show "fib(30) = " + n30_str
-    call showln n30_str
-    call show "fib(40) = " + n40_str
-    call showln n40_str
+    call showln n10
+    call show "fib(20) = "
+    call showln n20
+    call show "fib(30) = "
+    call showln n30
+    call show "fib(40) = "
+    call showln n40
 endproc
 \end{verbatim}
