@@ -1,7 +1,7 @@
 {
     // Comments can only be declared at one line,
     "comments": { "lineComment": "\\?" },
-    
+
     // Symbols used as brackets
     "brackets": [
         ["{", "}"],
@@ -20,7 +20,7 @@
     ],
 
     // Auto close symbols although there's first another
-    // letter, digit, or 
+    // letter, digit, or
     "autoCloseBefore": "}])>` \n\t",
 
     // Symbols that can be used to surround a selection
@@ -32,13 +32,13 @@
         { "open":"'", "close":"'", "notIn": ["string", "comment"]}
     ],
 
-    // Definition of what is considered to be a word 
+    // Definition of what is considered to be a word
     "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
 
     // Adjust current indentation when declaring some statements
     // that act as a block, like if, for, while, etc.
     "indentationRules": {
-        "increaseIndentPattern": "(hide\\s)?\\s*(proc|func){1}\\s+.+\\s*\\(.*\\)|\\s*(if|for|while|switch|proc|func){1}\\s*\\(.*\\)\\s*|\\s*else\\s*",
-        "decreaseIndentPattern": "\\s*(endif|endfor|endwhile|endswitch|endproc|endfunc){1}\\s*"
+        "increaseIndentPattern": "\\s*(proc|func){1}\\s+.+\\s*\\(.*\\)|\\s*(if|for|while|proc|func){1}\\s*\\(.*\\)\\s*|\\s*else\\s*",
+        "decreaseIndentPattern": "\\s*(endif|endfor|endwhile|endproc|endfunc){1}\\s*"
     },
 }

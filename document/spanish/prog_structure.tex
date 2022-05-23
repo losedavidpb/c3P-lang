@@ -1,14 +1,12 @@
 
-Un programa en \textbf{c3P} puede existir dentro de uno o varios archivo fuente, y siempre uno
-de ellos debe contener el procedimiento main, que es en el que se inicia la ejecución.
-Cada fichero escrito en \textbf{c3P} tiene que tener la extensión .c3P
+Un programa en \textbf{c3P} puede existir en un sólo fichero que tiene que tener
+obligatoriamente el método main. Cada fichero escrito en \textbf{c3P} tiene que
+tener la extensión .c3P o .c3p
 
 \subsection{Alcance de los datos}
 
 Una variable declarada puede ser accesible sólo dentro de una función o procedimiento,
 o dentro de un fichero. Las declaraciones realizadas fuera de funciones o procedimientos
-son accesibles para todo el archivo y para otro ficheros siempre que no tenga el modificador
-de acceso hide. Respecto a las variables locales, éstas son visibles dentro del cuerpo de
-una función pero no fuera de ésta. Además de todo esto, hay que considerar que una declaración
-en \textbf{c3P} no es visible por las declaraciones que la preceden, y las funciones o procedimientos
-que no sean privadas son accesibles desde fuera del fichero siempre que éste se importe con \#add.
+son accesibles para todo el archivo. Respecto a las variables locales, éstas son visibles dentro
+del cuerpo de una función pero no fuera de ésta. Además de todo esto, hay que considerar que una
+declaración en \textbf{c3P} no es visible por las declaraciones que la preceden.

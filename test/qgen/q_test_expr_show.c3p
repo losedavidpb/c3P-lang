@@ -1,0 +1,131 @@
+? q_test_expr_show.c3p
+?
+? This file is part of the c3P language compiler. This project
+? is free software; you can redistribute it and/or modify it under
+? the terms of the GNU General Public License
+?
+? This project is distributed in the hope that it will be useful,
+? but WITHOUT ANY WARRANTY; without even the implied warranty of
+? MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+? GNU General Public License for more details.
+?
+? You should have received a copy of the GNU General Public License
+? If not, see <http://www.gnu.org/licenses/>.
+
+? ---------------------------------------------
+? Description
+?	Test show and showln special methods
+?	with all available data types
+? ---------------------------------------------
+
+proc show_str(str_val : c[])
+	len : i32 = call arrlen str_val
+
+	for (i : i32 = 0, i = i + 1, i < len)
+		call show str_val[i]
+	endfor
+endproc
+
+proc show_your_name(name : c[])
+	call show "My name is "
+	call show_str name
+endproc
+
+func show_your_name_and_count_len(name : c[])
+	call show_your_name name
+	ret arrlen name
+endfunc
+
+proc main()
+	x8 : i8 = 8
+	call show x8
+	call showln x8
+
+	x16 : i16 = 16
+	call show x16
+	call showln x16
+
+	x32 : i32 = 32
+	call show x32
+	call showln x32
+
+	x64 : i64 = 64
+	call show x64
+	call showln x64
+
+	xx32 : f32 = 32.0
+	call show xx32
+	call showln xx32
+
+	xx64 : f64 = 64.0
+	call show xx64
+	call showln xx64
+
+	xc : c = 'a'
+	call show xc
+	call showln xc
+
+	xb : b = T
+	call show xb
+	call showln xb
+
+	len : i32 = 10
+	rx8 : i8[len]
+	rx16 : i16[len]
+	rx32 : i32[len]
+	rx64 : i64[len]
+	rxx32 : f32[len]
+	rxx64 : f64[len]
+	rc : c[len]
+	rb : b[len]
+
+	for (i : i32 = 0, i = i + 1, i < 10)
+		rx8[i] = i + 8
+		call show rx8[i]
+		call showln rx8[i]
+
+		rx16[i] = i + 16
+		call show rx16[i]
+		call showln rx16[i]
+
+		rx32[i] = i + 32
+		call show rx32[i]
+		call showln rx32[i]
+
+		rx64[i] = i + 64
+		call show rx64[i]
+		call showln rx64[i]
+
+		rxx32[i] = i + 32.0
+		call show rxx32[i]
+		call showln rxx32[i]
+
+		rxx64[i] = i + 64.0
+		call show rxx64[i]
+		call showln rxx64[i]
+
+		rc[i] = 'A' + 1
+		call show rc[i]
+		call showln rc[i]
+
+		if (i % 2 == 0)
+			rb[i] = T
+		else
+			rb[i] = F
+		endif
+
+		call show rb[i]
+		call showln rb[i]
+	endfor
+
+	call show "Hello, world!"
+	call showln "Hello, world!"
+
+	name_1 : c[5] = {'D','a','v','i','d'}
+	name_2 : c[6] = {'H','é','c','t','o','r'}
+	call show_your_name name_1
+	call show_your_name name_2
+
+	len1 : i32 = call show_your_name_and_count_len name_1
+	len2 : i32 = call show_your_name_and_count_len name_2
+endproc

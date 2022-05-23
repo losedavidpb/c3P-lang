@@ -1,5 +1,5 @@
-#add <c3p.base>
-#add <c3p.math>
+#add <c3p/base>
+#add <c3p/math>
 
 x : i32
 y : i64

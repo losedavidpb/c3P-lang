@@ -1,0 +1,7 @@
+hide func f1 : i32 ()
+
+endfunc
+
+func f2 : b ()
+
+endfunc

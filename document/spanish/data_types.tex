@@ -15,7 +15,7 @@ por bits y pueden alcanzar los 64 bits.
          \hline
          i16 & 16 & -32768 a 32767 \\
          \hline
-         i32 & 32 & -214,483648 a 2147483647 \\
+         i32 & 32 & -214483648 a 2147483647 \\
          \hline
          i64 & 64 & -9223372036854775808 a 9223372036854775807 \\
          \hline
@@ -49,13 +49,10 @@ que esté ejecutando el programa, los rangos de valores varían.
 \subsubsection{Tipos de Carácter}
 
 Los tipos de caracteres permiten representar uno o varios caracteres de dígitos,
-letras, u otros símbolos, a excepción de los caracteres especiales. Cabe mencionar
-que, para las cadenas de caracteres (str), existen utilidades con las que manejar
-más fácilmente este tipo de datos.
+letras, u otros símbolos, a excepción de los caracteres especiales.
 
 \begin{itemize}
     \item \textbf{c}: puede contener un valor que cumple '([a-zA-Z0-9\+\-\_\&\%...]+)*'
-    \item \textbf{str}: puede contener una cadena de caracteres.
 \end{itemize}
 
 \subsubsection{Tipos Lógicos}
@@ -77,7 +74,7 @@ el nombre de la variable, y el número de elementos que puede almacenar, tal y c
 se puede observar en el siguiente ejemplo:
 
 \begin{verbatim}
-mi_array : i32[10]    
+mi_array : i32[10]
 \end{verbatim}
 
 Respecto al tamaño de un contenedor, puede declararse tanto con una constante literal
@@ -112,11 +109,9 @@ mi_array[0] = 5
 
 \subsection{Tamaño de Contenedores y Cadena de caracteres}
 
-En \textbf{c3P} para obtener el tamaño de un contenedor o una cadena de caracteres existe la función «length».
+En \textbf{c3P} para obtener el tamaño de un contenedor existe la función «arrlen».
 
 \begin{verbatim}
 mi_array : i32[3] = {0, 1, 2}
-cadena : str = "ristra de caracteres"
-x : i32 = call length mi_array
-x : i32 = call length cadena
+x : i32 = call arrlen mi_array
 \end{verbatim}

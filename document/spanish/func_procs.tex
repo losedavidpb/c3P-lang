@@ -30,7 +30,7 @@ Los parámetros consta de cero o más parámetros, separados por comas. Un pará
 
 \subsection{Definición de Funciones y Procedimiento}
 
-La definición de una función o un procedimiento se escribe para especificar lo que realmente hace una función o un procedimiento. Una definición de función consiste en información sobre el nombre de la función, el tipo de retorno únicamente en las funciones y los tipos y nombres de los parámetros, junto con el cuerpo de la función. 
+La definición de una función o un procedimiento se escribe para especificar lo que realmente hace una función o un procedimiento. Una definición de función consiste en información sobre el nombre de la función, el tipo de retorno únicamente en las funciones y los tipos y nombres de los parámetros, junto con el cuerpo de la función.
 
 \begin{verbatim}
 func add_values : i64 (x : i32, y : i32)
@@ -40,7 +40,7 @@ endfunc
 
 \begin{verbatim}
 proc showSum (x : i32, y : i32)
-  call show (call str (x + y))
+  call show x + y
 endproc
 \end{verbatim}
 
@@ -48,7 +48,7 @@ endproc
 
 Para llamar a una función o procedimiento en \textbf{c3P}, se utiliza la palabra clave,
 seguido del nombre de la función, y si es necesario, de los parámetros necesarios, separados
-por comas. 
+por comas.
 
 \begin{verbatim}
 x : i64 = call add_values 5, 3
@@ -59,10 +59,10 @@ call fibonacci 10
 
 En las funciones y procedimientos, los parámetros pueden ser cualquier expresión, como
 un valor literal, un valor almacenado en una variable, o una expresión más compleja
-construida mediante la combinación de estos. 
+construida mediante la combinación de estos.
 
 En el cuerpo de la función o procedimiento, el parámetro se pasa por valor, lo que
-significa que no se puede cambiar el valor pasado cambiando la copia local. 
+significa que no se puede cambiar el valor pasado cambiando la copia local.
 
 \begin{verbatim}
 x : i32 = 23
@@ -82,8 +82,7 @@ endproc
 \subsection{Función Principal}
 
 Cualquier ejecución de un programa en \textbf{c3P} tiene que empezar siempre en
-un procedimiento llamado «main» que no tiene parámetros. Los ficheros sin este
-procedimiento se consideran en el programa como librerías.
+un procedimiento llamado «main» que no tiene parámetros.
 
 \begin{verbatim}
 proc main ()
@@ -103,7 +102,7 @@ func fibonacci(n : i32)
         f2 : i32 = call fibonacci n - 2
         ret f1 + f2
     endif
-    
+
     ret n
 endfunc
 \end{verbatim}

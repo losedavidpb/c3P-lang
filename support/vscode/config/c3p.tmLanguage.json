@@ -38,7 +38,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.c3p",
-					"match": "\\b(if|else|while|for|switch|endif|endwhile|endfor|endswitch|def|ret|continue|break)\\b"
+					"match": "\\b(if|else|while|for|endif|endwhile|endfor|ret|continue|break)\\b"
 				},
 				{
 					"name": "keyword.operator.symbols.c3p",
@@ -54,19 +54,11 @@
 			"patterns": [
 				{
 					"name": "storage.type.c3p",
-					"match": "\\b(i8|i16|i32|i64|f32|f64|c|str|b)\\b"
+					"match": "\\b(i8|i16|i32|i64|f32|f64|c|b)\\b"
 				},
 				{
 					"name": "storage.type.method.c3p",
 					"match": "\\b(func|endfunc|proc|endproc)\\b"
-				},
-				{
-					"name": "storage.modifier.c3p",
-					"match": "\\b(readonly|hide)\\b"
-				},
-				{
-					"name": "storage.modifier.add.c3p",
-					"match": "#add"
 				}
 			]
 		},
@@ -86,7 +78,7 @@
 			"patterns": [
 				{
 					"name": "support.function.api.c3p",
-					"match": "\\b(showln|show|input|arrlen)\\b"
+					"match": "\\b(showln|show|arrlen)\\b"
 				},
 				{
 					"name": "support.function.main.c3p",

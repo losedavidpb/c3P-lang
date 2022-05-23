@@ -1,0 +1,59 @@
+? q_test_while.c3p
+?
+? This file is part of the c3P language compiler. This project
+? is free software; you can redistribute it and/or modify it under
+? the terms of the GNU General Public License
+?
+? This project is distributed in the hope that it will be useful,
+? but WITHOUT ANY WARRANTY; without even the implied warranty of
+? MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+? GNU General Public License for more details.
+?
+? You should have received a copy of the GNU General Public License
+? If not, see <http://www.gnu.org/licenses/>.
+
+? ---------------------------------------------
+? Description
+?	Test while loops with additional statements
+?	such as if-else, continue, break, etc
+? ---------------------------------------------
+
+proc main()
+	x : i32 = 0
+	m : i32 = 10
+	y : f32 = 0.1
+	z : f32 = 10.1
+
+	while (x < 10)
+		w : i32
+		x = x + 1
+	endwhile
+
+	while (x < 10)
+		w : i32
+		x = x + 1
+	endwhile
+
+	while (x >= 10)
+		m = m - 1
+		if (m < 5)
+			break
+		endif
+	endwhile
+
+	while (y < 10.1)
+		y = y + 1.1
+
+		while (z < 10.0)
+			break
+		endwhile
+
+		if (x == 0)
+			continue
+		endif
+
+		for (i : i32 = 0, i = i + 1, i < 10)
+			wl : b = T
+		endfor
+	endwhile
+endproc

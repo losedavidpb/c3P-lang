@@ -124,5 +124,6 @@
 
 # Set LF as the default end of line format
 # instead of CRLF Windows EOL
+core.autocrl=input
 core.eol=lf
 eol=lf

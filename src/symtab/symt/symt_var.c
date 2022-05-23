@@ -1,11 +1,11 @@
-#include "../../../include/symt_var.h"
+#include "../include/symt_var.h"
 
-#include "../../../include/assertb.h"
-#include "../../../include/memlib.h"
-#include "../../../include/arrcopy.h"
-#include "../../../include/symt_type.h"
-#include "../../../include/symt_node.h"
-#include "../../../include/symt_cons.h"
+#include "../include/assertb.h"
+#include "../include/memlib.h"
+#include "../include/arrcopy.h"
+#include "../include/symt_type.h"
+#include "../include/symt_node.h"
+#include "../include/symt_cons.h"
 
 symt_cons_t symt_get_type_data(symt_var_t type)
 {

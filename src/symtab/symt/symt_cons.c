@@ -1,10 +1,10 @@
-#include "../../../include/symt_cons.h"
+#include "../include/symt_cons.h"
 
-#include "../../../include/assertb.h"
-#include "../../../include/memlib.h"
-#include "../../../include/arrcopy.h"
-#include "../../../include/symt_type.h"
-#include "../../../include/symt_node.h"
+#include "../include/assertb.h"
+#include "../include/memlib.h"
+#include "../include/arrcopy.h"
+#include "../include/symt_type.h"
+#include "../include/symt_node.h"
 #include <math.h>
 #include <ctype.h>
 

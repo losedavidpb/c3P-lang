@@ -1,14 +1,13 @@
-#include "../../include/symt.h"
+#include "include/symt.h"
 
-#include "../../include/assertb.h"
-#include "../../include/arrcopy.h"
-#include "../../include/memlib.h"
-#include "../../include/symt_type.h"
-#include "../../include/symt_cons.h"
-#include "../../include/symt_rout.h"
-#include "../../include/symt_var.h"
-#include "../../include/symt_node.h"
-#include <stdio.h>
+#include "include/assertb.h"
+#include "include/arrcopy.h"
+#include "include/memlib.h"
+#include "include/symt_type.h"
+#include "include/symt_cons.h"
+#include "include/symt_rout.h"
+#include "include/symt_var.h"
+#include "include/symt_node.h"
 #include <string.h>
 
 symt_tab *symt_new()
@@ -26,9 +25,9 @@ symt_node *symt_search_param(symt_tab *tab, symt_name_t name)
 
 	while (iter != NULL)
 	{
-		if (iter->id == VAR)
+		if (iter->id == VAR && iter->var->rout_name != NULL)
 		{
-			int cond = strcmp(name, iter->var->name);
+			int cond = strcmp(name, iter->var->rout_name);
 			if (iter->var->is_param && cond == 0) break;
 		}
 

@@ -1,14 +1,4 @@
 {
-    "doc-comment": {
-        "prefix": "doc-comment",
-        "body": "$LINE_COMMENT$LINE_COMMENT\n$LINE_COMMENT Description:\n$LINE_COMMENT\t${1:Write brief description}\n$LINE_COMMENT\n$LINE_COMMENT Params:\n$LINE_COMMENT\t${2:param_name}: ${3:description}\n$LINE_COMMENT\n$LINE_COMMENT$LINE_COMMENT",
-        "description": "c3p Document style"
-    },
-    "add": {
-        "prefix": "add",
-        "body": "#add <${1:path}>\n",
-        "description": "Add statement"
-    },
     "if": {
         "prefix": "if",
         "body": "if (${1:condition})\n\t",
@@ -24,11 +14,6 @@
         "body": "for (${1:varname} : ${2:type}, ${3:condition}, ${4:action})\n\t",
         "description": "For statement"
     },
-    "switch": {
-        "prefix": "switch",
-        "body": "switch (${1:value})\n\t",
-        "description": "Switch statement"
-    },
     "call": {
         "prefix": "call",
         "body": "call ${1:name} ",
@@ -43,16 +28,6 @@
         "prefix": "proc",
         "body": "proc ${1:name} ()\n\t",
         "description": "Procedures without hide"
-    },
-    "hide-func": {
-        "prefix": "hide func",
-        "body": "hide func ${1:name} : ${2:type} ()\n\t",
-        "description": "Functions with hide"
-    },
-    "hide-proc": {
-        "prefix": "hide proc",
-        "body": "hide proc ${1:name} ()\n\t",
-        "description": "Procedures with/without hide"
     },
     "main": {
         "prefix": "main",

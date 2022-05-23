@@ -14,12 +14,12 @@
 
   #include "c3pbison.tab.h"
 
-  #include "../../include/arrcopy.h"
-  #include "../../include/symt.h"
-  #include "../../include/symt_cons.h"
-  #include "../../include/symt_var.h"
-  #include "../../include/symt_rout.h"
-  #include "../../include/symt_node.h"
+  #include "include/arrcopy.h"
+  #include "include/symt.h"
+  #include "include/symt_cons.h"
+  #include "include/symt_var.h"
+  #include "include/symt_rout.h"
+  #include "include/symt_node.h"
 
   #include <stdio.h>
   #include <stdlib.h>
@@ -39,6 +39,8 @@ digit           [0-9]
 word            {letter}|{digit}|_
 char_id 		{letter}|_
 identifier      {char_id}{word}+|{letter}
+word_path		{word}|\.
+path			{word_path}+(\/{word_path}+)*
 
 char_type       c
 str_type        str
@@ -99,14 +101,14 @@ call                                            { return CALL; }
 
 \".*\"                                          { yylval.string_t = strcopy(yytext); return STRING; }
 \'.?\'                                          { yylval.char_t = yytext[1]; return CHAR; }
-\-?{digit}+                                     { yylval.integer_t = get_int(strdup(yytext)); return INTEGER; }
-\-?{digit}*\.{digit}+                           { yylval.double_t =  get_double(strdup(yytext)); return DOUBLE; }
+\-?{digit}+                                     { yylval.integer_t = get_int(strcopy(yytext)); return INTEGER; }
+\-?{digit}*\.{digit}+                           { yylval.double_t =  get_double(strcopy(yytext)); return DOUBLE; }
 "T"                                             { yylval.bool_t = 1; return T; }
 "F"                                             { yylval.bool_t = 0; return F; }
 
-{identifier}                                    { yylval.name_t = strdup(yytext); return IDENTIFIER; }
+{identifier}                                    { yylval.name_t = strcopy(yytext); return IDENTIFIER; }
 
-\<{identifier}(\.{identifier})*\>               { return PATH_ADD_LIBRARY; }
+\<{path}\>               						{yylval.name_t = strcopy(yytext); return PATH_ADD_LIBRARY; }
 
 \n                                              { num_lines++; return EOL; }
 {comment}                                       { /* ignore comments */ }

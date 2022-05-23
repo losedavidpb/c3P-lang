@@ -19,7 +19,7 @@
 #	losedavidpb (https://github.com/losedavidpb)
 
 test_path=../../test/symtab
-include_path=../../include
+include_path=include
 ifndef src
 	src=$(test_path)/*.c3p
 endif
@@ -44,7 +44,7 @@ execute: c3psymt.exe c3pbison.tab.c c3pbison.tab.h lex.yy.c
 	./c3psymt.exe $(src)
 
 clean:
-	#rm -f c3pbison.tab.c 2>/dev/null
-#	rm -f c3pbison.tab.h 2>/dev/null
-#	rm -f lex.yy.c 2>/dev/null
-#	rm -f c3psymt.exe 2>/dev/null
+	rm -f c3pbison.tab.c 2>/dev/null
+	rm -f c3pbison.tab.h 2>/dev/null
+	rm -f lex.yy.c 2>/dev/null
+	rm -f c3psymt.exe 2>/dev/null
