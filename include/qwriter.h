@@ -81,7 +81,9 @@ void qw_write_call_return(FILE *obj, symt_label_t rout_label, symt_label_t label
 void qw_write_condition(FILE *obj, symt_label_t label);
 
 /* Write show function located at base library */
-void qw_write_show(FILE *obj, symt_label_t label, symt_cons_t type, int q_direction, symt_value_t value, bool show_ln);
+void qw_write_show_value(FILE *obj, symt_label_t label, symt_cons_t type, int q_direction, symt_value_t value, bool show_ln);
+
+void qw_write_show_array_value(FILE *obj, symt_label_t label, symt_cons_t type, int q_direction, bool show_ln);
 
 /* Write the declaration of an array */
 int qw_write_array(FILE *obj, symt_cons_t type, int q_direction, size_t array_length, size_t section_label);
