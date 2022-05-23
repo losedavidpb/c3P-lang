@@ -30,7 +30,7 @@ symt_stack *symt_new_stack()
 	return stack;
 }
 
-symt_stack *symt_new_stack_elem(symt_name_t name, symt_value_t value, symt_var_t type, int q_direction, symt_stack* next)
+symt_stack *symt_new_stack_elem(symt_name_t name, symt_value_t value, symt_cons_t type, int q_direction, symt_stack* next)
 {
 	symt_stack *stack = symt_new_stack();
 	stack->name = name;
