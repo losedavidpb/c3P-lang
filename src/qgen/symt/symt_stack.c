@@ -17,10 +17,10 @@
  *	ISO C99 Standard: Stack implementation
  */
 
-#include "../../../include/symt_stack.h"
+#include "../include/symt_stack.h"
 
-#include "../../../include/memlib.h"
-#include "../../../include/assertb.h"
+#include "../include/memlib.h"
+#include "../include/assertb.h"
 
 symt_stack *symt_new_stack()
 {

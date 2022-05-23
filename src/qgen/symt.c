@@ -17,16 +17,16 @@
  *	ISO C99 Standard: Symbol table implementation
  */
 
-#include "../../include/symt.h"
+#include "include/symt.h"
 
-#include "../../include/assertb.h"
-#include "../../include/arrcopy.h"
-#include "../../include/memlib.h"
-#include "../../include/symt_type.h"
-#include "../../include/symt_cons.h"
-#include "../../include/symt_rout.h"
-#include "../../include/symt_var.h"
-#include "../../include/symt_node.h"
+#include "include/assertb.h"
+#include "include/arrcopy.h"
+#include "include/memlib.h"
+#include "include/symt_type.h"
+#include "include/symt_cons.h"
+#include "include/symt_rout.h"
+#include "include/symt_var.h"
+#include "include/symt_node.h"
 #include <string.h>
 
 symt_tab *symt_new()

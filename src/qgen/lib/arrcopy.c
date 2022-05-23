@@ -17,10 +17,10 @@
  *	ISO C99 Standard: Array copy implementation
  */
 
-#include "../../../include/arrcopy.h"
+#include "../include/arrcopy.h"
 
-#include "../../../include/memlib.h"
-#include "../../../include/assertb.h"
+#include "../include/memlib.h"
+#include "../include/assertb.h"
 #include <string.h>
 #include <stdbool.h>
 

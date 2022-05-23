@@ -14,7 +14,7 @@
 #
 
 test_path=../../test/symtab
-include_path=../../include
+include_path=include
 
 all:
 	make -s clean_start

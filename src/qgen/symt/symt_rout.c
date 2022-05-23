@@ -17,12 +17,12 @@
  *	ISO C99 Standard: Routine implementation for symt
  */
 
-#include "../../../include/symt_rout.h"
+#include "../include/symt_rout.h"
 
-#include "../../../include/memlib.h"
-#include "../../../include/arrcopy.h"
-#include "../../../include/symt_type.h"
-#include "../../../include/symt_node.h"
+#include "../include/memlib.h"
+#include "../include/arrcopy.h"
+#include "../include/symt_type.h"
+#include "../include/symt_node.h"
 
 symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_label_t label)
 {
