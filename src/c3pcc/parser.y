@@ -1222,7 +1222,7 @@ int main(int argc, char *argv[])
 {
 	fr_open_file("c3pc");
 
-	assertp(argc == 2, "invalid number of parameters");
+	assertp(argc == 2, "invalid number of parametersa");
 	assertf(access(argv[1], F_OK) == 0, "%s does not exist", argv[1]);
 	assertf(ends_with(argv[1], ".c3p", 3) == 0, "%s is not a C3P file", argv[1]);
 

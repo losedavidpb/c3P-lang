@@ -39,3 +39,6 @@ document/spanish/.tmp
 IQ-cpp.q.c
 q_test_*.q.c
 *.q.c
+
+# Testing C3p
+example.c3p

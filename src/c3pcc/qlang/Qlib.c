@@ -1,6 +1,6 @@
 // Qlib.c 3.7.3     Q LIBRARY
 
-#include "../../../include/Q.h"
+#include "../include/Q.h"
 
 /* Re-invert the order of Q strings in order to have
    compatibility to C libraries */

@@ -42,7 +42,7 @@ clean_trash:
 
 prepare_q_assembly:
 	gcc -no-pie -o iq $(src_path)/qlang/IQ.o $(src_path)/qlang/Qlib.c 2>/dev/null
-	cp include/Qlib.h . 2>/dev/null
+	cp $(src_path)/include/Qlib.h . 2>/dev/null
 
 prepare_bison:
 	bison -d $(src_path)/parser.y 2>/dev/null
@@ -51,7 +51,7 @@ prepare_bison:
 
 prepare_flex:
 	flex $(src_path)/scanner.l 2>/dev/null
-	mv *.yy.c $(src_path)/*.yy.c 2>/dev/null
+	mv *.yy.c $(src_path) 2>/dev/null
 
 prepare_compiler:
-	gcc -o c3pc $(includes) $(sources) -lfl -lm
+	gcc -o c3pc $(includes) $(sources) -lfl -lm 2>/dev/null
