@@ -14,12 +14,12 @@
 
   #include "c3pbison.tab.h"
 
-  #include "../../include/arrcopy.h"
-  #include "../../include/symt.h"
-  #include "../../include/symt_cons.h"
-  #include "../../include/symt_var.h"
-  #include "../../include/symt_rout.h"
-  #include "../../include/symt_node.h"
+  #include "include/arrcopy.h"
+  #include "include/symt.h"
+  #include "include/symt_cons.h"
+  #include "include/symt_var.h"
+  #include "include/symt_rout.h"
+  #include "include/symt_node.h"
 
   #include <stdio.h>
   #include <stdlib.h>

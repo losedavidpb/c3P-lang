@@ -1,8 +1,6 @@
 \subsection{hello\_world.c3p}
 
 \begin{verbatim}
-#add <c3p/base>
-
 proc main()
     call showln "Hello, world!"
 endproc
@@ -10,23 +8,21 @@ endproc
 
 \subsection{mean\_age.c3p}
 \begin{verbatim}
-#add <c3p/base>
-
 proc main()
     i32 : total_ages
     i16 : age_mean
 
     total_ages = call input "Inserta el número de edades ", "%i"
 
-    for (i : i32 = 0, i < total_ages, i = i + 1)
-	stri : str = call str i
-        i32 : age = call input "Inserta la edad " + stri, "%i"
+    for (i : i32 = 0, i = i + 1, i < total_ages)
+        i32 : age = call input "Inserta la edad "
         age_mean = age_mean + age
     endfor
 
     age_mean = age_mean / total_ages
     age_str_mean = call str age_mean
-    call showln "La edad media es: + age_str_mean
+    call show "La edad media es:
+    call showln age_str_mean
 endproc
 \end{verbatim}
 
@@ -54,9 +50,13 @@ proc main()
     n20_str : str = call str n20
     n30_str : str = call str n30
     n40_str : str = call str n40
-    call showln "fib(10) = " + n10_str
-    call showln "fib(20) = " + n20_str
-    call showln "fib(30) = " + n30_str
-    call showln "fib(40) = " + n40_str
+    call show "fib(10) = "
+    call showln n10_str
+    call show "fib(20) = " + n20_str
+    call showln n20_str
+    call show "fib(30) = " + n30_str
+    call showln n30_str
+    call show "fib(40) = " + n40_str
+    call showln n40_str
 endproc
 \end{verbatim}

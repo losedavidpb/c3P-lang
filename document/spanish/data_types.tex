@@ -53,7 +53,6 @@ letras, u otros símbolos, a excepción de los caracteres especiales.
 
 \begin{itemize}
     \item \textbf{c}: puede contener un valor que cumple '([a-zA-Z0-9\+\-\_\&\%...]+)*'
-    \item \textbf{str}: puede contener una cadena de caracteres.
 \end{itemize}
 
 \subsubsection{Tipos Lógicos}
@@ -110,11 +109,9 @@ mi_array[0] = 5
 
 \subsection{Tamaño de Contenedores y Cadena de caracteres}
 
-En \textbf{c3P} para obtener el tamaño de un contenedor o una cadena de caracteres existe la función «length».
+En \textbf{c3P} para obtener el tamaño de un contenedor existe la función «arrlen».
 
 \begin{verbatim}
 mi_array : i32[3] = {0, 1, 2}
-cadena : str = "ristra de caracteres"
-x : i32 = call length mi_array
-x : i32 = call length cadena
+x : i32 = call arrlen mi_array
 \end{verbatim}

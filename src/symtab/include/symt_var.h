@@ -1,22 +1,4 @@
-// symt_var.h -*- C -*-
-//
-// This file is part of the c3P language compiler. This project
-// is free software; you can redistribute it and/or modify it under
-// the terms of the GNU General Public License
-//
-// This project is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// If not, see <http://www.gnu.org/licenses/>.
-//
-
-/*
- *	ISO C99 Standard: Utilities to manage a local or global variable
- */
-
+/* Utilities to manage a local or global variable */
 #ifndef SYMT_VAR_H
 #define SYMT_VAR_H
 
@@ -38,10 +20,10 @@
 	(type == B? "b" : "undefined")))))))))
 
 /* Create a new variable symbol */
-symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, int q_direction);
+symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name,  symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, bool is_hide);
 
 /* Insert var symbol to a node */
-symt_node* symt_insert_var(symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level, int q_direction);
+symt_node* symt_insert_var(symt_name_t name, symt_name_t rout_name,  symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level);
 
 /* Check if passed constant could be assigned to the variable */
 void symt_can_assign(symt_var_t type, symt_cons *cons);
@@ -50,7 +32,7 @@ void symt_can_assign(symt_var_t type, symt_cons *cons);
 void symt_assign_var(symt_var *var, symt_cons *value);
 
 /* Assign value of passed constant at variable index whether it is an array */
-void symt_assign_var_at(symt_var *var, symt_cons *value, size_t index);
+void symt_assign_var_at(symt_var *, symt_cons *value, size_t index);
 
 /* Get the constant type for passed variable type */
 symt_cons_t symt_get_type_data(symt_var_t type);

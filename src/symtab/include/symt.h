@@ -1,21 +1,16 @@
-// symt.h -*- C -*-
-//
-// This file is part of the c3P language compiler. This project
-// is free software; you can redistribute it and/or modify it under
-// the terms of the GNU General Public License
-//
-// This project is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// If not, see <http://www.gnu.org/licenses/>.
-//
+/* ---------------------------------------------------------------
 
-/*
- *	ISO C99 Standard: Symbol table
- */
+   symt.h        Symbol table for c3P language
+
+   This library provides the definition of a symbol table wich is
+   defined as a stack that stores all the avaiable symbols of c3P
+   programming language.
+
+   Authors      losedavidpb (https://github.com/losedavidpb)
+                HectorMartinAlvarez (https://github.com/HectorMartinAlvarez)
+
+   --------------------------------------------------------------- */
+
 #ifndef SYMT_H
 #define SYMT_H
 
@@ -42,19 +37,20 @@ symt_node *symt_search_by_name(symt_tab *tab, symt_name_t name, symt_id_t id, sy
 symt_tab* symt_push(symt_tab *tab, symt_node *node);
 
 /* Insert var symbol to the symbol table */
-symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level, int q_direction);
+symt_tab* symt_insert_tab_var(symt_tab *tab, symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_hide, bool is_param, symt_level_t level);
 
 /* Insert const symbol to the symbol table */
 symt_tab* symt_insert_tab_cons(symt_tab *tab, symt_cons_t type, symt_value_t value);
 
-/* Insert const symbol to the symbol table with Q direction */
-symt_tab* symt_insert_tab_cons_q(symt_tab *tab, symt_cons_t type, symt_value_t value, int q_direction);
-
 /* Insert routine symbol to the symbol table */
-symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level, symt_label_t label);
+symt_tab* symt_insert_tab_rout(symt_tab *tab, symt_id_t id, symt_name_t name, symt_var_t type, bool is_hide, symt_level_t level);
 
 /* Finish a block statement */
-void symt_end_block(symt_tab *tab, symt_level_t level);
+void symt_end_block(symt_tab *tab);
+
+/* Include all the elements of source at dest,
+   deleting private instances at stack */
+symt_tab* symt_merge(symt_tab *src, symt_tab *dest);
 
 /* Clean from memory passed symbol table
    if has been created before */

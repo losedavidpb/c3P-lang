@@ -1,8 +1,7 @@
-#include "../../../include/memlib.h"
+#include "../include/memlib.h"
 
-#include "../../../include/assertb.h"
+#include "../include/assertb.h"
 #include <stdlib.h>
-
 
 void *ml_malloc(size_t __size)
 {

@@ -1,12 +1,9 @@
-#add <c3p.base>
-#add <c3p.math>
-
 func fibonacci(n : i32)
     if (n > 1)
         f1 : i32 = call fibonacci n - 1
         f2 : i32 = call fibonacci n - 2
         ret f1 + f2
     endif
-    
+
     ret n
 endfunc

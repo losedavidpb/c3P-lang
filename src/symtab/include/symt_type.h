@@ -1,22 +1,4 @@
-// symt_type.h -*- C -*-
-//
-// This file is part of the c3P language compiler. This project
-// is free software; you can redistribute it and/or modify it under
-// the terms of the GNU General Public License
-//
-// This project is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// If not, see <http://www.gnu.org/licenses/>.
-//
-
-/*
- *	ISO C99 Standard: Types for symt
- */
-
+/* Basic symbols and types used by symt to store tokens */
 #ifndef SYMT_TYPE_H
 #define SYMT_TYPE_H
 
@@ -33,9 +15,6 @@
 // to first element which is defined at stack
 #define SYMT_ROOT_ID -1
 
-// Null value for enumerators
-#define SYMT_NULL -1
-
 /* Optional identifier for symbols used to
    distinguish instances with the same id */
 typedef char * symt_name_t;
@@ -45,10 +24,6 @@ typedef char * symt_name_t;
    of nodes, except constants, would start from 0 to a
    specific natural number. */
 typedef int symt_level_t;
-
-/* Type for labels that would be used at routines
-   to know its position at the Q file */
-typedef int symt_label_t;
 
 /* Available symbols for symbol tables which
    which will be used as identifiers */
@@ -75,7 +50,7 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 #define I8_MAX 127
 #define I16_MIN -32768
 #define I16_MAX 32768
-#define I32_MIN -214483648
+#define I32_MIN -214.483648
 #define I32_MAX 2147483647
 #define I64_MIN -9223372036854775808
 #define I64_MAX 9223372036854775807
@@ -97,12 +72,13 @@ typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_va
 /* Type for local and global variables */
 typedef struct symt_var
 {
-    symt_name_t name, rout_name;
+    symt_name_t name;
+	symt_name_t rout_name;
     symt_var_t type;
     symt_value_t value;
-    bool is_array, is_param;
+    bool is_hide, is_array;
+	bool is_param;
     size_t array_length;
-	int q_direction;
 } symt_var;
 
 /* Type for constants */
@@ -110,7 +86,6 @@ typedef struct symt_cons
 {
     symt_cons_t type;
     symt_value_t value;
-	int q_direction;
 } symt_cons;
 
 /* Type for functions and procedures */
@@ -118,7 +93,7 @@ typedef struct symt_rout
 {
     symt_name_t name;
     symt_var_t type;
-	symt_label_t label;
+    bool is_hide;
 } symt_rout;
 
 /* Type for a node which is are at a symbol table */

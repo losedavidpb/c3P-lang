@@ -19,14 +19,14 @@
 	#include <unistd.h>
 	#include <stdio.h>
 
-	#include "../../include/symt.h"
-	#include "../../include/symt_cons.h"
-	#include "../../include/symt_var.h"
-  	#include "../../include/symt_rout.h"
-  	#include "../../include/symt_node.h"
-	#include "../../include/assertb.h"
-	#include "../../include/arrcopy.h"
-	#include "../../include/memlib.h"
+	#include "include/symt.h"
+	#include "include/symt_cons.h"
+	#include "include/symt_var.h"
+  	#include "include/symt_rout.h"
+  	#include "include/symt_node.h"
+	#include "include/assertb.h"
+	#include "include/arrcopy.h"
+	#include "include/memlib.h"
 
 	extern int l_error;	  			// Specify if lexical errors were detected
 	extern int num_lines; 			// Number of lines processed

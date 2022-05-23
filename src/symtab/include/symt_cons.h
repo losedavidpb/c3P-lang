@@ -1,22 +1,4 @@
-// symt_cons.h -*- C -*-
-//
-// This file is part of the c3P language compiler. This project
-// is free software; you can redistribute it and/or modify it under
-// the terms of the GNU General Public License
-//
-// This project is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// If not, see <http://www.gnu.org/licenses/>.
-//
-
-/*
- *	ISO C99 Standard: Utilities to manage a constant at symt
- */
-
+/* Utilities to manage a constant */
 #ifndef SYMT_CONS_H
 #define SYMT_CONS_H
 
@@ -28,15 +10,14 @@
 #define symt_strget_constype(type)					\
 	(type == CONS_INTEGER? "integer" :				\
 	(type == CONS_DOUBLE? "double" :				\
-	(type == CONS_BOOL? "bool" :					\
 	(type == CONS_STR? "string" :					\
-	(type == CONS_CHAR? "char" : "undefined")))))
+	(type == CONS_CHAR? "char" : "undefined"))))
 
 /* Create a new constant symbol */
-symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value, int q_direction);
+symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value);
 
 /* Insert const symbol to a symbol node */
-symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value, int q_direction);
+symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value);
 
 /* Assign value at passed constant */
 void symt_assign_cons(symt_cons *var, symt_value_t value);

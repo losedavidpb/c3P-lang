@@ -17,6 +17,11 @@ For more details about the language, see
 * Control structures such as if, if-elseif-else, for, and while
 * Execution always starts in main
 
+## Install
+
+See [INSTALL](https://github.com/losedavidpb/c3p-lang/blob/main/INSTALL) to know
+how to prepare c3p compiler on your current machine.
+
 ## Contributors
 
 * David Parreño Barbuzano: https://github.com/losedavidpb
