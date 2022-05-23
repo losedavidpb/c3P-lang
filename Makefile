@@ -13,7 +13,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 #
 
-root_path=../../
+root_path=.
 
 src_path=$(root_path)/src/c3pcc
 include_path=$(src_path)/include
@@ -46,9 +46,12 @@ prepare_q_assembly:
 
 prepare_bison:
 	bison -d $(src_path)/parser.y 2>/dev/null
+	mv *.tab.c $(src_path)/ 2>/dev/null
+	mv *.tab.h $(src_path)/ 2>/dev/null
 
 prepare_flex:
 	flex $(src_path)/scanner.l 2>/dev/null
+	mv *.yy.c $(src_path)/*.yy.c 2>/dev/null
 
 prepare_compiler:
-	gcc -o c3pc $(includes) $(sources) -lfl -lm 2>/dev/null
+	gcc -o c3pc $(includes) $(sources) -lfl -lm

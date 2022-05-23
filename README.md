@@ -13,10 +13,8 @@ For more details about the language, see
 
 * Imperative high-level language
 * Strongly typed language
-* Public, private, and read-only access modifiers
-* Numeric variables, booleans, character, and string
-* Possibility to import libraries
-* Control structures such as if, if-elseif-else, for, while, and switch
+* Numeric variables, booleans, character
+* Control structures such as if, if-elseif-else, for, and while
 * Execution always starts in main
 
 ## Contributors
