@@ -1,5 +1,5 @@
 %{
-	// parser.y -*- C -*-
+	// parser.y
 	//
 	// This file is part of the c3P language compiler. This project
 	// is free software; you can redistribute it and/or modify it under
@@ -15,8 +15,8 @@
 	//
 
 	/*
-	*	ISO C99 Standard: Syntax analyzer for c3p language
-	*/
+	 * Syntax analyzer for c3p language
+	 */
 
 	#include <stdio.h>
 	#include <string.h>
