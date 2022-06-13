@@ -123,8 +123,8 @@
 *.tex linguist-detectable=false
 
 # Set Bison and Flex as Yacc
-*.y linguist-language=Yacc
-*.l linguist-language=Lex
+*.y linguist-language=Bison linguist-detectable=true
+*.l linguist-language=Lex linguist-detectable=true
 
 # Set LF as the default end of line format
 # instead of CRLF Windows EOL
