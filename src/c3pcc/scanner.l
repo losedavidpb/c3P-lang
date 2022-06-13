@@ -20,18 +20,15 @@
 %{
   #include "parser.tab.h"
 
+  #include <ctype.h>
   #include "include/arrcopy.h"
-  #include "include/symt.h"
-  #include "include/symt_cons.h"
-  #include "include/symt_var.h"
-  #include "include/symt_rout.h"
-  #include "include/symt_node.h"
   #include "include/assertb.h"
   #include "include/f_reader.h"
 
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <ctype.h>
+  // Uncomment this to enable development mode
+  //#ifndef DEV_MODE
+  //#define DEV_MODE
+  //#endif
 
   // Get double value for passed string
   double get_double(const char *str);
@@ -100,7 +97,6 @@ showln                                          { return SHOWLN; }
 [():,\[\]{}]                                    { return yytext[0]; }
 [\=\>\<]                                        { return yytext[0]; }
 
-\".*\"                                          { yylval.string_t = strcopy(yytext); return STRING; }
 \'.?\'                                          { yylval.char_t = yytext[1]; return CHAR; }
 \-?{digit}+                                     { yylval.integer_t = get_int(strcopy(yytext)); return INTEGER; }
 \-?{digit}*\.{digit}+                           { yylval.double_t =  get_double(strcopy(yytext)); return DOUBLE; }
@@ -113,7 +109,11 @@ showln                                          { return SHOWLN; }
 {comment}                                       { /* ignore comments */ }
 [[:space:]]|[[:space:]]+;                       { /* ignore spaces */ }
 
-.                                               { show_errorf("lexical error: '%c'", yytext[0]); }
+.                                               {
+													#ifndef DEV_MODE
+														show_errorf("lexical error: '%c'", yytext[0]);
+													#endif
+												}
 <<EOF>>                                         { return EOF; }
 %%
 

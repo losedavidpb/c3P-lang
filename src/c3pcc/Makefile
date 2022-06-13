@@ -51,4 +51,4 @@ prepare_flex:
 	flex $(src_path)/scanner.l 2>/dev/null
 
 prepare_compiler:
-	gcc -o c3pc $(includes) $(sources) -lfl -lm 2>/dev/null
+	gcc -g -o c3pc $(includes) $(sources) -lfl -lm

@@ -13,7 +13,6 @@ x : i32 = 10
 y : i32 = 20
 z : i32 = x + y
 z = z + x * 2 / 10
-call show "z = "
 call showln z
 
 ? Declaración de expresiones incorrecta
@@ -27,7 +26,8 @@ x : i32 = 10, y = 10
 
 \subsection{Sentencia if}
 
-En \textbf{c3P} se puede utilizar la sentencia «if» para controlar el flujo del programa mediante una operación condicional.
+En \textbf{c3P} se puede utilizar la sentencia «if» para controlar el flujo
+del programa mediante una operación condicional.
 
 \begin{verbatim}
 if (test)
@@ -37,19 +37,17 @@ else
 endif
 \end{verbatim}
 
-Si «test» se evalúa como verdadera, entonces se ejecutará «codigo1» mientras que «codigo2» no lo hará. Si el resultado de la prueba es falso, tendrá lugar el efecto contrario «codigo2» se ejecutará mientras «codigo1» no lo hará. La cláusula «else» es opcional.
+Si «test» se evalúa como verdadera, entonces se ejecutará «codigo1» mientras que «codigo2» no lo hará.
+Si el resultado de la prueba es falso, tendrá lugar el efecto contrario «codigo2» se ejecutará mientras
+«codigo1» no lo hará. La cláusula «else» es opcional.
 
 Es posible emplear varias sentencias «if» para comprobar múltiples condiciones, como se muestra en el ejemplo:
 
 \begin{verbatim}
 if (x == 1)
-  call show  ("x es 1")
 else if (x == 2)
-  call show  ("x es 2")
 else if (x == 3)
-  call show  ("x es 3")
 else
-  call show  ("x es otra cosa")
 endif
 \end{verbatim}
 
@@ -70,10 +68,10 @@ endwhile
 \subsection{Sentencia for}
 El bucle con la declaración «for» es similar al «while», pero con la característica de que
 inicializa una variable, que en cada iteración varía, hasta que se cumpla una condición.
-La codificación del bucle se hace primero inicializando la variable, luego estableciendo
-la condición de parada, y después indicando la expresión que se va a ejecutar para cambiar
-la variable tras la iteración. Cada parte del «for» está separado por comas, encerrado en
-paréntesis, y el cuerpo del bucle termina en «endfor».
+La codificación del bucle se hace primero inicializando la variable, luego indicando la
+expresión que se va a ejecutar para cambiar la variable tras la iteración, y después la
+condición de parada. Cada parte del «for» está separado por comas, encerrado en paréntesis,
+y el cuerpo del bucle termina en «endfor».
 
 \begin{verbatim}
 for (x : i32 = 0, x = x + 1, x < 10)
@@ -86,7 +84,7 @@ endfor
 
 La declaración break se utiliza para terminar la ejecución de un bucle.
 Cabe destacar que esta sentencia afecta al bucle más interno en el que esté dentro.
-A continuación se muestra un ejemplO:
+A continuación se muestra un ejemplo:
 
 \begin{verbatim}
 for (x : i32 = 1, x = x + 1, x <= 10)
@@ -116,7 +114,8 @@ for (x : i32 = 0, x = x + 1, x < 100)
 endfor
 \end{verbatim}
 
-Si pones una sentencia «continue» dentro de un bucle que a su vez está dentro de un bucle, entonces sólo afecta al bucle más interno.
+Si pones una sentencia «continue» dentro de un bucle que a su vez
+está dentro de un bucle, entonces sólo afectará al bucle más interno.
 
 \subsubsection{Sentencia ret}
 

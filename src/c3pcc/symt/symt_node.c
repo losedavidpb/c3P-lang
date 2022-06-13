@@ -34,13 +34,13 @@ symt_node* symt_new_node()
 {
 	symt_tab *tab = NULL;
 	tab = (symt_tab *)(ml_malloc(sizeof(symt_tab)));
-	tab->id = SYMT_ROOT_ID;
+	tab->id = SYMT_NULL;
 	return tab;
 }
 
 bool symt_is_valid_id(symt_id_t id)
 {
-	assertp(id != SYMT_ROOT_ID, "passed indentifier is invalid");
+	assertp(id != SYMT_NULL, "passed indentifier is invalid");
 	char *str_id = symt_strget_id(id);
 	return strcmp(str_id, "undefined") != 0;
 }
@@ -88,6 +88,7 @@ symt_cons_t symt_get_type_value_from_node(symt_node *node)
 	else return node->cons->type;
 }
 
+#ifdef DEV_MODE
 void symt_printf_value(symt_node* node)
 {
 	assertp(node != NULL, "node have not been defined");
@@ -124,22 +125,19 @@ void symt_printf_value(symt_node* node)
 			{
 				case CONS_INTEGER: printf(" | value = %d", *(int*)value); 		break;
 				case CONS_DOUBLE: printf(" | value = %lf", *(double*)value); 	break;
-				case CONS_CHAR: printf(" | value = %c", *(char*)value); 			break;
-				case CONS_STR: printf(" | value = %s", (char*)value); 			break;
+				case CONS_CHAR: printf(" | value = %c", *(char*)value); 		break;
 				default: break;
 			}
 		}
 	} else printf(" | value = NULL");
 }
+#endif
 
 symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_elems)
 {
 	symt_value_t copy_value = NULL;
-	int *int_val = NULL;
-	bool *bool_val = NULL;
-	double *double_val = NULL;
-	char *char_val = NULL;
-	char _char_val_;
+	int *int_val = NULL; bool *bool_val = NULL;
+	double *double_val = NULL; char *char_val = NULL;
 
 	if (value != NULL)
 	{
@@ -149,12 +147,12 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 			case CONS_BOOL: copy_value = boolcopy((bool *)value, num_elems + 1); 		break;
 			case CONS_DOUBLE: copy_value = doublecopy((double *)value, num_elems + 1); 	break;
 			case CONS_CHAR: copy_value = (char*)intcopy((int *)value, num_elems + 1);	break;
-			case CONS_STR: copy_value = strcopy((char *)value);							break;
 			default: break;
 		}
 
 		// Special restrictions for characters
-		if (type == CONS_CHAR) assertp(*((char*)copy_value) != '\'', "' is a special character");
+		if (type == CONS_CHAR)
+			assertp(*((char*)copy_value) != '\'', "' is a special character");
 	}
 	else
 	{
@@ -180,7 +178,7 @@ symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_el
 				copy_value = double_val;
 			break;
 
-			case CONS_CHAR: case CONS_STR:
+			case CONS_CHAR:
 				char_val = (char*)(ml_malloc(num_elems * sizeof(char)));
 				for (int i = 0; i < num_elems; i++) *(char_val + i) = ' ';
 				copy_value = char_val;
@@ -204,7 +202,7 @@ void symt_delete_node(symt_node *node)
 		if (iter->id == CONSTANT) symt_delete_cons(iter->cons); iter->cons = NULL;
 		if (iter->id == PROCEDURE || iter->id == FUNCTION) symt_delete_rout(iter->rout); iter->rout = NULL;
 
-		iter->id = SYMT_ROOT_ID;
+		iter->id = SYMT_NULL;
 		prev = iter; iter = iter->next_node;
 		prev->next_node = NULL;
 		ml_free(prev); prev = NULL;
@@ -220,11 +218,17 @@ symt_node *symt_copy_node(symt_node *node)
 	if (node != NULL)
 	{
 		copy_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
+		copy_node->cons = NULL; copy_node->var = NULL; copy_node->rout = NULL;
 		copy_node->id = node->id;
 		copy_node->level = node->level;
-		copy_node->cons = symt_copy_cons(node->cons);
-		copy_node->var = symt_copy_var(node->var);
-		copy_node->rout = symt_copy_rout(node->rout);
+
+		switch (node->id)
+		{
+			case CONSTANT: copy_node->cons = symt_copy_cons(node->cons); 				 break;
+			case VAR: copy_node->var = symt_copy_var(node->var);	 					 break;
+			case PROCEDURE: case FUNCTION: copy_node->rout = symt_copy_rout(node->rout); break;
+		}
+
 		copy_node->next_node = symt_copy_node(node->next_node);
 	}
 

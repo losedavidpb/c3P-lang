@@ -29,14 +29,13 @@
 	(type == CONS_INTEGER? "integer" :				\
 	(type == CONS_DOUBLE? "double" :				\
 	(type == CONS_BOOL? "bool" :					\
-	(type == CONS_STR? "string" :					\
-	(type == CONS_CHAR? "char" : "undefined")))))
+	(type == CONS_CHAR? "char" : "undefined"))))
 
 /* Create a new constant symbol */
-symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value, symt_qdir_t q_direction);
+symt_cons *symt_new_cons(symt_cons_t type, symt_value_t value, symt_natural_t q_dir, symt_natural_t offset, bool is_param);
 
 /* Insert const symbol to a symbol node */
-symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value, symt_qdir_t q_direction);
+symt_node* symt_insert_cons(symt_cons_t type, symt_value_t value, symt_natural_t q_dir, symt_natural_t offset, bool is_param);
 
 /* Assign value at passed constant */
 void symt_assign_cons(symt_cons *var, symt_value_t value);

@@ -34,14 +34,20 @@
 	(type == F32? "f32" :						\
 	(type == F64? "f64" :						\
 	(type == C? "c" :							\
-	(type == STR? "str" :						\
-	(type == B? "b" : "undefined")))))))))
+	(type == B? "b" : "undefined"))))))))
 
 /* Create a new variable symbol */
-symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_qdir_t q_direction);
+symt_var* symt_new_var(
+	symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array,
+	symt_natural_t arrlen, symt_value_t value, bool is_param, symt_natural_t q_dir, size_t offset
+);
 
-/* Insert var symbol to a node */
-symt_node* symt_insert_var(symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level, symt_qdir_t q_direction);
+/* Insert variable symbol to a node */
+symt_node* symt_insert_var(
+	symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array,
+	symt_natural_t arrlen, symt_value_t value, bool is_param, symt_natural_t level,
+	symt_natural_t q_dir, symt_natural_t offset
+);
 
 /* Check if passed constant could be assigned to the variable */
 void symt_can_assign(symt_var_t type, symt_cons *cons);
@@ -50,7 +56,7 @@ void symt_can_assign(symt_var_t type, symt_cons *cons);
 void symt_assign_var(symt_var *var, symt_cons *value);
 
 /* Assign value of passed constant at variable index whether it is an array */
-void symt_assign_var_at(symt_var *var, symt_cons *value, size_t index);
+void symt_assign_var_at(symt_var *var, symt_cons *value, symt_natural_t index);
 
 /* Get the constant type for passed variable type */
 symt_cons_t symt_get_type_data(symt_var_t type);

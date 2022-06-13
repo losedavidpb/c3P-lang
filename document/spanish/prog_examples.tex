@@ -2,7 +2,11 @@
 
 \begin{verbatim}
 proc main()
-    call showln "Hello, world!"
+    message : c[13] = {'H', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd', '!'}
+
+    for (i : i32 = -1, i = i + 1, i < 13)
+    	call show message[i]
+    endfor
 endproc
 \end{verbatim}
 
@@ -10,17 +14,16 @@ endproc
 \begin{verbatim}
 proc main()
     i32 : total_ages
-    i16 : age_mean
+    f16 : age_mean
 
-    total_ages = call input "Inserta el número de edades ", "%i"
+    total_ages = 4
 
-    for (i : i32 = 0, i = i + 1, i < total_ages)
-        i32 : age = call input "Inserta la edad "
+    for (i : f16 = 0, i = i + 1, i < total_ages)
+        age : f16 = i + 10
         age_mean = age_mean + age
     endfor
 
     age_mean = age_mean / total_ages
-    call show "La edad media es:
     call showln age_mean
 endproc
 \end{verbatim}
@@ -28,14 +31,16 @@ endproc
 \subsection{fibonacci.c3p}
 
 \begin{verbatim}
-func fibonacci(n : i32)
+func fibonacci : i32(n : i32)
+    res : i32 = n
+
     if (n > 1)
         f1 : i32 = call fibonacci n - 1
         f2 : i32 = call fibonacci n - 2
-        ret f1 + f2
+        res = f1 + f2
     endif
 
-    ret n
+    ret res
 endfunc
 
 proc main()
@@ -43,13 +48,9 @@ proc main()
     n20 : i32 = call fibonacci 20
     n30 : i32 = call fibonacci 30
     n40 : i32 = call fibonacci 40
-    call show "fib(10) = "
     call showln n10
-    call show "fib(20) = "
     call showln n20
-    call show "fib(30) = "
     call showln n30
-    call show "fib(40) = "
     call showln n40
 endproc
 \end{verbatim}
