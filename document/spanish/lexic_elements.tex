@@ -33,36 +33,34 @@ comprende a todos los enteros positivos y negativos.
 \subsubsection{Constantes de carácter}
 
 Las constantes de carácter comprenden a todos los caracteres imprimibles, excepto los
-caracteres de escape típicos en la mayoría de lenguajes de programación. Cabe mencionar
-que existe un tipo de datos especifico con el que definir una cadena de caracteres,
-que se representa delimitado en " ", mientras que definir un sólo carácter es  ''
+caracteres de escape típicos de la mayoría de lenguajes de programación. Cabe mencionar
+que en \textbf{c3p} se define una constante de cáracter delimitado en ''
 
 \subsubsection{Constantes de números reales}
 
 Las constantes de números reales son aquellas que representan a un número decimal o
-en coma flotante. La codificación de este tipo de constate consta de una secuencia
-de dígitos que conforman la parte entera del mundo, seguido de un punto decimal y
-una secuencia de dígitos que corresponden a la parte fraccionaria. Es importante
-mencionar que en \textbf{c3P} no se puede omitir en la declaración de la constante
-la parte fraccionaria, y tampoco se puede declarar número cuya parte decimal sea nula.
+en coma flotante. La codificación de este tipo de constante consta de una secuencia
+de dígitos que conforman la parte entera, seguido de un punto decimal y una secuencia
+de dígitos que corresponden a la parte fraccionaria. Es importante mencionar que en
+\textbf{c3P} no se puede omitir en la declaración de la constante la parte fraccionaria.
 
-\subsubsection{Constantes de valores booleanos}
+\subsubsection{Constantes de valores booleanas}
 
-Las constantes de valores booleanos son aquellas que pueden tener uno de sus
+Las constantes de valores booleanas son aquellas que pueden tener uno de sus
 dos estados posibles (verdadero o falso), y cumplen las reglas de la aritmética
 de Bool. En \textbf{c3P}, los booleanos no pueden transformarse a datos enteros,
-como ocurren en lenguajes tales como C.
+como ocurre en lenguajes tales como C.
 
 \subsection{Operadores}
 
 Un \textbf{operador} es una palabra especial que representa en el lenguaje una operación,
-que puede ser aritmética o lógica, y que afecta a uno o dos operandos.
+que puede ser de diferentes tipos, y que afecta a uno o dos operandos.
 
 \subsection{Separadores}
 
 Un \textbf{separador} es un carácter que se utiliza para separar las palabras especiales
 declaradas en un programa. En \textbf{c3P}, hay separadores que se emplean en la indexación,
-en la definición de un contenedor, en la declaración de una variable, entre otros. En la
+en la definición de un contenedor, en la declaración de una variable, entre otras. En la
 siguiente tabla se muestra cada separador y su uso en el lenguaje.
 
 \begin{table}[H]
@@ -73,27 +71,29 @@ siguiente tabla se muestra cada separador y su uso en el lenguaje.
          \hline
          \multirow{3}{*}{\centering{( )}} &
          - Llamada y declaración de funciones/procedimientos \par
-         - Declaración de condiciones lógicas en If, For, While, etc. \par
+         - Declaración de condiciones lógicas en if, for, while, etc. \par
          - Bloque de agrupamiento de expresiones aritméticas \\
          \hline
          \multirow{2}{*}{\centering{[ ]}} &
-         - Indexación de Contenedores y cadenas de caracteres \par
-         - Declaración de Contenedores de Elementos \\
+         - Indexación de contenedores \par
+         - Declaración de contenedores de elementos \\
          \hline
-         \multirow{1}{*}{\centering{\{ \}}}
-         & - Declaración de los Elementos de un Contenedor \\
+         \multirow{1}{*}{\centering{\{ \}}} &
+         - Declaración de los elementos de un contenedor \\
          \hline
-         \multirow{1}{*}{\centering{.}}
-         & - Separador de los números decimales \\
+         \multirow{1}{*}{\centering{.}} &
+         - Separador de los números decimales \\
          \hline
-         \multirow{1}{*}{\centering{:}}
-         & - Definición y declaración de variables \\
+         \multirow{2}{*}{\centering{:}} &
+         - Definición y declaración de variables \par
+	 - Definición del tipo de dato del retorno de una función \\
          \hline
-         \multirow{1}{*}{\centering{,}}
-         & - Separar parámetros, valores de un contenedor \\
+         \multirow{1}{*}{\centering{,}} &
+         - Separador para parámetros o valores de un contenedor \par
+	 - Separador de los elementos de un bucle for \\
          \hline
-         \multirow{1}{*}{\centering{SPACE}}
-          & - Carácter de espacio, de tabulación y nueva línea \\
+         \multirow{1}{*}{\centering{SPACE}} &
+         - Carácter de espacio, de tabulación y nueva línea \\
          \hline
     \end{tabular}
     \caption{Separadores disponibles}
@@ -102,7 +102,9 @@ siguiente tabla se muestra cada separador y su uso en el lenguaje.
 
 \subsection{Comentarios}
 
-Los comentarios en c3P se definen mediante «?»
+Los comentarios en c3P se definen mediante «?» y son
+para una sóla línea, lo que implica que no existen
+comentarios multilínea.
 
 \begin{verbatim}
 ? Esto es un comentario

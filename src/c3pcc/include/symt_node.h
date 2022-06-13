@@ -28,6 +28,11 @@
 	(id == PROCEDURE? "PROCEDURE" :					\
 	(id == CONSTANT? "CONSTANT" : "undefined"))))
 
+// Uncomment this to enable development mode
+//#ifndef DEV_MODE
+//#define DEV_MODE
+//#endif
+
 /* Create dynamically a new symbol node */
 symt_node* symt_new_node();
 
@@ -43,11 +48,13 @@ symt_value_t symt_get_value_from_node(symt_node *node);
 /* Get the primitive type for passed node */
 symt_cons_t symt_get_type_value_from_node(symt_node *node);
 
+#ifdef DEV_MODE
 /* Print value for passed node */
 void symt_printf_value(symt_node* node);
+#endif
 
 /* Copy passed value into a new reference */
-symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, size_t num_elems);
+symt_value_t symt_copy_value(symt_value_t value, symt_cons_t type, symt_natural_t num_elems);
 
 /* Clean from memory passed symbol node
    if has been created before */

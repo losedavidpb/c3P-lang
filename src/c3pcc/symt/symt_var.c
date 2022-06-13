@@ -35,18 +35,21 @@ symt_cons_t symt_get_type_data(symt_var_t type)
 		case F32: case F64: return CONS_DOUBLE; 					break;
 		case C: return CONS_CHAR;									break;
 		case B: return CONS_BOOL;									break;
-		case STR: return CONS_STR;									break;
 		default: return (symt_cons_t)SYMT_NULL;						break;
 	}
 }
 
-symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_qdir_t q_direction)
+symt_var* symt_new_var(
+	symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array,
+	symt_natural_t array_length, symt_value_t value, bool is_param, symt_natural_t q_dir, symt_natural_t offset
+)
 {
 	symt_var *n_var = (symt_var *)(ml_malloc(sizeof(symt_var)));
 	n_var->name = strcopy(name);
 	n_var->rout_name = strcopy(rout_name);
 	n_var->type = type;
-	n_var->q_direction = q_direction;
+	n_var->q_dir = q_dir;
+	n_var->offset = offset;
 
 	symt_cons_t type_n = symt_get_type_data(type);
 	n_var->value = symt_copy_value(value, type_n, array_length);
@@ -56,9 +59,13 @@ symt_var* symt_new_var(symt_name_t name, symt_name_t rout_name, symt_var_t type,
 	return n_var;
 }
 
-symt_node* symt_insert_var(symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array, size_t array_length, symt_value_t value, bool is_param, symt_level_t level, symt_qdir_t q_direction)
+symt_node* symt_insert_var(
+	symt_name_t name, symt_name_t rout_name, symt_var_t type, bool is_array,
+	size_t array_length, symt_value_t value, bool is_param, symt_natural_t level,
+	symt_natural_t q_dir, size_t offset
+)
 {
-	symt_var *n_var = symt_new_var(name, rout_name, type, is_array, array_length, value, is_param, q_direction);
+	symt_var *n_var = symt_new_var(name, rout_name, type, is_array, array_length, value, is_param, q_dir, offset);
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
 	new_node->id = VAR;
 	new_node->var = n_var;
@@ -71,12 +78,10 @@ void symt_can_assign(symt_var_t type, symt_cons *cons)
 {
 	assertp(cons != NULL, "passed constant has not be defined");
 	assertp(cons->value != NULL, "constant has not a valid value");
+	int *int_value = NULL; double *double_value = NULL;
 
-	if (!(type == C && cons->type == CONS_STR && strlen((char*)cons->value) == 1))
+	if (!(type == C && cons->type == CONS_CHAR && strlen((char*)cons->value) == 1))
 		assertf(symt_get_type_data(type) == cons->type, "type does not match for assignation");
-
-	int *int_value = NULL;
-	double *double_value = NULL;
 
 	switch(cons->type)
 	{
@@ -85,9 +90,9 @@ void symt_can_assign(symt_var_t type, symt_cons *cons)
 
 			switch(type)
 			{
-				case I8: assertf(symt_check_range(*int_value, I8_MIN, I8_MAX), "passed value is not at range for %s", "i8"); 	   break;
-				case I16: assertf(symt_check_range(*int_value, I16_MIN, I16_MAX), "passed value is not at range for %s", "i16"); break;
-				case I32: assertf(symt_check_range(*int_value, I32_MIN, I32_MAX), "passed value is not at range for %s", "i32"); break;
+				case I8: assertf(symt_check_range(*int_value, I8_MIN, I8_MAX), "passed value is not at range for %s", "i8"); 	    break;
+				case I16: assertf(symt_check_range(*int_value, I16_MIN, I16_MAX), "passed value is not at range for %s", "i16"); 	break;
+				case I32: assertf(symt_check_range(*int_value, I32_MIN, I32_MAX), "passed value is not at range for %s", "i32"); 	break;
 				default: break;
 			}
 		break;
@@ -138,7 +143,7 @@ void symt_assign_var_at(symt_var *var, symt_cons *value, size_t index)
 			*(double_value + index) = *((double*)value->value);
 		break;
 
-		case CONS_CHAR: case CONS_STR:
+		case CONS_CHAR:
 			char_value = (char*)var->value;
 			*(char_value + index) = *((char*)value->value);
 		break;
@@ -155,8 +160,9 @@ void symt_delete_var(symt_var *var)
 		ml_free(var->rout_name); var->rout_name = NULL;
 		symt_cons_t var_type = symt_get_type_data(var->type);
 		symt_delete_value_cons(var_type, var->value);
-		var->type = (symt_var_t)SYMT_ROOT_ID;
-		var->q_direction = SYMT_NULL;
+		var->type = (symt_var_t)SYMT_NULL;
+		var->q_dir = SYMT_NULL;
+		var->offset = SYMT_NULL;
 		ml_free(var); var = NULL;
 	}
 }
@@ -173,7 +179,8 @@ symt_var *symt_copy_var(symt_var *var)
 		n_var->is_array = var->is_array;
 		n_var->array_length = var->array_length;
 		n_var->is_param = var->is_param;
-		n_var->q_direction = var->q_direction;
+		n_var->q_dir = var->q_dir;
+		n_var->offset = var->offset;
 		return n_var;
 	}
 

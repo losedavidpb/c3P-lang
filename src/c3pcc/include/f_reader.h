@@ -20,18 +20,23 @@
 #ifndef F_READER_H
 #define F_READER_H
 
+/* Structure of a file reader */
 typedef struct f_reader_t
 {
 	char *file;
-	int num_line;
+	unsigned int num_line;
 } f_reader_t;
 
-struct f_reader_t reader;
+/* Global reader to use */
+static struct f_reader_t reader;
 
+/* Open a new file and prepare reader */
 void fr_open_file(char *file);
 
+/* Update number of line with the one */
 void fr_next_line();
 
+/* Close current file and reset reader */
 void fr_close_file();
 
 #endif // F_READER_H

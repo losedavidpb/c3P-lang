@@ -29,29 +29,18 @@
 /* Cast an integer to a boolean value */
 #define symt_to_bool(num) num != 1? false : true
 
-// Identifier which only could be associated
-// to first element which is defined at stack
-#define SYMT_ROOT_ID -1
+/* Get memory size for passed data type */
+#define symt_get_type_size(type) type == CONS_DOUBLE? 8 : 4
 
-// Null value for enumerators
+// Null value for numbers
 #define SYMT_NULL -1
 
 /* Optional identifier for symbols used to
    distinguish instances with the same id */
 typedef char * symt_name_t;
 
-/* Level for each node that is stored at symbol table.
-   Global variables must be at level -1, while the rest
-   of nodes, except constants, would start from 0 to a
-   specific natural number. */
-typedef int symt_level_t;
-
-/* Type for labels that would be used at routines
-   to know its position at the Q file */
-typedef int symt_label_t;
-
-/* Type direction used at Q */
-typedef int symt_qdir_t;
+/* Type natural numbers */
+typedef size_t symt_natural_t;
 
 /* Available symbols for symbol tables which
    which will be used as identifiers */
@@ -68,10 +57,10 @@ typedef enum symt_id_t
 typedef void * symt_value_t;
 
 /* Types for primitive data at constants */
-typedef enum symt_cons_t { CONS_INTEGER, CONS_DOUBLE, CONS_CHAR, CONS_STR, CONS_BOOL } symt_cons_t;
+typedef enum symt_cons_t { CONS_INTEGER, CONS_DOUBLE, CONS_CHAR, CONS_BOOL } symt_cons_t;
 
 /* Primitive types for variables and return functions */
-typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, STR, VOID } symt_var_t;
+typedef enum symt_var_t { I8, I16, I32, I64, F32, F64, B, C, VOID } symt_var_t;
 
 /* Range of values for integers */
 #define I8_MIN -128
@@ -103,9 +92,8 @@ typedef struct symt_var
     symt_name_t name, rout_name;
     symt_var_t type;
     symt_value_t value;
-    bool is_array, is_param;
-    size_t array_length;
-	symt_qdir_t q_direction;
+    symt_natural_t array_length, offset, q_dir;
+	bool is_array, is_param;
 } symt_var;
 
 /* Type for constants */
@@ -113,7 +101,8 @@ typedef struct symt_cons
 {
     symt_cons_t type;
     symt_value_t value;
-	symt_qdir_t q_direction;
+	symt_natural_t offset, q_dir;
+	bool is_param;
 } symt_cons;
 
 /* Type for functions and procedures */
@@ -121,13 +110,13 @@ typedef struct symt_rout
 {
     symt_name_t name;
     symt_var_t type;
-	symt_label_t label;
+	symt_natural_t label;
 } symt_rout;
 
 /* Type for a node which is are at a symbol table */
 typedef struct symt_node
 {
-	symt_level_t level;
+	symt_natural_t level;
     symt_id_t id;
     symt_rout* rout;
     symt_var* var;

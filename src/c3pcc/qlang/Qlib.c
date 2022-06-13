@@ -27,8 +27,12 @@ unsigned char *inv_str(unsigned char *r)
 /* Pow operation */
 double pow(double num1, double num2)
 {
-	while (num2-- > 0) num1 += num1;
-	return num1;
+	double result = 1.0;
+
+	for (int i = 0; i < num2; i++)
+        result = result * num1;
+
+	return result;
 }
 
 // ----------------------------
@@ -89,8 +93,8 @@ L putf_double_:
 // Registers would not be modified except R1 that has the result
 L pow_:
 {
-	IF(R3==0) R1=pow(R1,R2);
-	IF(R3==1) RR1=pow(RR1,RR2);
+	IF(R3==0) R1=pow(R2,R1);
+	IF(R3==1) RR1=pow(RR2,RR1);
 	GT(R0);
 }
 
@@ -103,8 +107,8 @@ L pow_:
 L mod_:
 {
 	IF(R2==0) GT(exit_);
-	IF(R3==0) R1=R1%R2;
-	IF(R3==1) RR1=(int)RR1%(int)RR2;
+	IF(R3==0) R1=R2%R1;
+	IF(R3==1) RR1=(int)RR2%(int)RR1;
 	GT(R0);
 }
 

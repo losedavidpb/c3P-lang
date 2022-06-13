@@ -28,7 +28,8 @@ typedef struct symt_stack
 	symt_name_t name;
 	symt_value_t value;
 	symt_var_t type;
-    symt_qdir_t q_direction;
+    symt_natural_t q_dir, offset;
+	bool is_param;
 	struct symt_stack *next;
 } symt_stack;
 
@@ -36,6 +37,9 @@ typedef struct symt_stack
 symt_stack *symt_new_stack();
 
 /* Create a new element for the stack */
-symt_stack *symt_new_stack_elem(symt_name_t name, symt_value_t value, symt_var_t type, symt_qdir_t q_direction, symt_stack* next);
+symt_stack *symt_new_stack_elem(
+	symt_name_t name, symt_value_t value, symt_var_t type, symt_natural_t q_dir,
+	symt_natural_t offset, bool is_param, symt_stack* next
+);
 
 #endif	// SYMT_STACK_H

@@ -1,27 +1,19 @@
-hide func vector_random : i32[](num : i32)
-	v3 : i32[num]
+func abs : i32(num : i32)
+	res : i32 = num
 
-	for (i : i32 = 0, i = i + 1, i < num)
-		v3[i] = call random 1, 100
-	endfor
+	if (res < 1)
+		res = res * -1
+	endif
 
-	ret v3
+	ret res
 endfunc
 
 proc main()
-	v1 : i32[] = call vector_random 10
-	v2 : i32[] = call vector_random 10
-	v3 : i32[10]
+	i : i32 = 0
 
-	v3 = call vector_add v1, v2
-	call vector_show v3
-
-	v3 = call vector_sub v1, v2
-	call vector_show v3
-
-	v3 = call vector_mult v1, v2
-	call vector_show v3
-
-	v3 = call vector_div v1, v2
-	call vector_show v3
+	while (i < 10)
+		res : i32 = call abs (i * -1)
+		call showln res
+		i = i + 1
+	endwhile
 endproc

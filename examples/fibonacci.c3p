@@ -1,9 +1,18 @@
-func fibonacci(n : i32)
+func fibonacci : i32(n : i32)
+	res : i32 = n
+
     if (n > 1)
         f1 : i32 = call fibonacci n - 1
         f2 : i32 = call fibonacci n - 2
-        ret f1 + f2
+        res = f1 + f2
     endif
 
-    ret n
+    ret res
 endfunc
+
+proc main()
+	for (i : i32 = 0, i = i + 1, i < 10)
+		res : i32 = call fibonacci i
+		call showln res
+	endfor
+endproc

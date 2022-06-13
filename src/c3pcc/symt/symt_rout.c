@@ -25,7 +25,7 @@
 #include "../include/symt_node.h"
 #include <stdlib.h>
 
-symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_label_t label)
+symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_natural_t label)
 {
 	symt_rout *rout = (symt_rout *)(ml_malloc(sizeof(symt_rout)));
 	rout->name = strcopy(name);
@@ -34,7 +34,7 @@ symt_rout* symt_new_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_l
 	return rout;
 }
 
-symt_node* symt_insert_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_level_t level, symt_label_t label)
+symt_node* symt_insert_rout(symt_id_t id, symt_name_t name, symt_var_t type, symt_natural_t level, symt_natural_t label)
 {
 	symt_rout *rout = symt_new_rout(id, name, type, label);
 	symt_node *new_node = (symt_node *)(ml_malloc(sizeof(symt_node)));
