@@ -13,12 +13,12 @@
 # If not, see <http://www.gnu.org/licenses/>.
 #
 
-root_path=../../
+root_path=../..
 
 src_path=$(root_path)/src/c3pcc
 include_path=$(src_path)/include
 
-includes=$(include_path)/symt*.h $(include_path)/qwriter.h $(include_path)/arrcopy.h $(include_path)/memlib.h $(include_path)/assertb.h $(include_path)/f_reader.h
+includes=$(include_path)/symt*.h $(include_path)/qwriter.h $(include_path)/arrcopy.h $(include_path)/memlib.h $(include_path)/assertb.h $(include_path)/f_reader.h $(include_path)/y_utils.h
 sources=$(src_path)/symt.c $(src_path)/lib/*.c $(src_path)/symt/*.c $(src_path)/*.tab.c $(src_path)/*.yy.c
 
 all:

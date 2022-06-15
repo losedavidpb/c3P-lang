@@ -99,7 +99,7 @@ void qw_write_condition(FILE *obj, symt_natural_t label);
 /* Write show function located at base library */
 void qw_write_show_value(
 	FILE *obj, symt_natural_t label, symt_cons_t type, symt_natural_t offset,
-	symt_natural_t q_dir, symt_value_t value, bool is_param, bool is_void, bool show_ln
+	symt_natural_t q_dir, symt_value_t value, bool is_param, bool is_void, bool is_array_value, bool show_ln
 );
 
 /* Push operation for framepointer */

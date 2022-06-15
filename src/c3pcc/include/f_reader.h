@@ -1,4 +1,4 @@
-/*// f_reader.h -*- C -*-
+// f_reader.h -*- C -*-
 //
 // This file is part of the c3P language compiler. This project
 // is free software; you can redistribute it and/or modify it under
@@ -11,7 +11,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // If not, see <http://www.gnu.org/licenses/>.
-//*/
+//
 
 /*
  *	ISO C99 Standard: File reader to count number of lines

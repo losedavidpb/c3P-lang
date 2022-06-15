@@ -27,12 +27,9 @@ unsigned char *inv_str(unsigned char *r)
 /* Pow operation */
 double pow(double num1, double num2)
 {
-	double result = 1.0;
-
-	for (int i = 0; i < num2; i++)
-        result = result * num1;
-
-	return result;
+	double res = 1.0;
+	for (int i = 0; i < num2; i++) res *= num1;
+	return res;
 }
 
 // ----------------------------

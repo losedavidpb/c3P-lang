@@ -58,22 +58,22 @@ symt_cons *symt_cons_mod(symt_cons_t type, symt_cons* num1, symt_cons* num2);
 /* Return a constant with the result of the pow operation */
 symt_cons *symt_cons_pow(symt_cons_t type, symt_cons* num1, symt_cons* num2);
 
-/* Return a constant with the result of greater than operation*/
+/* Return a constant with the result of greater than operation */
 symt_cons *symt_cons_gt(symt_cons* num1, symt_cons* num2);
 
-/* Return a constant with the result of less than operation*/
+/* Return a constant with the result of less than operation */
 symt_cons *symt_cons_lt(symt_cons* num1, symt_cons* num2);
 
-/* Return a constant with the result of equal to operation*/
+/* Return a constant with the result of equal to operation */
 symt_cons *symt_cons_eq(symt_cons* num1, symt_cons* num2);
 
-/* Return a constant with the result of not equal to operation*/
+/* Return a constant with the result of not equal to operation */
 symt_cons *symt_cons_neq(symt_cons* num1, symt_cons* num2);
 
-/* Return a constant with the result of less or equal to operation*/
+/* Return a constant with the result of less or equal to operation */
 symt_cons *symt_cons_leq(symt_cons* num1, symt_cons* num2);
 
-/* Return a constant with the result of greater or equal to operation*/
+/* Return a constant with the result of greater or equal to operation */
 symt_cons *symt_cons_geq(symt_cons* num1, symt_cons* num2);
 
 /* Delete passed value of a constant of passed type */

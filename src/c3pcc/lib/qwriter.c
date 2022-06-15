@@ -63,6 +63,7 @@ void qw_prepare(FILE *obj)
 	fprintf(obj, "\n/**************** End static data ****************/");
 	fprintf(obj, "\n/**************** Start code ****************/\nCODE(0)");
 	qw_write_new_label(obj, 0);
+	fprintf(obj, "\n\tR6=R7;");
 }
 
 void qw_write_routine(FILE *obj, symt_name_t name, symt_natural_t label)
@@ -71,6 +72,7 @@ void qw_write_routine(FILE *obj, symt_name_t name, symt_natural_t label)
 	assertp(name != NULL,  "name must be defined");
 	fprintf(obj, "\nL %d: /* Routine %s */", (int)label, name);
 	fprintf(obj, "\n\tR6=R7;\t// Save R7 for local variables");
+	fprintf(obj, "\n\tR5=0;\t// Reset R5");
 }
 
 void qw_write_close_routine(FILE *obj, symt_name_t name, bool is_main)
@@ -113,16 +115,20 @@ void qw_write_close_routine_function(
 
 void qw_write_begin_loop(FILE *obj, symt_natural_t label, symt_natural_t q_dir)
 {
-    assertp(obj != NULL,  "object must be defined");
-	fprintf(obj, "\n\tR5=R7;\t// Save R7 before loop");
+	assertp(obj != NULL,  "object must be defined");
+	fprintf(obj, "\n\tR7=R7-4;\t// Push frame pointer R7");
+	fprintf(obj, "\n\tP(R7)=R5;\t// Store previous R7 when loop has found");
+	fprintf(obj, "\n\tR7=R7-4;\t// Push frame pointer");
+	fprintf(obj, "\n\tR5=R7;\t// Save R7 direction before going to loop");
+	fprintf(obj, "\n\tP(R7)=R7;\t// Save R7 in stack");
     fprintf(obj, "\nL %d:\t// Begin Loop", (int)label);
-	fprintf(obj, "\n\tR7=R5;\t// Restore R7 in loop");
+	fprintf(obj, "\n\tR7=P(R5);\t// Restore R7 in loop");
 }
 
 void qw_write_end_loop(FILE *obj, symt_natural_t label, symt_natural_t next_label)
 {
-    assertp(obj != NULL, "object must be defined");
-    fprintf(obj, "\n\tGT(%d);\t// Repeat loop\nL %d:\n\tR7=R7+4;\t// End Loop", (int)label, (int)next_label);
+	assertp(obj != NULL,  "object must be defined");
+    fprintf(obj, "\n\tGT(%d);\t// Repeat loop\nL %d:\t// End Loop", (int)label, (int)next_label);
 }
 
 void qw_write_new_label(FILE *obj, symt_natural_t label)
@@ -205,7 +211,7 @@ void qw_write_condition(FILE *obj, symt_natural_t label)
 
 void qw_write_show_value(
 	FILE *obj, symt_natural_t label, symt_cons_t type, symt_natural_t offset,
-	symt_natural_t q_dir, symt_value_t value, bool is_param, bool is_void, bool show_ln
+	symt_natural_t q_dir, symt_value_t value, bool is_param, bool is_void,  bool is_array_value, bool show_ln
 )
 {
     assertp(obj != NULL, "object must be defined");
@@ -213,24 +219,28 @@ void qw_write_show_value(
 	switch (type)
 	{
 		case CONS_INTEGER: case CONS_BOOL:
+			fprintf(obj, "\n\tR3=R1;");
 			if (show_ln) fprintf(obj, "\n\tR1=0x%05x;\t// Set integer format with \\n", QW_DIR_INT_FORMAT_LN);
 			else fprintf(obj, "\n\tR1=0x%05x;\t// Set integer format", QW_DIR_INT_FORMAT);
 
-			if (offset == 0 && !is_param) fprintf(obj, "\n\tR2=I(0x%05x);\t// Set global to print", (int)q_dir);
-			else if (is_param)
+			if (offset == 0 && !is_param && !is_array_value) fprintf(obj, "\n\tR2=I(0x%05x);\t// Set global to print", (int)q_dir);
+			else if (is_param && !is_array_value)
 			{
 				symt_natural_t offset_param = offset + 8;
 				if (!is_void) offset_param += 4;
 				fprintf(obj, "\n\tR2=I(R6+%d);\t// Set parameter to print", (int)offset_param);
 			}
+			else  if(is_array_value) fprintf(obj, "\n\tR2=R3;\t// Set variable to print");
 			else fprintf(obj, "\n\tR2=I(R6-%d);\t// Set variable to print", (int)offset);
 
 			fprintf(obj, "\n\tR0=%d;\t// Save returned label", (int)label);
 			fprintf(obj, "\n\tGT(putf_int_);\t// Call show for integers");
 			fprintf(obj, "\nL %d:\t", (int)label++);
+			if(is_array_value) fprintf(obj, "\n\tR7=R7+4;\t");
 		break;
 
 		case CONS_CHAR:
+			fprintf(obj, "\n\tR3=R1;");
 			if (show_ln) fprintf(obj, "\n\tR1=0x%05x;\t// Set char format with \\n", QW_DIR_CHAR_FORMAT_LN);
 			else fprintf(obj, "\n\tR1=0x%05x;\t//Set char format", QW_DIR_CHAR_FORMAT);
 
@@ -240,11 +250,13 @@ void qw_write_show_value(
 				if (!is_void) offset_param += 4;
 				fprintf(obj, "\n\tR2=I(R6+%d);\t// Set parameter to print", (int)offset_param);
 			}
+			else if(is_array_value) fprintf(obj, "\n\tR2=R3;\t// Set variable to print");
 			else fprintf(obj, "\n\tR2=I(R6-%d);\t// Set variable to print", (int)offset);
 
 			fprintf(obj, "\n\tR0=%d;\t// Save returned label", (int)label);
 			fprintf(obj, "\n\tGT(putf_int_);\t// Call show for characters");
 			fprintf(obj, "\nL %d:\t", (int)label++);
+			if(is_array_value) fprintf(obj, "\n\tR7=R7+4;\t");
 		break;
 
 		case CONS_DOUBLE:
@@ -257,13 +269,12 @@ void qw_write_show_value(
 				if (!is_void) offset_param += 4;
 				fprintf(obj, "\n\tRR1=D(R6+%d);\t// Set parameter to print", (int)offset_param);
 			}
-			else fprintf(obj, "\n\tRR1=D(R6-%d);\t// Set variable to print", (int)offset);
+			else if(!is_array_value) fprintf(obj, "\n\tRR1=D(R6-%d);\t// Set variable to print", (int)offset);
 
 			fprintf(obj, "\n\tR0=%d;\t// Save returned label", (int)label);
-			fprintf(obj, "\n\tGT(putf_double);\t// Call show for doubles");
+			fprintf(obj, "\n\tGT(putf_double_);\t// Call show for doubles");
 			fprintf(obj, "\nL %d:\t", (int)label++);
 		break;
-		//case CONS_STR: break;
 	}
 }
 
@@ -279,29 +290,19 @@ void qw_pop_fp(FILE *obj, symt_cons_t type)
 	fprintf(obj, "\n\tR7=R7+%d;\t// Pop frame pointer R7", (int)size);
 }
 
-int qw_write_array(FILE *obj, symt_cons_t type, symt_natural_t q_dir, symt_natural_t array_length, symt_natural_t section_label, symt_natural_t offset, bool globals)
+int qw_write_array(
+	FILE *obj, symt_cons_t type, symt_natural_t q_dir, symt_natural_t array_length,
+	symt_natural_t section_label, symt_natural_t offset, bool globals
+)
 {
 	assertp(obj != NULL,  "object must be defined");
 	symt_natural_t new_qdir = 0;
 
-	if (globals)
+	for (int i = 0; i < array_length; i++)
 	{
-		symt_natural_t incr_mem = symt_get_type_size(type);
-		symt_natural_t mem_array = incr_mem * array_length;
-		new_qdir = q_dir - mem_array;
-
-		fprintf(obj, "\nSTAT(%d)", (int)section_label);
-		fprintf(obj, "\n\tFIL(0x%05x, %d, 0);\t// Reserve memory for array", (int)new_qdir, (int)mem_array);
-		fprintf(obj, "\nCODE(%d)", (int)section_label);
-	}
-	else
-	{
-		for (int i = 0; i < array_length; i++)
-		{
-			int value = 0;
-			qw_push_fp(obj, type);
-			qw_write_value_to_var(obj, type, &value);
-		}
+		int value = 0;
+		qw_push_fp(obj, type);
+		qw_write_value_to_var(obj, type, &value);
 	}
 
 	return new_qdir;
@@ -317,20 +318,42 @@ void qw_write_array_to_reg(
 
 	if (offset == 0)
 	{
-		symt_natural_t mem_array = q_dir - (incr_mem * pos);
-		qw_write_var_to_reg(obj, num_reg, type, mem_array);
+		fprintf(obj, "\n\tR3=R3*%d;\t// Operation 1 to get index", (int)incr_mem);
+		fprintf(obj, "\n\tR4=0x%05x;\t// Operation 2 to get index", (int)q_dir);
+		fprintf(obj, "\n\tR3=R4+R3;\t// Operation 3 to get index");
+
+		if(type == CONS_DOUBLE)
+			fprintf(obj, "\n\tRR%d=D(R3);\t// Load variable to register", (int)num_reg);
+		else
+			fprintf(obj, "\n\tR%d=I(R3);\t// Load variable to register", (int)num_reg);
+
+		qw_push_fp(obj, type);
+
+		if(type == CONS_DOUBLE) fprintf(obj, "\n\tD(R7)=RR1;\t");
+		else fprintf(obj, "\n\tI(R7)=R1;\t");
 	}
 	else
 	{
-		symt_natural_t mem_array = offset - (pos * incr_mem);
-		qw_write_var_to_reg_with_R6(obj, num_reg, type, mem_array, false, false);
+		fprintf(obj, "\n\tR3=R3*%d;\t// Operation 1 to get index", (int)incr_mem);
+		fprintf(obj, "\n\tR4=%d;\t// Operation 2 to get index", (int)offset);
+		fprintf(obj, "\n\tR3=R4-R3;\t// Operation 3 to get index");
+
+		if(type == CONS_DOUBLE)
+			fprintf(obj, "\n\tRR%d=D(R6-R3);\t// Load variable to register", (int)num_reg);
+		else
+			fprintf(obj, "\n\tR%d=I(R6-R3);\t// Load variable to register", (int)num_reg);
 
 		qw_push_fp(obj, type);
-		qw_write_reg_to_var(obj, 1, type, 0);
+
+		if (type == CONS_DOUBLE) fprintf(obj, "\n\tD(R7)=RR1;\t");
+		else fprintf(obj, "\n\tI(R7)=R1;\t");
 	}
 }
 
-void qw_write_reg_to_array(FILE *obj, symt_natural_t num_reg, symt_cons_t type, symt_natural_t q_dir, symt_natural_t pos, symt_natural_t offset)
+void qw_write_reg_to_array(
+	FILE *obj, symt_natural_t num_reg, symt_cons_t type, symt_natural_t q_dir,
+	symt_natural_t pos, symt_natural_t offset
+)
 {
 	assertp(obj != NULL,  "object must be defined");
 	symt_natural_t incr_mem = symt_get_type_size(type);
