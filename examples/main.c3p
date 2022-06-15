@@ -12,7 +12,8 @@ proc main()
 	i : i32 = 0
 
 	while (i < 10)
-		res : i32 = call abs (i * -1)
+		temp : i32 = i * -1
+		res : i32 = call abs temp
 		call showln res
 		i = i + 1
 	endwhile

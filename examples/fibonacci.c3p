@@ -2,8 +2,10 @@ func fibonacci : i32(n : i32)
 	res : i32 = n
 
     if (n > 1)
-        f1 : i32 = call fibonacci n - 1
-        f2 : i32 = call fibonacci n - 2
+		n1 : i32 = n - 1
+        f1 : i32 = call fibonacci n1
+		n2 : i32 = n - 2
+        f2 : i32 = call fibonacci n2
         res = f1 + f2
     endif
 
