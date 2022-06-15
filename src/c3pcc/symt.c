@@ -218,29 +218,49 @@ symt_tab* symt_insert_tab_rout(
 	return symt_push(tab, new_node);
 }
 
-void symt_end_block(symt_tab *tab, symt_natural_t level)
+symt_natural_t symt_end_block(symt_tab *tab, symt_natural_t level)
 {
 	assertp(tab != NULL, "table has not been constructed");
-	symt_node *iter = tab, *prev_iter = NULL, *prev_level = NULL;
+	symt_node *iter = tab, *prev_iter = NULL, *prev_level = NULL, *prev_first = NULL;
+    bool prev_saved = false;
+    symt_natural_t prev_offset = 0;
 
 	while (iter->next_node != NULL)
 	{
 		if (iter->level == level)
+        {
+            prev_saved = true;
 			prev_level = iter;
+        }
+
+        if (iter->id == VAR)
+            if (!prev_saved) prev_first=iter;
 
 		iter = iter->next_node;
 	}
 
-	if (prev_level == NULL) return;
+	if (prev_level == NULL) return 0;
 
 	if (iter->level > prev_level->level)
 	{
 		if (iter->level != 0)
 		{
+            if(prev_level->id == VAR)
+                prev_offset = prev_level->var->offset;
+
+            if(!prev_first->var->is_param && (prev_first->level > prev_level->level))
+                prev_offset = prev_first->var->offset;
+
 			symt_delete(iter);
 			prev_level->next_node = NULL;
 		}
 	}
+
+    if (iter->id == VAR)
+        if (iter->level == prev_level->level)
+            prev_offset = iter->var->offset;
+
+    return prev_offset;
 }
 
 void symt_delete(symt_tab *tab)

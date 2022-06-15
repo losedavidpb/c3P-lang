@@ -91,7 +91,7 @@ symt_tab* symt_insert_tab_rout(
 );
 
 /* Finish a block statement */
-void symt_end_block(symt_tab *tab, symt_natural_t level);
+symt_natural_t symt_end_block(symt_tab *tab, symt_natural_t level);
 
 /* Clean from memory passed symbol table
    if has been created before */

@@ -83,7 +83,9 @@ endfor
 \subsubsection{Sentencia break}
 
 La declaración break se utiliza para terminar la ejecución de un bucle.
-Cabe destacar que esta sentencia afecta al bucle más interno en el que esté dentro.
+Cabe destacar que esta sentencia afecta al bucle más interno en el que esté dentro,
+siempre que no hayan anidados, en cuyo caso debe ir antes de la declaración
+del bucle interno.
 A continuación se muestra un ejemplo:
 
 \begin{verbatim}
@@ -100,7 +102,9 @@ endfor
 
 La declaración continue permite terminar la iteración actual del bucle y
 comenzar la siguiente sin salir de él. Hay que tener en cuenta que esta
-declaración sólo afecta al bucle más interno en el que esté dentro.
+declaración sólo afecta al bucle más interno en el que esté dentro,
+siempre que no hayan anidados, en cuyo caso debe ir antes de la declaración
+del bucle interno.
 
 \begin{verbatim}
 suma : i32 = 0

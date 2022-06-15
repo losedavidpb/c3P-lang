@@ -464,8 +464,6 @@ void qw_write_value_to_reg(FILE *obj, symt_natural_t num_reg, symt_cons_t type, 
 			assertf(num_reg >= 0 && num_reg <= 3,  "%d is not a valid register", (int)num_reg);
 			fprintf(obj, "\n\tRR%d=%f;\t// Set value to register", (int)num_reg, value_double);
 		break;
-
-		//case CONS_STR: break;
 	}
 }
 

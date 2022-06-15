@@ -95,7 +95,7 @@ int_expr 		: '(' int_expr ')' 				{ is_expr = false; $$ = $2; }
 												}
 				;
 
-expr_num 		: T 							{ int true_val = 0; $$ = write_cons(CONS_BOOL, &true_val); }
+expr_num 		: T 							{ int true_val = 1; $$ = write_cons(CONS_BOOL, &true_val); }
 				| F 							{ int false_val = 0; $$ = write_cons(CONS_BOOL, &false_val); }
 				| DOUBLE 						{ $$ = write_cons(CONS_DOUBLE, &$1);  }
 				| INTEGER 						{ $$ = write_cons(CONS_INTEGER, &$1); }
@@ -119,69 +119,110 @@ iden_expr		: expr '+' expr					{ $$ = write_expr($1, $3, QW_ADD, -1);	 	 	}
 				| expr AND expr 				{ $$ = write_expr($1, $3, QW_AND, -1);			}
 				| expr OR expr 					{ $$ = write_expr($1, $3, QW_OR, -1); 			}
 				| NOT expr 						{ $$ = write_expr($2, NULL, QW_NOT, -1);		}
-				| IDENTIFIER '[' expr ']'		{
-													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
-													assertf(var != NULL, "variable %s has not been declared", $1);
-													assertf($3->cons->type == CONS_INTEGER, "index must be an integer");
+				| IDENTIFIER '[' expr ']'
+					{
+						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+						if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
+						assertf(var != NULL, "variable %s has not been declared", $1);
+						assertf($3->cons->type == CONS_INTEGER, "index must be an integer");
 
-													free_mem(); fprintf(obj, "\n\tR3=R1;\t// Save index at R3");
+						free_mem(); fprintf(obj, "\n\tR3=R1;\t// Save index at R3");
 
-													switch(symt_get_type_data(var->var->type))
-													{
-														case CONS_INTEGER:; case CONS_BOOL:;
-															int *int_value = (int*)var->var->value;
-															$$ = symt_insert_tab_cons_q(symt_new(), symt_get_type_data(var->var->type), (int_value + *((int*)$3->cons->value)), var->var->q_dir, offset, false);
-															if(!is_call) qw_write_array_to_reg(obj, 1, symt_get_type_data(var->var->type), var->var->q_dir, *((int*)$3->cons->value), var->var->offset);
-														break;
+						switch (symt_get_type_data(var->var->type))
+						{
+							case CONS_INTEGER:; case CONS_BOOL:;
+								int *int_value = (int*)var->var->value;
 
-														case CONS_DOUBLE:;
-															double *double_value = (double*)var->var->value;
-															$$ = symt_insert_tab_cons_q(symt_new(), symt_get_type_data(var->var->type), (double_value + *((int*)$3->cons->value)), var->var->q_dir, offset, false);
-															if(!is_call) qw_write_array_to_reg(obj, 1, symt_get_type_data(var->var->type), var->var->q_dir, *((int*)$3->cons->value), var->var->offset);
-														break;
+								$$ = symt_insert_tab_cons_q(
+									symt_new(), symt_get_type_data(var->var->type), (int_value + *((int*)$3->cons->value)),
+									var->var->q_dir, offset, false
+								);
 
-														case CONS_CHAR:;
-															char *char_value = (char*)var->var->value;
-															$$ = symt_insert_tab_cons_q(symt_new(), symt_get_type_data(var->var->type), (char_value + *((int*)$3->cons->value)), var->var->q_dir, offset, false);
-															if(!is_call) qw_write_array_to_reg(obj, 1, symt_get_type_data(var->var->type), var->var->q_dir, *((int*)$3->cons->value), var->var->offset);
-														break;
-													}
+								if (!is_call)
+									qw_write_array_to_reg(
+										obj, 1, symt_get_type_data(var->var->type), var->var->q_dir,
+										*((int*)$3->cons->value), var->var->offset
+									);
+							break;
 
-													print_array_value = true;
-												}
-				| IDENTIFIER					{
-													print_array_value = false; is_param = false;
-													symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
-													if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
-													assertf(var != NULL, "variable %s has not been declared", $1);
+							case CONS_DOUBLE:;
+								double *double_value = (double*)var->var->value;
 
-													if (q_dir_var == 0 && is_var == true) q_dir_var = var->var->q_dir;
-													type = symt_get_type_data(var->var->type);
-													$$ = symt_insert_tab_cons_q(symt_new(), type, var->var->value, var->var->q_dir, var->var->offset, var->var->is_param);
+								$$ = symt_insert_tab_cons_q(
+									symt_new(), symt_get_type_data(var->var->type), (double_value + *((int*)$3->cons->value)),
+									var->var->q_dir, offset, false
+								);
 
-													if (!is_call)
-													{
-														if (var->level == 0)
-														{
-															if (!var->var->is_param)
-															{
-																qw_write_var_to_reg(obj, 1, type, var->var->q_dir);
-															}
-															else
-															{
-																is_param = true;
-																symt_node* rout = symt_search_routine(tab, rout_name);
-																qw_write_var_to_reg_with_R6(obj, 1, type, var->var->offset, true, rout->rout->type == VOID);
-															}
-														}
-														else
-														{
-															symt_node* rout = symt_search_routine(tab, rout_name);
-															qw_write_var_to_reg_with_R6(obj, 1, type, var->var->offset, false, rout->rout->type == VOID);
-														}
-													}
-												}
+								if (!is_call)
+									qw_write_array_to_reg(
+										obj, 1, symt_get_type_data(var->var->type), var->var->q_dir,
+										*((int*)$3->cons->value), var->var->offset
+									);
+							break;
+
+							case CONS_CHAR:;
+								char *char_value = (char*)var->var->value;
+
+								$$ = symt_insert_tab_cons_q(
+									symt_new(), symt_get_type_data(var->var->type), (char_value + *((int*)$3->cons->value)),
+									var->var->q_dir, offset, false
+								);
+
+								if (!is_call)
+									qw_write_array_to_reg(
+										obj, 1, symt_get_type_data(var->var->type), var->var->q_dir,
+										*((int*)$3->cons->value), var->var->offset
+									);
+							break;
+						}
+
+						print_array_value = true;
+					}
+				| IDENTIFIER
+					{
+						print_array_value = false; is_param = false;
+						symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
+						if (var == NULL) var = symt_search_by_name(tab, $1, VAR, NULL, 0);
+						assertf(var != NULL, "variable %s has not been declared", $1);
+
+						if (q_dir_var == 0 && is_var == true) q_dir_var = var->var->q_dir;
+						type = symt_get_type_data(var->var->type);
+
+						$$ = symt_insert_tab_cons_q(
+							symt_new(), type, var->var->value, var->var->q_dir,
+							var->var->offset, var->var->is_param
+						);
+
+						if (!is_call)
+						{
+							if (var->level == 0)
+							{
+								if (!var->var->is_param)
+								{
+									qw_write_var_to_reg(obj, 1, type, var->var->q_dir);
+								}
+								else
+								{
+									is_param = true;
+									symt_node* rout = symt_search_routine(tab, rout_name);
+
+									qw_write_var_to_reg_with_R6(
+										obj, 1, type, var->var->offset,
+										true, rout->rout->type == VOID
+									);
+								}
+							}
+							else
+							{
+								symt_node* rout = symt_search_routine(tab, rout_name);
+
+								qw_write_var_to_reg_with_R6(
+									obj, 1, type, var->var->offset,
+									false, rout->rout->type == VOID
+								);
+							}
+						}
+					}
 				;
 
 // __________ Constants and Data type __________
@@ -203,11 +244,15 @@ arr_data_type 	: I8_TYPE '[' int_expr ']'    	{ value_list_expr_t = CONS_INTEGER
 // __________ Declaration for variables __________
 
 param_declr 	: IDENTIFIER ':' data_type			{
-														assertf(symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL, "variable %s has already been declared", $1);
+														bool cond = symt_search_by_name(tab, $1, VAR, rout_name, level) == NULL;
+														assertf(cond, "variable %s has already been declared", $1);
 
-														symt_node* node = symt_insert_tab_var(symt_new(), $1, rout_name, $3, false, 0, NULL, true, level, q_dir, offset);
+														symt_node* node = symt_insert_tab_var(
+															symt_new(), $1, rout_name, $3, false, 0,
+															NULL, true, level, q_dir, offset
+														);
+
 														tab = symt_push(tab, node);
-
 														symt_natural_t size = symt_get_type_size(type);
 														q_dir -= size; offset += size;
 													}
@@ -223,8 +268,8 @@ var 		:   IDENTIFIER ':' data_type 				{
 															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
 															assertf(var == NULL, "variable %s has already been declared", $1);
 
-															type = symt_get_type_data($3);
-															symt_natural_t size = symt_get_type_size(type);
+															symt_cons_t type_n = symt_get_type_data($3);
+															symt_natural_t size = symt_get_type_size(type_n);
 															q_dir -= size; offset += size;
 
 															symt_node* node = symt_insert_tab_var(
@@ -232,6 +277,7 @@ var 		:   IDENTIFIER ':' data_type 				{
 																NULL, 0, level, q_dir, offset
 															);
 
+															type = type_n;
 															qw_push_fp(obj, type);
 															qw_write_value_to_var(obj, type, node->var->value);
 															tab = symt_push(tab, node);
@@ -272,6 +318,8 @@ var 		:   IDENTIFIER ':' data_type 				{
 																	obj, 1, $3->cons->type,
 																	var->var->offset, var->var->is_param
 																);
+
+															free_mem();
 														}
 				| IDENTIFIER '[' expr ']' '=' expr		{
 															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
@@ -324,6 +372,7 @@ var 		:   IDENTIFIER ':' data_type 				{
 						symt_name_t str_type1 = symt_strget_vartype(var->var->type), str_type2 = symt_strget_vartype($3);
 						assertf(var->var->type == $3, "type %s does not match %s at %s variable declaration", str_type1, str_type2, $1);
 						symt_stack *stack = $7, *stack_v = $7;
+						free_mem();
 
 						switch(value_list_expr_t)
 						{
@@ -346,7 +395,7 @@ var 		:   IDENTIFIER ':' data_type 				{
 
 								for (int i = 0; stack_v; i++)
 								{
-									*(values_int+i) = *((int*)stack_v->value);
+									*(values_int + i) = *((int*)stack_v->value);
 									stack_v = stack_v->next;
 								}
 
@@ -372,7 +421,7 @@ var 		:   IDENTIFIER ':' data_type 				{
 
 								for(int i = 0; stack_v; i++)
 								{
-									*(values_double+i) = *((double*)stack_v->value);
+									*(values_double + i) = *((double*)stack_v->value);
 									stack_v = stack_v->next;
 								}
 
@@ -398,7 +447,7 @@ var 		:   IDENTIFIER ':' data_type 				{
 
 								for (int i = 0; stack_v; i++)
 								{
-									*(values_char+i) = *((char*)stack_v->value);
+									*(values_char + i) = *((char*)stack_v->value);
 									stack_v = stack_v->next;
 								}
 
@@ -414,19 +463,19 @@ var 		:   IDENTIFIER ':' data_type 				{
 							switch (value_list_expr_t)
 							{
 								case CONS_INTEGER: case CONS_BOOL:;
-									int *value_int = (int*)(var->var->value)+i;
+									int *value_int = (int*)(var->var->value) + i;
 									qw_write_value_to_reg(obj, 1, symt_get_type_data($3), (void*)value_int);
 									qw_write_reg_to_array(obj, 1, symt_get_type_data($3), pre_q_dir, i, offset);
 								break;
 
 								case CONS_DOUBLE:;
-									double *value_double = (double*)(var->var->value)+i;
+									double *value_double = (double*)(var->var->value) + i;
 									qw_write_value_to_reg(obj, 1, symt_get_type_data($3), (void*)value_double);
 									qw_write_reg_to_array(obj, 1, symt_get_type_data($3), pre_q_dir, i, offset);
 								break;
 
 								case CONS_CHAR:;
-									char *value_char = (char*)(var->var->value)+i;
+									char *value_char = (char*)(var->var->value) + i;
 									qw_write_value_to_reg(obj, 1, symt_get_type_data($3), (void*)value_char);
 									qw_write_reg_to_array(obj, 1, symt_get_type_data($3), pre_q_dir, i, offset);
 								break;
@@ -453,7 +502,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																				symt_natural_t size = 0;
 
 																				fprintf(obj, "\n\tR7=R7-4;\t// Reserve memory for R5");
-																				fprintf(obj, "\n\tP(R7)=R5;\t// Restore R5 value");
+																				fprintf(obj, "\n\tP(R7)=R5;\t// Save R5 value");
 
 																				if (result->id == FUNCTION)
 																				{
@@ -498,13 +547,15 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																				bool is_void = rout->rout->type == VOID;
 
 																				fprintf(obj, "\n\tR7=R7-4;\t// Reserve memory for R5");
-																				fprintf(obj, "\n\tP(R7)=R5;\t// Restore R5 value");
+																				fprintf(obj, "\n\tP(R7)=R5;\t// Save R5 value");
 
 																				symt_stack* iter = $5;
 																				symt_node *iter_p = params;
 																				bool no_more_params = false;
 																				symt_natural_t r7_offset = 0;
 																				symt_natural_t num_params_curr = 0;
+
+																				free_mem();
 
 																				while (true)
 																				{
@@ -516,7 +567,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																					symt_cons_t arg_type = symt_get_type_data(iter->type);
 																					assertp(arg_type == param_type, "type does not match");
 
-																					switch(arg_type)
+																					switch (arg_type)
 																					{
 																						case CONS_INTEGER: case CONS_BOOL:;
 																							r7_offset += 4;
@@ -570,7 +621,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																				assertf(num_params_curr == num_params, "invalid number of parameters %d != %d", (int)num_params_curr, (int)num_params);
 																				symt_natural_t size = 0;
 
-																				if(result->id == FUNCTION)
+																				if (result->id == FUNCTION)
 																				{
 																					type = symt_get_type_data(result->rout->type);
 																					size = symt_get_type_size(type);
@@ -612,7 +663,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																				symt_natural_t size = 0;
 
 																				fprintf(obj, "\n\tR7=R7-4;\t// Reserve memory for R5");
-																				fprintf(obj, "\n\tP(R7)=R5;\t// Restore R5 value");
+																				fprintf(obj, "\n\tP(R7)=R5;\t// Save R5 value");
 
 																				if(result->id == FUNCTION)
 																				{
@@ -646,7 +697,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 
 																				size = 0;
 																				fprintf(obj, "\n\tR7=R7-4;\t// Reserve memory for R5");
-																				fprintf(obj, "\n\tP(R7)=R5;\t// Restore R5 value");
+																				fprintf(obj, "\n\tP(R7)=R5;\t// Save R5 value");
 
 																				if (result->id == FUNCTION)
 																				{
@@ -684,13 +735,15 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																				bool is_void = rout->rout->type == VOID;
 
 																				fprintf(obj, "\n\tR7=R7-4;\t// Reserve memory for R5");
-																				fprintf(obj, "\n\tP(R7)=R5;\t// Restore R5 value");
+																				fprintf(obj, "\n\tP(R7)=R5;\t// Save R5 value");
 
 																				symt_stack* iter = $7;
 																				symt_node *iter_p = params;
 																				bool no_more_params = false;
 																				symt_natural_t r7_offset = 0;
 																				symt_natural_t num_params_curr = 0;
+
+																				free_mem();
 
 																				while (true)
 																				{
@@ -791,7 +844,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 																				symt_natural_t num_params_curr = 0;
 
 																				fprintf(obj, "\n\tR7=R7-4;\t// Reserve memory for R5");
-																				fprintf(obj, "\n\tP(R7)=R5;\t// Restore R5 value");
+																				fprintf(obj, "\n\tP(R7)=R5;\t// Save R5 value");
 
 																				while (true)
 																				{
@@ -869,7 +922,7 @@ call_assing		:	IDENTIFIER '=' CALL IDENTIFIER							{
 
 																				symt_cons* arrlen = symt_new_cons(CONS_INTEGER, &var2->var->array_length, 0, 0, false);
 																				symt_assign_var(var1->var, arrlen);
-																				fprintf(obj, "\n\tR1=%d;\t", (int)var2->var->array_length);
+																				fprintf(obj, "\n\tR1=%d;\t// Set array length at R1", (int)var2->var->array_length);
 																				symt_delete_cons(arrlen);
 
 																				if (var1->level == 0)
@@ -1109,9 +1162,7 @@ var_assign      : IDENTIFIER '=' expr					{
 															if (var->level == 0)
 															{
 																if (!var->var->is_param)
-																{
 																	qw_write_reg_to_var(obj, 1, type, var->var->q_dir);
-																}
 																else
 																{
 																	is_param = true;
@@ -1120,9 +1171,7 @@ var_assign      : IDENTIFIER '=' expr					{
 																}
 															}
 															else
-															{
 																qw_write_reg_to_var_with_R6(obj, 1, type, var->var->offset, false);
-															}
 														}
                 | IDENTIFIER '[' expr ']' '=' expr		{
 															symt_node *var = symt_search_by_name(tab, $1, VAR, rout_name, level);
@@ -1136,9 +1185,9 @@ var_assign      : IDENTIFIER '=' expr					{
 // __________ Statement __________
 
 statement 		: { $$ = false; is_var = true; } | var { is_var = false; } EOL statement { $$ = true; }
-				| { level++; is_var = false; } BEGIN_IF '(' expr ')' { free_mem(); qw_write_condition(obj, label); num_reg = 2; $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else END_IF { symt_end_block(tab, level--); } EOL statement { $$ = true; }
-				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_dir); is_var = false; offset+=8; } BEGIN_WHILE '(' expr ')' { free_mem(); qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++;  } EOL statement END_WHILE { level--; symt_end_block(tab, level); qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6); free_mem(); fprintf(obj, "\n\tR1=P(R5+4);\n\tR1=R1!=0;\t// Restore R7 before this loop"); qw_write_condition(obj, label); fprintf(obj, "\n\tR7=P(R5+4);\t// Restore R5 before this loop"); qw_write_new_label(obj, label); label++; fprintf(obj, "\n\tR5=P(R5+4);\t// Restore R5 before this loop\n\tR7=R7+8;// Pop trash of this loop"); offset-=8; } EOL statement { $$ = true; }
-				| { level++; is_var = true; } BEGIN_FOR '(' var ',' { var_type=type; is_var = false; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_dir); offset+=8; } var_assign ',' expr ')' { free_mem(); qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_FOR { level--; symt_end_block(tab, level); qw_write_end_loop(obj, $<integer_t>6, $<integer_t>11); free_mem(); fprintf(obj, "\n\tR1=P(R5+4);\n\tR1=R1!=0;\t// Restore R7 before this loop"); qw_write_condition(obj, label); fprintf(obj, "\n\tR7=P(R5+4);\t// Restore R5 before this loop"); qw_write_new_label(obj, label); label++; fprintf(obj, "\n\tR5=P(R5+4);\t// Restore R5 before this loop\n\tR7=R7+8;// Pop trash of this loop"); offset-=8; offset-=(int)symt_get_type_size(var_type); fprintf(obj, "\n\tR7=R7+%d;",(int)symt_get_type_size(var_type)); } EOL statement { $$ = true; }
+				| { level++; is_var = false; offset+=8; fprintf(obj, "\n\tR7=R7-4;\t// Push frame pointer R7\n\tP(R7)=R5;\t// Store previous R7 when loop has found\n\tR7=R7-4;\t// Push frame pointer\n\tR5=R7;\t// Save R7 direction before going to loop\n\tP(R7)=R7;\t// Save R7 in stack"); } BEGIN_IF '(' expr ')' { free_mem(); qw_write_condition(obj, label); num_reg = 2; $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>6); } more_else END_IF { free_mem(); level--;  symt_natural_t new_offset = symt_end_block(tab, level); fprintf(obj, "\n\tR1=P(R5+4);\n\tR7=P(R5);"); fprintf(obj, "\n\tR5=P(R5+4);\t// Restore R5 before this loop\n\tR7=R7+8;// Pop trash of this loop"); offset-=8; offset = new_offset; } EOL statement { $$ = true; }
+				| { level++; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_dir); is_var = false; offset+=8; } BEGIN_WHILE '(' expr ')' { free_mem(); qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_WHILE { free_mem(); level--; symt_natural_t new_offset = symt_end_block(tab, level);  qw_write_end_loop(obj, $<integer_t>1, $<integer_t>6); fprintf(obj, "\n\tR1=P(R5+4);\n\tR7=P(R5);"); fprintf(obj, "\n\tR5=P(R5+4);\t// Restore R5 before this loop\n\tR7=R7+8;// Pop trash of this loop"); offset-=8; offset = new_offset; } EOL statement { $$ = true; }
+				| { level++; is_var = true; } BEGIN_FOR '(' var ',' { var_type=type; is_var = false; begin_last_loop=label; $<integer_t>$=label; qw_write_begin_loop(obj, label++, q_dir); offset+=8; } var_assign ',' expr ')' { free_mem(); qw_write_condition(obj, label); end_last_loop=label; num_reg = 2; $<integer_t>$=label++; } EOL statement END_FOR { level--; symt_natural_t new_offset = symt_end_block(tab, level); qw_write_end_loop(obj, $<integer_t>6, $<integer_t>11); free_mem(); fprintf(obj, "\n\tR1=P(R5+4);\n\tR7=P(R5);"); fprintf(obj, "\n\tR5=P(R5+4);\t// Restore R5 before this loop\n\tR7=R7+8;// Pop trash of this loop"); offset-=8; offset-=(int)symt_get_type_size(var_type); fprintf(obj, "\n\tR7=R7+%d;", (int)symt_get_type_size(var_type)); offset = new_offset;} EOL statement { $$ = true; }
 				| { level++; } call_func EOL statement	{ level--; $$ = true; }
 				| CONTINUE { qw_write_goto(obj, begin_last_loop); } EOL statement { $$ = true; }
                 | BREAK { qw_write_goto(obj, end_last_loop); } EOL statement { $$ = true; }
@@ -1147,7 +1196,7 @@ statement 		: { $$ = false; is_var = true; } | var { is_var = false; } EOL state
 				;
 
 more_else 		: { $$ = false; } | ELSE_IF { symt_end_block(tab, level); } EOL statement { $$ = true; }
-				| ELSE_IF { symt_end_block(tab, level); } BEGIN_IF '(' expr ')' { free_mem(); qw_write_condition(obj, label); $<integer_t>$=label++;  } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
+				| ELSE_IF { symt_end_block(tab, level); } BEGIN_IF '(' expr ')' { free_mem(); qw_write_condition(obj, label); $<integer_t>$=label++; } EOL statement { qw_write_new_label(obj, $<integer_t>7); } more_else { $$ = true; }
 				;
 
 // __________ Main program __________
@@ -1197,19 +1246,6 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int ends_with(const char* name, const char* extension, symt_natural_t length)
-{
-	const char* ldot = strrchr(name, '.');
-
-  	if (ldot != NULL)
-  	{
-    	if (length == 0) length = strlen(extension);
-    	return strncmp(ldot + 1, extension, length) == 0;
-  	}
-
-  	return 0;
-}
-
 void yyerror(const char *mssg)
 {
 	char *format = "\033[0;31merror:\033[0m \033[1m%s\033[0m: %s, error at line %d\n";
@@ -1246,12 +1282,12 @@ symt_node* write_cons(symt_cons_t type_n, symt_value_t value)
 		if (type == CONS_DOUBLE)
 		{
 			double val = *((double*)res->cons->value);
-			num_double_cons++; fprintf(obj, "\n\tRR1=%f;\t", val);
+			num_double_cons++; fprintf(obj, "\n\tRR1=%f;\t// Set constant value to RR1", val);
 		}
 		else
 		{
 			int val = (*(int*)res->cons->value);
-			num_int_cons++; fprintf(obj, "\n\tR1=%d;\t", val);
+			num_int_cons++; fprintf(obj, "\n\tR1=%d;\t// Set constant value to R1", val);
 		}
 
 		qw_write_reg_to_var(obj, 1, type, 0);
@@ -1308,7 +1344,7 @@ symt_node* write_expr(symt_node* op1, symt_node* op2, qw_op_t sign, symt_natural
 	{
 		// Arithmetic
 		case QW_ADD: res->cons = symt_cons_add(type, op1->cons, op2->cons); 			break;
-		case QW_SUB: res->cons = symt_cons_add(type, op1->cons, op2->cons); 			break;
+		case QW_SUB: res->cons = symt_cons_sub(type, op1->cons, op2->cons); 			break;
 		case QW_MULT: res->cons = symt_cons_mult(type, op1->cons, op2->cons); 			break;
 		case QW_DIV: res->cons = symt_cons_div(type, op1->cons, op2->cons); 			break;
 		case QW_POW: res->cons = symt_cons_pow(type, op1->cons, op2->cons); 			break;
@@ -1336,6 +1372,7 @@ symt_node* write_expr(symt_node* op1, symt_node* op2, qw_op_t sign, symt_natural
 		break;
 
 		case QW_NOT:
+			assertf(type != CONS_CHAR, "char types does not support logic operation");
 			result = !(*((int*)op1->cons->value));
 			res = symt_insert_tab_cons(res, CONS_BOOL, &result, offset, false);
 		break;
