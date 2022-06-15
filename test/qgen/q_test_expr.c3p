@@ -522,8 +522,8 @@ proc test_arr()
 		rxx64[i] = 64.0
 		rxc[i] = 'A' + 'b'
 
-		? i % 2 => error
-		if ((i % 2) == 0)
+		j : i32 = i % 2
+		if (j == 0)
 			rxb[i] = T
 		else
 			rxb[i] = F
