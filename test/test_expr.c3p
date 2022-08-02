@@ -1,0 +1,565 @@
+? test_expr.c3p
+?
+? This file is part of the c3P language compiler. This project
+? is free software; you can redistribute it and/or modify it under
+? the terms of the GNU General Public License
+?
+? This project is distributed in the hope that it will be useful,
+? but WITHOUT ANY WARRANTY; without even the implied warranty of
+? MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+? GNU General Public License for more details.
+?
+? You should have received a copy of the GNU General Public License
+? If not, see <http://www.gnu.org/licenses/>.
+
+proc test_i8(x8 : i8)
+	x8 = x8
+	x8 = 2 + 2
+	x8 = 2 - 2
+	x8 = 2 * 2
+	x8 = 2 / 2
+	x8 = 2^2
+	x8 = 2 % 2
+
+	x8 = x8 + 2
+	x8 = 2 + x8
+	x8 = x8 - 2
+	x8 = 2 - x8
+	x8 = x8 * 2
+	x8 = 2 * x8
+	x8 = x8 / 2
+	x8 = 1
+	x8 = 2 / x8
+	x8 = x8^2
+	x8 = 2^x8
+	x8 = 1
+	x8 = x8 % 2
+	x8 = 1
+	x8 = 2 % x8
+
+	x8 = x8 + x8
+	x8 = x8 - x8
+	x8 = x8 * x8
+	x8 = 1
+	x8 = x8 / x8
+	x8 = x8^x8
+	x8 = x8 % x8
+
+	x8 = x8 + x8 + 2
+	x8 = x8 - x8 + 2
+	x8 = x8 * x8 + 2
+	x8 = 1
+	x8 = x8 / x8 + 2
+	x8 = x8^x8 + 2
+	x8 = x8 % x8 + 2
+
+	x8 = x8 + x8 + x8
+	x8 = x8 - x8 + x8
+	x8 = x8 * x8 + x8
+	x8 = 1
+	x8 = x8 / x8 + x8
+	x8 = x8^x8 + x8
+	x8 = x8 % x8 + x8
+
+	x8 = x8 + (x8 + 2)
+	x8 = x8 - (x8 + 2)
+	x8 = x8 * (x8 + 2)
+	x8 = x8 / (x8 + 2)
+	x8 = x8^x8 + (2 - x8)
+	x8 = x8 % x8 + (2 * 2) + x8
+
+	x8 = ((x8 + 2) * 2) / 10
+	x8 = 1
+	x8 = ((x8 + 2) * 2)^10 - x8 * 0
+	x8 = 1
+	x8 = ((x8 + 2) * 2) % 1
+	x8 = ((x8 + 2) * 2) - (10 - x8)
+	x8 = ((x8 + 2) * 2) / 10 + (x8 - 2)
+endproc
+
+proc test_i16(x16 : i16)
+	x16 = x16
+	x16 = 2 + 2
+	x16 = 2 - 2
+	x16 = 2 * 2
+	x16 = 2 / 2
+	x16 = 2^2
+	x16 = 2 % 2
+
+	x16 = x16 + 2
+	x16 = 2 + x16
+	x16 = x16 - 2
+	x16 = 2 - x16
+	x16 = x16 * 2
+	x16 = 2 * x16
+	x16 = 1
+	x16 = x16 / 2
+	x16 = 1
+	x16 = 2 / x16
+	x16 = x16^2
+	x16 = 2^x16
+	x16 = x16 % 2
+	x16 = 1
+	x16 = 2 % x16
+
+	x16 = x16 + x16
+	x16 = x16 - x16
+	x16 = x16 * x16
+	x16 = 1
+	x16 = x16 / x16
+	x16 = x16^x16
+	x16 = x16 % x16
+
+	x16 = x16 + x16 + 2
+	x16 = x16 - x16 + 2
+	x16 = x16 * x16 + 2
+	x16 = x16 / x16 + 2
+	x16 = x16^x16 + 2
+	x16 = x16 % x16 + 2
+
+	x16 = x16 + x16 + x16
+	x16 = x16 - x16 + x16
+	x16 = x16 * x16 + x16
+	x16 = x16 / x16 + x16
+	x16 = 1
+	x16 = x16^x16 + x16
+	x16 = x16 % x16 + x16
+
+	x16 = x16 + (x16 + 2)
+	x16 = x16 - (x16 + 2)
+	x16 = x16 * (x16 + 2)
+	x16 = x16 / (x16 + 2)
+	x16 = x16^x16 + (2 - x16)
+	x16 = x16 % x16 + (2 * 2) + x16
+
+	x16 = ((x16 + 2) * 2) / 10
+	x16 = 1
+	x16 = ((x16 + 2) * 1)^10 - x16 * 0
+	x16 = 1
+	x16 = ((x16 + 2) * 2) % (10 * x16)
+	x16 = 1
+	x16 = ((x16 + 2) * 2) - (10 - x16)
+	x16 = 1
+	x16 = ((x16 + 2) * 2) / 10 + (x16 - 2)
+endproc
+
+proc test_i32(x32 : i32)
+	x32 = x32
+	x32 = 2 + 2
+	x32 = 2 - 2
+	x32 = 2 * 2
+	x32 = 2 / 2
+	x32 = 2^2
+	x32 = 2 % 2
+
+	x32 = x32 + 2
+	x32 = 2 + x32
+	x32 = x32 - 2
+	x32 = 2 - x32
+	x32 = x32 * 2
+	x32 = 2 * x32
+	x32 = 1
+	x32 = x32 / 2
+	x32 = 1
+	x32 = 2 / x32
+	x32 = x32^2
+	x32 = 2^x32
+	x32 = x32 % 2
+	x32 = 1
+	x32 = 2 % x32
+
+	x32 = x32 + x32
+	x32 = x32 - x32
+	x32 = x32 * x32
+	x32 = 1
+	x32 = x32 / x32
+	x32 = x32^x32
+	x32 = x32 % x32
+
+	x32 = x32 + x32 + 2
+	x32 = x32 - x32 + 2
+	x32 = x32 * x32 + 2
+	x32 = x32 / x32 + 2
+	x32 = x32^x32 + 2
+	x32 = x32 % x32 + 2
+
+	x32 = x32 + x32 + x32
+	x32 = x32 - x32 + x32
+	x32 = x32 * x32 + x32
+	x32 = x32 / x32 + x32
+	x32 = 1
+	x32 = x32^x32 + x32
+	x32 = x32 % x32 + x32
+
+	x32 = x32 + (x32 + 2)
+	x32 = x32 - (x32 + 2)
+	x32 = x32 * (x32 + 2)
+	x32 = x32 / (x32 + 2)
+	x32 = x32^x32 + (2 - x32)
+	x32 = x32 % x32 + (2 * 2) + x32
+
+	x32 = ((x32 + 2) * 2) / 10
+	x32 = ((x32 + 2) * 2)^10 - x32
+	x32 = ((x32 + 2) * 2) % (10 * x32)
+	x32 = ((x32 + 2) * 2) - (10 - x32)
+	x32 = ((x32 + 2) * 2) / 10 + (x32 - 2)
+endproc
+
+proc test_i64(x64 : i64)
+	x64 = x64
+	x64 = 2 + 2
+	x64 = 2 - 2
+	x64 = 2 * 2
+	x64 = 2 / 2
+	x64 = 2^2
+	x64 = 2 % 2
+
+	x64 = x64 + 2
+	x64 = 2 + x64
+	x64 = x64 - 2
+	x64 = 2 - x64
+	x64 = x64 * 2
+	x64 = 2 * x64
+	x64 = x64 / 2
+	x64 = 1
+	x64 = 2 / x64
+	x64 = x64^2
+	x64 = 2^x64
+	x64 = x64 % 2
+	x64 = 1
+	x64 = 2 % x64
+
+	x64 = x64 + x64
+	x64 = x64 - x64
+	x64 = x64 * x64
+	x64 = 1
+	x64 = x64 / x64
+	x64 = x64^x64
+	x64 = 1
+	x64 = x64 % x64
+
+	x64 = x64 + x64 + 2
+	x64 = x64 - x64 + 2
+	x64 = x64 * x64 + 2
+	x64 = x64 / x64 + 2
+	x64 = x64^x64 + 2
+	x64 = x64 % x64 + 2
+
+	x64 = x64 + x64 + x64
+	x64 = x64 - x64 + x64
+	x64 = x64 * x64 + x64
+	x64 = x64 / x64 + x64
+	x64 = x64^x64 + x64
+	x64 = x64 % x64 + x64
+
+	x64 = x64 + (x64 + 2)
+	x64 = x64 - (x64 + 2)
+	x64 = x64 * (x64 + 2)
+	x64 = x64 / (x64 + 2)
+	x64 = x64^x64 + (2 - x64)
+	x64 = x64 % x64 + (2 * 2) + x64
+
+	x64 = ((x64 + 2) * 2) / 10
+	x64 = ((x64 + 2) * 2)^10 - x64
+	x64 = ((x64 + 2) * 2) % (10 * x64)
+	x64 = ((x64 + 2) * 2) - (10 - x64)
+	x64 = ((x64 + 2) * 2) / 10 + (x64 - 2)
+endproc
+
+proc test_f32(xx32 : f32)
+	xx32 = xx32
+	xx32 = 2.0 + 2.0
+	xx32 = 2.0 - 2.0
+	xx32 = 2.0 * 2.0
+	xx32 = 2.0 / 2.0
+	xx32 = 2.0^2.0
+	xx32 = 2.0 % 2.0
+
+	xx32 = xx32 + 2.0
+	xx32 = 2.0 + xx32
+	xx32 = xx32 - 2.0
+	xx32 = 2.0 - xx32
+	xx32 = xx32 * 2.0
+	xx32 = 2.0 * xx32
+	xx32 = 1.0
+	xx32 = xx32 / 2.0
+	xx32 = 1.0
+	xx32 = 2.0 / xx32
+	xx32 = xx32^2.0
+	xx32 = 2.0^xx32
+	xx32 = xx32 % 2.0
+	xx32 = 1.0
+	xx32 = 2.0 % xx32
+
+	xx32 = xx32 + xx32
+	xx32 = xx32 - xx32
+	xx32 = xx32 * xx32
+	xx32 = 1.0
+	xx32 = xx32 / xx32
+	xx32 = xx32^xx32
+	xx32 = xx32 % xx32
+
+	xx32 = xx32 + xx32 + 2.0
+	xx32 = xx32 - xx32 + 2.0
+	xx32 = xx32 * xx32 + 2.0
+	xx32 = xx32 / xx32 + 2.0
+	xx32 = xx32^xx32 + 2.0
+	xx32 = xx32 % xx32 + 2.0
+
+	xx32 = xx32 + xx32 + xx32
+	xx32 = xx32 - xx32 + xx32
+	xx32 = xx32 * xx32 + xx32
+	xx32 = xx32 / xx32 + xx32
+	xx32 = 1.0
+	xx32 = xx32^xx32 + xx32
+	xx32 = xx32 % xx32 + xx32
+
+	xx32 = xx32 + (xx32 + 2.0)
+	xx32 = xx32 - (xx32 + 2.0)
+	xx32 = xx32 * (xx32 + 2.0)
+	xx32 = xx32 / (xx32 + 2.0)
+	xx32 = xx32^xx32 + (2.0 - xx32)
+	xx32 = xx32 % xx32 + (2.0 * 2.0) + xx32
+
+	xx32 = ((xx32 + 2.0) * 2.0) / 10.0
+	xx32 = ((xx32 + 2.0) * 2.0)^10.0 - xx32
+	xx32 = ((xx32 + 2.0) * 2.0) % (10.0 * xx32)
+	xx32 = ((xx32 + 2.0) * 2.0) - (10.0 - xx32)
+	xx32 = ((xx32 + 2.0) * 2.0) / 10.0 + (xx32 - 2.0)
+endproc
+
+proc test_f64(xx64 : f64)
+	xx64 = xx64
+	xx64 = 2.0 + 2.0
+	xx64 = 2.0 - 2.0
+	xx64 = 2.0 * 2.0
+	xx64 = 2.0 / 2.0
+	xx64 = 2.0^2.0
+	xx64 = 2.0 % 2.0
+
+	xx64 = xx64 + 2.0
+	xx64 = 2.0 + xx64
+	xx64 = xx64 - 2.0
+	xx64 = 2.0 - xx64
+	xx64 = xx64 * 2.0
+	xx64 = 2.0 * xx64
+	xx64 = 1.0
+	xx64 = xx64 / 2.0
+	xx64 = 1.0
+	xx64 = 2.0 / xx64
+	xx64 = xx64^2.0
+	xx64 = 2.0^xx64
+	xx64 = xx64 % 2.0
+	xx64 = 1.0
+	xx64 = 2.0 % xx64
+
+	xx64 = xx64 + xx64
+	xx64 = xx64 - xx64
+	xx64 = xx64 * xx64
+	xx64 = 1.0
+	xx64 = xx64 / xx64
+	xx64 = xx64^xx64
+	xx64 = 1.0
+	xx64 = xx64 % xx64
+
+	xx64 = xx64 + xx64 + 2.0
+	xx64 = xx64 - xx64 + 2.0
+	xx64 = xx64 * xx64 + 2.0
+	xx64 = xx64 / xx64 + 2.0
+	xx64 = xx64^xx64 + 2.0
+	xx64 = xx64 % xx64 + 2.0
+
+	xx64 = xx64 + xx64 + xx64
+	xx64 = xx64 - xx64 + xx64
+	xx64 = xx64 * xx64 + xx64
+	xx64 = xx64 / xx64 + xx64
+	xx64 = xx64^xx64 + xx64
+	xx64 = xx64 % xx64 + xx64
+
+	xx64 = xx64 + (xx64 + 2.0)
+	xx64 = xx64 - (xx64 + 2.0)
+	xx64 = xx64 * (xx64 + 2.0)
+	xx64 = xx64 / (xx64 + 2.0)
+	xx64 = xx64^xx64 + (2.0 - xx64)
+	xx64 = xx64 % xx64 + (2.0 * 2.0) + xx64
+
+	xx64 = ((xx64 + 2.0) * 2.0) / 10.0
+	xx64 = ((xx64 + 2.0) * 2.0)^10.0 - xx64
+	xx64 = ((xx64 + 2.0) * 2.0) % (10.0 * xx64)
+	xx64 = ((xx64 + 2.0) * 2.0) - (10.0 - xx64)
+	xx64 = ((xx64 + 2.0) * 2.0) / 10.0 + (xx64 - 2.0)
+endproc
+
+proc test_c(xc : c)
+	xc = xc
+	xc = 'a' + 'a'
+	xc = 'a' - 'a'
+	xc = 'a' * 'a'
+	xc = 'a' / 'a'
+	xc = 'a'^'a'
+	xc = 'a' % 'a'
+
+	xc = xc + 'a'
+	xc = 'a' + xc
+	xc = xc - 'a'
+	xc = 'a' - xc
+	xc = xc * 'a'
+	xc = 'a' * xc
+	xc = 'b'
+	xc = xc / 'a'
+	xc = 'b'
+	xc = 'a' / xc
+	xc = xc^'a'
+	xc = 'a'^xc
+	xc = xc % 'a'
+	xc = 'a'
+	xc = 'a' % xc
+
+	xc = xc + xc
+	xc = xc - xc
+	xc = xc * xc
+	xc = 'b'
+	xc = xc / xc
+	xc = xc^xc
+	xc = xc % xc
+
+	xc = xc + xc + 'a'
+	xc = xc - xc + 'a'
+	xc = xc * xc + 'a'
+	xc = xc / xc + 'a'
+	xc = xc^xc + 'a'
+	xc = xc % xc + 'a'
+
+	xc = xc + xc + xc
+	xc = xc - xc + xc
+	xc = xc * xc + xc
+	xc = xc / xc + xc
+	xc = xc^xc + xc
+	xc = xc % xc + xc
+
+	xc = xc + (xc + 'a')
+	xc = xc - (xc + 'a')
+	xc = xc * (xc + 'a')
+	xc = xc / (xc + 'a')
+	xc = xc^xc + ('a' - xc)
+	xc = xc % xc + ('a' * 'a') + xc
+
+	xc = ((xc + 'a') * 'a') / 'b'
+	xc = ((xc + 'a') * 'a')^'b' - xc
+	xc = ((xc + 'a') * 'a') % ('b' * xc)
+	xc = ((xc + 'a') * 'a') - ('b' - xc)
+	xc = ((xc + 'a') * 'a') / 'b' + (xc - 'a')
+endproc
+
+proc test_b(xb : b)
+	xb = T
+	xb = F
+
+	xb = not T
+	xb = not F
+	xb = T and T
+	xb = F and T
+	xb = F and F
+	xb = T or T
+	xb = F or T
+	xb = F or F
+	xb = T == F
+	xb = F == T
+	xb = T != F
+	xb = F != T
+	xb = T > F
+	xb = F > T
+	xb = T < F
+	xb = F < T
+	xb = T >= F
+	xb = F >= T
+	xb = T <= F
+	xb = F <= T
+
+	xb = xb
+	xb = not xb
+	xb = xb and T
+	xb = T and xb
+	xb = xb and xb
+	xb = xb or T
+	xb = T or xb
+	xb = xb or xb
+
+	xb = (xb and xb) or (xb and T)
+	xb = xb and T or (xb and xb)
+	xb = not xb and (T or (xb and F))
+	xb = not not not xb
+	xb = not (not (not xb))
+	xb = xb and (not (not (xb and F)))
+	xb = xb and (xb != F) or (xb > xb)
+	xb = xb == xb and xb != xb or xb > F and not xb != xb
+	xb = (xb == xb) and (xb != xb or xb > F and not xb != xb)
+	xb = (xb == xb) and ((xb != xb) or xb > F and not xb != xb)
+endproc
+
+proc test_arr()
+	rx8 : i8[10]
+	rx16 : i16[10]
+	rx32 : i32[10]
+	rx64 : i64[10]
+	rxx32 : f32[10]
+	rxx64 : f64[10]
+	rxc : c[10]
+	rxb : b[10]
+
+	for (i : i32 = 0, i = i + 1, i < 10)
+		rx8[i] = i + 8
+		rx16[i] = i + 16
+		rx32[i] = i + 32
+		rx64[i] = i + 64
+		rxx32[i] = 32.0
+		rxx64[i] = 64.0
+		rxc[i] = 'A' + 'b'
+
+		j : i32 = i % 2
+		if (j == 0)
+			rxb[i] = T
+		else
+			rxb[i] = F
+		endif
+	endfor
+endproc
+
+proc main()
+	x8 : i8
+	x16 : i16
+	x32 : i32
+	x64 : i64
+	xx32 : f32
+	xx64 : f64
+	xc : c
+	xb : b
+
+	x8 = 8
+	x16 = 16
+	x32 = 32
+	x64 = 64
+	xx32 = 32.0
+	xx64 = 64.0
+	xc = 'a'
+	xb = T
+
+	ax8 : i8 = 8
+	ax16 : i16 = 16
+	ax32 : i32 = 32
+	ax64 : i64 = 64
+	axx32 : f32 = 32.0
+	axx64 : f64 = 64.0
+	axc : c = 'a'
+	axb : b = T
+
+	call test_i8 x8
+	call test_i16 x16
+	call test_i32 x32
+	call test_i64 x64
+	call test_f32 xx32
+	call test_f64 xx64
+	call test_c xc
+	call test_b xb
+	call test_arr
+endproc

@@ -15,7 +15,7 @@
 
 root_path=.
 
-src_path=$(root_path)/src/c3pcc
+src_path=$(root_path)/source
 include_path=$(src_path)/include
 
 includes=$(include_path)/symt*.h $(include_path)/qwriter.h $(include_path)/arrcopy.h $(include_path)/memlib.h $(include_path)/assertb.h $(include_path)/f_reader.h
@@ -54,4 +54,4 @@ prepare_flex:
 	mv *.yy.c $(src_path) 2>/dev/null
 
 prepare_compiler:
-	gcc -o c3pc $(includes) $(sources) -lfl -lm 2>/dev/null
+	gcc -g -o c3pc $(includes) $(sources) -lfl -lm 2>/dev/null

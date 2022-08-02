@@ -1,4 +1,0 @@
-T and F or T
-T or T and F or T not F
-T or T or T not F not T
-(T or T) or (T and not (F or not F))

@@ -1,0 +1,67 @@
+? test_expr_show.c3p
+?
+? This file is part of the c3P language compiler. This project
+? is free software; you can redistribute it and/or modify it under
+? the terms of the GNU General Public License
+?
+? This project is distributed in the hope that it will be useful,
+? but WITHOUT ANY WARRANTY; without even the implied warranty of
+? MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+? GNU General Public License for more details.
+?
+? You should have received a copy of the GNU General Public License
+? If not, see <http://www.gnu.org/licenses/>.
+
+proc main()
+	x8 : i8 = 8
+	x16 : i16 = 16
+	x32 : i32 = 32
+	x64 : i64 = 64
+	xx32 : f32 = 32.0
+	xx64 : f64 = 64.0
+	xc : c = 'a'
+	xb : b = T
+
+	call show x8
+	call showln x8
+
+	call show x16
+	call showln x16
+
+	call show x32
+	call showln x32
+
+	call show x64
+	call showln x64
+
+	call show xx32
+	call showln xx32
+
+	call show xx64
+	call showln xx64
+
+	call show xc
+	call showln xc
+
+	call show xb
+	call showln xb
+
+	name_1 : c[5] = { 'D', 'a', 'v', 'i', 'd' }
+	len1 : i32 = call arrlen name_1
+
+	for(i : i32 = -1, i = i + 1, i < len1)
+		call show name_1[i]
+	endfor
+
+	call showln ' '
+
+	name_2 : c[6] = { 'H', 'e', 'c', 't', 'o', 'r' }
+	len2 : i32 = call arrlen name_2
+
+	for(i : i32 = -1, i = i + 1, i < len2)
+		call show name_2[i]
+	endfor
+
+	call showln ' '
+
+endproc

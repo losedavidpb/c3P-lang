@@ -1,7 +1,0 @@
-func sum1 : i32 (x : i32, y : i64)
-	w : i32
-endfunc
-
-func sum2 : i32 (x : i32, y : i64)
-	w : i32
-endfunc

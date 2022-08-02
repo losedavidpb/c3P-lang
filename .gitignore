@@ -14,9 +14,6 @@
 # in order to keep some files not prepared for repo
 *.old
 
-# c3P files created just for debugging symt
-src/symtab/*.c3p
-
 # Executable files =======
 # Set .exe extension at executable files
 # in order to apply this line

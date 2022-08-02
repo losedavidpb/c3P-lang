@@ -1,3 +1,0 @@
-call fibo 11
-call isEven 120
-call nose x, counter, s0
